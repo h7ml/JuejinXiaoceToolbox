@@ -1,0 +1,40 @@
+# 掘金小册下载器配置模板
+# 请复制此文件为 config.yml 并填写您的个人信息
+
+# 掘金登录后的 Cookie（必填）
+cookie: 'your_cookie_here'
+
+# 保存目录（必填）
+save_dir: './output'
+
+# 是否在线获取小册列表（true/false）
+fetch_book_ids_online: false
+
+# 是否覆盖已存在的文件（true/false）
+overwrite_existing: false
+
+# 是否将图片保存到本地（true/false）
+save_images_locally: false
+
+# 要下载的小册 ID 列表（如果 fetch_book_ids_online 为 false，则必填）
+book_ids:
+  - 'your_book_id_1'
+  - 'your_book_id_2'
+
+# 存储相关配置
+storage:
+  use_vercel: false
+  write_to_vercel: false
+  local_storage_path: './data'
+
+# 是否恢复上次的下载进度（true/false）
+resume_download: false
+
+# 是否在每次运行时清理日志文件夹（true/false）
+should_clear_log_folder: false
+
+# 保存格式（可选：markdown, pdf, html, docx）
+save_format: 'markdown'
+
+# 是否将下载的内容压缩为 ZIP 文件（true/false）
+compress_to_zip: false

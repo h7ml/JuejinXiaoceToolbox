@@ -1,0 +1,228 @@
+<h2>前言</h2>
+<h3>ES Modules 规范是什么</h3>
+<p>它是在 ECMAScript 6 (ES2015/ES6) 中引入的一项重要特性，旨在取代 CommonJS 和 AMD 规范，成为 JavaScript 模块化的主要标准。</p>
+<h3>与 CommonJS 规范的区别</h3>
+<p>ESM 模块的导入和导出遵循 ECMAScript 官方规范，与 CommonJS 不同。ESM 模块的导入使用 <code>import</code> 关键字，导出使用 <code>export</code> 关键字。</p>
+<p>默认情况下 Node.js 会将 <code>.js</code> 后缀文件识别为 <code>CJS</code> 模块。</p>
+<h3>在 Node.js 中正确工作</h3>
+<p>要让 Node.js 正确识别，主要有两种方式：</p>
+<ul>
+<li>使用 <code>.mjs</code> 作为文件后缀名 (例如 <code>hello.mjs</code>)；</li>
+<li>package.json 中 <code>type</code> 字段设置为 <code>module</code>。</li>
+</ul>
+<p><code>json
+{
+  "type":"module"
+}</code></p>
+<p>下面是同样 ESM 规范代码，后缀 <code>.mjs</code> 和 <code>.js</code> 的执行结果，前者能被正确执行，后者会报错，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1a199cff38424460a0e743fc9b3f1622~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1140\&amp;h=643\&amp;s=180532\&amp;e=png\&amp;b=040404" /></p>
+<p>接下来，我们就来详细的看看 ESM 模块的导入导出用法。</p>
+<h2>1 导入导出</h2>
+<p>导入导出常见的主要有下面 3 种场景，下面分别介绍。</p>
+<h3>1.1 默认导入导出</h3>
+<p>使用 <code>export default</code> 关键字。</p>
+<p><code>js
+// 文件 export_default.js
+// 导出默认对象
+export default {
+  // 定义 hello 方法，输出欢迎信息
+  hello(name) {
+    console.log(`Hello, ${name}!`)
+  },
+  // 定义 byebye 方法，输出道别信息
+  byebye(name) {
+    console.log(`byebye, ${name}!`)
+  },
+  // 定义 userInfo 对象，存储用户信息
+  userInfo: {
+    name: 'forever', // 用户名
+    age: 18 // 用户年龄
+  }
+}</code></p>
+<p>导入默认导出对象。</p>
+<p>```js
+// 文件 import_default.js</p>
+<p>// 引入 export_default.js 中默认导出的模块
+import defaultModule from './export_default.js'</p>
+<p>// 调用 defaultModule 中定义的 byebye() 方法，输出道别信息并传入用户姓名
+defaultModule.byebye(defaultModule.userInfo.name)</p>
+<p>// 调用 defaultModule 中定义的 hello() 方法，输出欢迎信息并传入用户姓名
+defaultModule.hello(defaultModule.userInfo.name)</p>
+<p>```</p>
+<p>运行。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/31085d99eb5d477494cc39c9e9496b79~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=661\&amp;h=490\&amp;s=75116\&amp;e=png\&amp;b=030303" /></p>
+<h3>1.2 具名导入导出</h3>
+<p>具名导出，使用 <code>export</code> 关键字。</p>
+<p>```js
+// 文件 export.js</p>
+<p>// 定义 hello 方法，输出欢迎信息
+export function hello(name) {
+  console.log(<code>Hello, ${name}!</code>)
+}</p>
+<p>// 定义 byebye 方法，输出道别信息
+export function byebye(name) {
+  console.log(<code>byebye, ${name}!</code>)
+}</p>
+<p>// 定义 userInfo 对象，存储用户信息
+export const userInfo = {
+  name: 'forever', // 用户名
+  age: 18 // 用户年龄
+}</p>
+<p>```</p>
+<p>导入指定具名内容。</p>
+<p>```js
+// 文件 import.js</p>
+<p>// 引入 export_named.js 中具名导出的模块
+import { byebye, hello, userInfo as user } from './export_named.js'</p>
+<p>// 调用 byebye() 方法，输出道别信息并传入用户姓名
+byebye(user.name)</p>
+<p>// 调用 hello() 方法，输出欢迎信息并传入用户姓名
+hello(user.name)
+```</p>
+<p>实用 <code>as</code> 关键字还可以修改导入内容的名称。</p>
+<p>运行结果如下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/bb39609c9910484f85e6a11c3012a75c~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=772\&amp;h=471\&amp;s=68785\&amp;e=png\&amp;b=020202" /></p>
+<h3>1.3 导入导出所有对象</h3>
+<p>可以将另一个模块的内容直接全部导出。</p>
+<p>导出同时也可以设置默认导出。</p>
+<p>```js
+// 文件 export_all.js</p>
+<p>// 从 export.js 中导出所有的模块成员
+export * from './export.js'</p>
+<p>// 导出一个默认模块，对象包含 goal 属性，初始值为 'learn'
+export default {
+  goal: 'learn'
+}
+```</p>
+<p>使用 <code>import * as xx from 'module'</code> 导入所有内容。</p>
+<p>```js
+// 文件 import_all.js</p>
+<p>// 导入 export_all.js 中所有被导出的模块成员，并作为 allValues 对象的属性
+import * as allValues from './export_all.js'</p>
+<p>// 在控制台输出 allValues 对象
+console.log(allValues)</p>
+<p>// 从 allValues 对象中解构出 hello、byebye、default 和 userInfo 模块成员
+const { hello, byebye, default: data, userInfo } = allValues</p>
+<p>// 调用 hello() 方法，输出欢迎信息并传入用户姓名
+hello(userInfo.name)</p>
+<p>// 调用 byebye() 方法，输出道别信息并传入用户姓名
+byebye(userInfo.name)</p>
+<p>// 输出 data 对象的 goal 属性
+console.log(data.goal)
+```</p>
+<p>下面是运行结果，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/d08715a311d84f87891156503f0774f1~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=557\&amp;h=272\&amp;s=34860\&amp;e=png\&amp;b=010101" /></p>
+<p>其中 <code>export default</code> 的内容，会出现在导入模块的 <code>default</code> 属性上。</p>
+<h3>1.4 重新导出</h3>
+<p>某些时候有许多的，一个包内部可能有成百上千个 <code>模块</code>，如果全都采用如下方式，显得不太优雅。</p>
+<p><code>js
+import { fun1, fun2 } from 'module_demo/hello.js'
+import { fun3, fun4 } from 'module_demo/util.js'
+import { fun5, fun6 } from 'module_demo/lib.js'</code></p>
+<p>此时通常会将该模块内部需要导出的方法，统一收拢到一个 <code>index.js</code> 中，对外统一暴露。</p>
+<p>下面是具体示例。</p>
+<p>有 2 个文件 <code>lib.js</code> 和 <code>util.js</code>，如下分别导出了一些方法。</p>
+<p><code>``js
+// lib.js
+export function hello(name) {
+  console.log(</code>Hello, ${name}!`)
+}</p>
+<p>export default {
+  filename: 'lib.js',
+  des: 'lib.js的一些默认导出'
+}
+```</p>
+<p><code>``js
+// util.js
+export function byebye(name) {
+  console.log(</code>ByeBye, ${name}!`)
+}</p>
+<p>export default {
+  filename: 'util.js',
+  des: 'util.js的一些默认导出'
+}
+```</p>
+<p>此时通过 <code>index.js</code> 统一对外导出。</p>
+<p>```js
+// 从 './lib.js' 中导出 hello 和默认导出并重命名为 libData
+export { hello, default as libData } from './lib.js'</p>
+<p>// 从 './util.js' 中导出所有命名导出
+export * from './util.js'</p>
+<p>// 从 './util.js' 中默认导出并重命名为 utilData
+export { default as utilData } from './util.js'
+```</p>
+<p>使用的时候，就统一通过 <code>index.js</code> 引入即可。</p>
+<p>```js
+// usage.js
+import { hello, byebye, libData, utilData } from './index.js'</p>
+<p>hello(libData.filename)
+byebye(utilData.filename)
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9f6d4161c51e413395b5532e5e00ceb2~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=743\&amp;h=372\&amp;s=49677\&amp;e=png\&amp;b=020202" /></p>
+<h2>2 代码转换为 CJS</h2>
+<p>由于历史原因，大部分 Node 第三方模块还是 <code>cjs</code> 格式的 (近几年一些新包会同时提供 CJS 和 ESM 两种格式)，</p>
+<p>因此用户项目中也很少配置 <code>type:"module"</code>，通常还是会通过构建工具将代码转换为 CJS 对外提供。</p>
+<p>下面<strong>介绍几个上手比较简单的工具</strong></p>
+<p>测试代码也比较简单，如下。</p>
+<p><code>export.js</code></p>
+<p><code>``js
+export function hello(name) {
+  console.log(</code>Hello, ${name}!`)
+  return name
+}</p>
+<p>export default {
+  name: 'hello world'
+}
+```</p>
+<p><code>index.js</code></p>
+<p>```js
+import defaultValue, { hello } from './export.js'</p>
+<p>const result = hello(defaultValue.name)</p>
+<p>export { result }
+```</p>
+<h3>2.1 tsup</h3>
+<blockquote>
+<p><a href="https://github.com/egoist/tsup">https://github.com/egoist/tsup</a></p>
+</blockquote>
+<p>直接通过 <code>npx</code> 指令调用，或者先全局安装再使用 <code>npm i -g tsup</code>。</p>
+<p><code>sh
+npx tsup packages/3/3.2/esm2cjs/index.js --format cjs</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2871b007b37b405389487535c7453965~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=542\&amp;h=300\&amp;s=276910\&amp;e=png\&amp;b=041c31" /></p>
+<p>转换后的结果 <code>dist/index.js</code> 如下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/237a3c60a62a4df6a0a1a3218cb8c986~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=871\&amp;h=480\&amp;s=71117\&amp;e=png\&amp;b=1e1e1e" /></p>
+<h3>2.2 ncc</h3>
+<blockquote>
+<p><a href="https://github.com/vercel/ncc">https://github.com/vercel/ncc</a></p>
+</blockquote>
+<p>先通过 <code>npm</code> 全局安装。</p>
+<p><code>sh
+npm i -g @vercel/ncc</code></p>
+<p>安装完后可以查看版本信息。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9de4990137be486587502965fecf4b14~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=323\&amp;h=119\&amp;s=50105\&amp;e=png\&amp;b=1e1228" /></p>
+<p>调用打包。</p>
+<p><code>sh
+ncc build packages/3/3.2/esm2cjs/index.js</code></p>
+<p><strong>tip：确保目标文件所在目录下的 <code>package.json</code> 中没有 <code>type</code> 字段</strong>。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0417eb9c9c6b4a06b5e5814e4db95d10~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=510\&amp;h=176\&amp;s=129348\&amp;e=png\&amp;b=221330" /></p>
+<p>打包后的结果如下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/97902634a9eb47cc9da1affc829f86e6~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1251\&amp;h=490\&amp;s=109106\&amp;e=png\&amp;b=1e1e1e" /></p>
+<h3>2.3 更多</h3>
+<p>当然上面针对 <code>tsup</code> 和 <code>ncc</code> 都只做了简单的介绍，更多用法还需查阅对应的文档。</p>
+<p>除此之外常用的还可以使用 <a href="https://babeljs.io/">babel</a>，<a href="https://rollupjs.org/">Rollup</a>，<a href="https://webpack.docschina.org/">Webpack</a> 等等这里就不再展开了，感兴趣的同学可以下去自行了解。</p>
+<h2>小结</h2>
+<!-- 本节主要介绍了ESM模块的导入导出用法，以及如何利用工具将ESM模块转换为CJS模块 -->
+
+<p>ES Modules (ESM) 模块系统是在 ECMAScript 6 (ES2015/ES6) 中引入的一项重要特性，旨在取代 CommonJS 和 AMD 规范，成为 JavaScript 模块化的主要标准。</p>
+<p>为了使 Node.js 正确识别 ESM 模块，通常有 2 种方式：</p>
+<ul>
+<li>使用 <code>.mjs</code> 作为文件后缀名；</li>
+<li>在 <code>package.json</code> 中设置 <code>type</code> 字段为 <code>module</code>。</li>
+</ul>
+<p>ES Modules 中的导入导出有多种用法，主要介绍了以下 4 种使用场景：</p>
+<ul>
+<li>默认导入导出 (<code>export default</code>，<code>import xx from 'module'</code>)；</li>
+<li>具名导入导出 (<code>export xx</code>，<code>import { xx } from 'module'</code>)；</li>
+<li>导入导出所有 (<code>export *</code>，<code>import * as xx from 'module'</code>)；</li>
+<li>重新导出 (<code>export { xx } from 'module'</code>，<code>export * from 'module'</code>)。</li>
+</ul>
+<p>最后介绍了 2 种将 ESM 模块转换为 CJS 模块的工具，<code>tsup</code> 和 <code>ncc</code>。</p>

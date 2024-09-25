@@ -1,0 +1,148 @@
+<h2>前言</h2>
+<h3>什么是 CommonJS</h3>
+<blockquote>
+<p>维基百科：CommonJS 是一个项目，其目标是为 JavaScript 在网页浏览器之外创建模块约定。创建这个项目的主要原因是当时缺乏普遍可接受形式的 JavaScript 脚本模块单元，模块在与运行 JavaScript 脚本的常规网页浏览器所提供的不同的环境下可以重复使用。</p>
+</blockquote>
+<p>可以说 CommonJS 是一种 JavaScript 环境中模块化编程的规范。它定义了一套模块化导入和导出的语法和机制，旨在解决 JavaScript 在模块化方面的缺陷。</p>
+<h3>如何使用 CommonJS</h3>
+<p>CJS 模块使用 <code>require</code> 和 <code>module.exports</code> 实现导入和导出。</p>
+<p>下面将分别详细介绍导出和导入的用法。</p>
+<h2>1 导出模块</h2>
+<p>在 Node.js 中导出一个模块非常的简单，只需要使用 <code>module.exports</code> 或 <code>exports</code> 将模块中的内容导出即可。</p>
+<h3>1.1 module.exports</h3>
+<p>指定属性导出，</p>
+<p><code>js
+// 定义一个使用 module.exports 导出的模块
+// 定义了一个名为 hello 的函数，用于输出问候语
+// 定义了一个名为 byebye 的函数，用于输出告别语
+// 定义了一个名为 userInfo 的对象，包含姓名和年龄两个属性
+module.exports.hello = function (name) {
+  console.log(`Hello, ${name}!`)
+}
+module.exports.byebye = function (name) {
+  console.log(`byebye, ${name}!`)
+}
+module.exports.userInfo = {
+  name: 'forever',
+  age: 18
+}</code></p>
+<p>统一的对象导出。</p>
+<p><code>``js
+// 在模块中定义一个hello函数
+function hello(name) {
+  console.log(</code>Hello, ${name}!`)
+}</p>
+<p>// 在模块中定义一个byebye函数
+function byebye(name) {
+  console.log(<code>byebye, ${name}!</code>)
+}</p>
+<p>// 定义了一个名为 userInfo 的对象，包含姓名和年龄两个属性
+const userInfo = {
+  name: 'forever',
+  age: 18
+}</p>
+<p>// 将函数和对象统一导出到模块的外部
+module.exports = {
+  hello,
+  byebye,
+  userInfo
+}</p>
+<p>```</p>
+<h3>1.2 exports</h3>
+<p><code>js
+// 定义一个模块，使用 exports 导出模块中的内容。
+// 定义了一个名为 hello 的函数，用于输出问候语
+// 定义了一个名为 byebye 的函数，用于输出告别语
+// 定义了一个名为 userInfo 的对象，包含姓名和年龄两个属性
+exports.hello = function (name) {
+  console.log(`Hello, ${name}!`)
+}
+exports.byebye = function (name) {
+  console.log(`byebye, ${name}!`)
+}
+exports.userInfo = {
+  name: 'forever',
+  age: 18
+}</code></p>
+<h3>1.3 两者区别</h3>
+<p>在 Node.js 中，<code>module.exports</code> 和 <code>exports</code> 都可用于导出 Node.js 模块中的代码的对象。</p>
+<p>通常情况下，我们只会使用 <code>module.exports</code> 或 <code>exports</code> 其中的一个导出模块代码，它们之间有一些微妙的区别。</p>
+<p><code>exports</code> 实际上是 <code>module.exports</code> 的一个引用，当我们使用 <code>exports</code> 导出模块代码时，实际上是在向 <code>module.exports</code> 添加属性，如下所示：</p>
+<p><code>js
+// 导出一个名为 "hello" 的函数到 "exports" 对象中
+// 函数中会将 "Hello World!" 的信息输出到控制台中
+exports.hello = function() {
+  console.log("Hello World!");
+};</code></p>
+<p>这等价于：</p>
+<p><code>js
+// 导出一个名为 "hello" 的函数到 "exports" 对象中
+// 函数中会将 "Hello World!" 的信息输出到控制台中
+module.exports.hello = function() {
+  console.log("Hello World!");
+};</code></p>
+<p>但是，如果我们对 <code>exports</code> 进行重新赋值，就会打破这个关系，如下所示：</p>
+<p><code>js
+// 定义一个名为 "exports" 的函数 
+// 函数中将 "Hello World!" 的信息输出到控制台中 
+exports = function() { 
+  console.log("Hello World!"); 
+};</code></p>
+<p>这时 <code>exports</code> 就不再指向 <code>module.exports</code>，而是指向了一个新的对象，原来的 <code>module.exports</code> 对象将会被忽略，因此该模块将不会导出任何内容。</p>
+<p>下面是运行示例，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8f5def6ada294be58af2a458bf6e1fe7~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1511\&amp;h=707\&amp;s=210531\&amp;e=png\&amp;b=161616" /></p>
+<p>因此，建议在写 Node.js 模块时，只使用 <code>module.exports</code> 导出模块代码，而不要使用 <code>exports</code>。如果你需要向外部导出多个函数或对象，可以将它们作为 <code>module.exports</code> 的属性导出，如下所示：</p>
+<p><code>js
+module.exports = {
+  hello: function() {
+    console.log("Hello World!");
+  },
+  bye: function() {
+    console.log("Goodbye World!");
+  }
+};</code></p>
+<p>这样，外部就可以通过 <code>require</code> 方法导入该模块，并访问其中的 <code>foo</code> 和 <code>bar</code> 方法了。</p>
+<h2>2 引入模块</h2>
+<p>上面阐述了导出，那么引入也同样简单。</p>
+<h3>2.1 完整引入</h3>
+<p>```js
+// 导入模块 "./exports" 并将其赋值给变量 context
+const context = require('./exports')</p>
+<p>// 调用 context 模块中的 hello 函数，并传入 context.userInfo.name 参数
+context.hello(context.userInfo.name)</p>
+<p>// 调用 context 模块中的 byebye 函数，并传入 context.userInfo.name 参数
+context.byebye(context.userInfo.name)
+```</p>
+<h3>2.2 解构引入</h3>
+<p>当导出内容是一个对象时，可以使用解构引入。</p>
+<p><code>js
+// 导入模块 "./exports" 中的 hello, userInfo 和 byebye，并赋值给相应的变量
+const { hello, userInfo, byebye } = require('./exports')
+// 调用 hello 函数，并传入 userInfo.name 参数
+hello(userInfo.name)
+// 调用 byebye 函数，并传入 userInfo.name 参数
+byebye(userInfo.name)</code></p>
+<p>当然可以在导入的时候修改引入的模块名称。</p>
+<p><code>js
+// 导入模块 "./exports" 中的 hello, userInfo 和 byebye，并赋值给相应的变量
+const { hello, userInfo: user, byebye } = require('./exports')
+// 调用 hello 函数，并传入 userInfo.name 参数
+hello(user.name)
+// 调用 byebye 函数，并传入 userInfo.name 参数
+byebye(user.name)</code></p>
+<p>上述代码执行结果都一样。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/99cfde685ed745da8000c243bdd3bbdc~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=399\&amp;h=410\&amp;s=41113\&amp;e=png\&amp;b=020202" /></p>
+<h2>小结</h2>
+<p>本节主要介绍了 Node.js 中 CommonJS 规范的模块导入导出用法：</p>
+<ul>
+<li>导出；<ul>
+<li>module.exports；</li>
+<li>exports；</li>
+</ul>
+</li>
+<li>导入；<ul>
+<li>require。</li>
+</ul>
+</li>
+</ul>
+<p>掌握这三个核心的 <code>方法/对象</code> 的用法，就掌握了 CJS 规范的模块导入导出用法。</p>

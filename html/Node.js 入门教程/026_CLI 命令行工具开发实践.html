@@ -1,0 +1,124 @@
+<p>我们在使用 Node.js 开发时，经常会用到很多命令行工具，</p>
+<p>有些工具我们会通过 <code>npm i -g</code> 安装，安装完后我们就有了一个新的命令，可以在任何地方使用。</p>
+<p>例如前面的 <code>tsx</code>，<code>pm2</code>，<code>yrm</code> 等，在随 npm 包安装的时候就完成了一些命令的注册。</p>
+<p>本章节我们就来学习如何开发一个命令行工具，大体上和 npm 包开发一样，只有 <code>package.json</code> 里配置有一些不同。</p>
+<p><em>PS：本章不会介绍原理，关于原理可以阅读<a href="https://juejin.cn/post/7155510469464162335">文章：Node CLI 工具原理解析</a></em>。</p>
+<h2>1 初始化项目</h2>
+<!-- TODO：指引npm包开发教程 -->
+
+<p>和 npm 包开发流程一样，这里不做重复介绍 (大家可以先看 npm 开发实践)，只讲过程中不一样的地方。</p>
+<p>目录结构如下。</p>
+<p><code>sh
+├── package.json
+└── src
+   ├── bin.ts
+   └── index.ts</code></p>
+<p>多一个 <code>src/bin.ts</code> 文件，将这个文件是命令行工具的入口文件。</p>
+<p>代码如下。</p>
+<p>```ts</p>
+<h1>!/usr/bin/env node</h1>
+<p>const argvs = process.argv.slice(2)
+console.log('argvs', argvs)</p>
+<p>console.log('Hello, world!')
+```</p>
+<!-- TODO：跳转本地运行 -->
+
+<p>其中首行是 <code>Hashbang</code>，这个我们在之前的本地运行有介绍过。</p>
+<blockquote>
+<p><em>Hashbang (也称为 shebang) 是一种特殊的注释，以 <code>#!</code> 开头，通常出现在可执行的脚本文件的第一行，用于告诉系统要使用哪个解释器来执行该脚本文件。</em></p>
+</blockquote>
+<h2>2 开发&amp;构建</h2>
+<p>同样的我们这里使用 <code>tsup</code> 构建，支持设置多个入口文件。</p>
+<p><code>json
+{
+  "scripts": {
+    "build": "tsup src/index.ts src/bin.ts --target es6 --format cjs,esm --dts",
+    "dev": "tsup src/index.ts src/bin.ts --target es6 --format cjs,esm --dts --watch"
+  }
+}</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9a1a2567035246958cde282e2509b5ed~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=431\&amp;h=745\&amp;s=502063\&amp;e=png\&amp;b=1e1329" /></p>
+<p>构建后会有 <code>dist/bin.js</code> 文件，这个就是我们最后实际运行的文件。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9958ffed6ef34e0b94ae6f517cfa916a~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=529\&amp;h=302\&amp;s=241467\&amp;e=png\&amp;b=041e32" /></p>
+<h2>3 package.json bin 属性</h2>
+<p>在 <code>package.json</code> 中，我们可以配置 <code>bin</code> 属性，这个属性是用来指定命令行工具的入口文件的。</p>
+<p>比如我们设置一个 <code>hello-node</code> 命令，将指向 <code>dist/bin.js</code> 文件。</p>
+<p><code>json
+{
+  "bin": {
+    "hello-node": "dist/bin.js"
+  }
+}</code></p>
+<p>到这开发和配置基本就完成了。</p>
+<h2>4 安装&amp;测试</h2>
+<h3>4.1 项目内使用</h3>
+<p>当我们本地安装这个包的时候，就会在 <code>node_modules/.bin</code> 目录下生成一个 <code>hello-node</code> 的可执行文件，这个文件就是我们的命令行工具。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/68a08817b6e9436b800a700f77a937da~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=684\&amp;h=371\&amp;s=374634\&amp;e=png\&amp;b=22132e" /></p>
+<p>我们在这个项目里可以使用 <code>npx hello-node</code> 来运行这个命令。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/d0f4a5f3ebae48b6ade2ec4b40e6defe~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=419\&amp;h=295\&amp;s=179407\&amp;e=png\&amp;b=140b2f" /></p>
+<h3>4.2 全局使用</h3>
+<p>如果想在任意地方调用。</p>
+<p>我们可以通过 <code>npm link</code> 将这个包链接到全局，然后就可以在任何地方使用 <code>hello-node</code> 命令了。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/4d79555a34434110953aa7a911850667~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=600\&amp;h=632\&amp;s=564898\&amp;e=png\&amp;b=051931" /></p>
+<p><em>PS：如果这个包被发布到了 npm 上，咱们就可以直接 <code>npm i -g xxx</code> 直接安装启用</em>。</p>
+<h2>5 使用框架</h2>
+<h3>5.1 框架介绍</h3>
+<p>框架一般主要负责的就是命令行参数的解析和校验。</p>
+<p>社区有很多优秀的命令行框架，比如较出名的 <a href="https://www.npmjs.com/package/commander">Commander</a>、<a href="https://www.npmjs.com/package/cac">cac</a> 等。</p>
+<p>这里我们使用 <a href="https://www.npmjs.com/package/commander">Commander</a> 来实践一下。</p>
+<h3>5.2 Commander 实践</h3>
+<p>① 先安装依赖</p>
+<p><code>sh
+npm i commander</code></p>
+<p>② 创建一个文件 <code>src/commander-test.ts</code></p>
+<p>加入如下内容</p>
+<p>```ts</p>
+<h1>!/usr/bin/env node</h1>
+<p>// 引入Command类和package.json文件
+import { Command } from 'commander'
+import pkg from '../package.json'
+// 创建程序实例并设置版本号
+const program = new Command()
+program.version(pkg.version)
+// 添加命令hello和描述，别名为h，支持选项--exclude和--allow-dirty
+program
+  .command('hello [name]')
+  .description('打招呼')
+  .alias('h')
+  .option('-e, --exclude <globPatterns...>', '排除某些文件进行扫描')
+  .option(
+    '--allow-dirty',
+    '默认屏蔽以下目录（node_modules，.git等），可以设置允许'
+  )
+  .action((name, options) =&gt; {
+    console.log('你好', name, options.exclude, options.allowDirty)
+  })
+// 解析命令行参数
+program.parse(process.argv)
+```</p>
+<p>然后将这个文件添加到构建指令里，构建出 <code>dist</code> 目录下的资源。</p>
+<p>③ 设定指令 <code>node-hello</code></p>
+<p>在 <code>package.json</code> 中追加如下内容，一个 npm 包可以注册多个指令。</p>
+<p><code>json
+{
+  "bin": {
+    "hello-node": "dist/bin.js",
+    "node-hello": "dist/commander-test.js"
+  }
+}</code></p>
+<p>④ 按照上述的方式测试一下效果</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/cc437684ac9d4869bc75fdb365bf4eb9~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=656\&amp;h=544\&amp;s=551715\&amp;e=png\&amp;b=201328" /></p>
+<p>可以看到框架自动为我们注册了指令和 <code>--help</code> 等额外选项等等。</p>
+<p>执行效果如下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7e48aa25ccc8410caadf9ed3cd691cbe~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=545\&amp;h=221\&amp;s=173276\&amp;e=png\&amp;b=190a2e" /></p>
+<p>到这里，我们就完成了一个简单的命令行工具的开发，其发布流程和 npm 包流程完全一致。</p>
+<h2>小结</h2>
+<p>本节详细的介绍了，如何使用 Node.js 开发一个命令行工具，以及如何使用框架来简化开发流程，</p>
+<p>其中最为关键的部分就是，package.json 中的 bin 属性，用来指定命令行工具的入口文件。</p>
+<p>使用框架，可以简化命令行参数的解析和校验，提高开发效率，并自动生成友好的提示信息。</p>
+<p>命令行工具最终发布也是一个 npm 包，其发布流程和普通 npm 包流程完全一致。</p>
+<h2>推荐阅读</h2>
+<p>如果觉得内容不够看，推荐大家阅读：</p>
+<ul>
+<li><a href="https://juejin.cn/post/7155510469464162335">Node CLI 工具原理解析</a>；</li>
+<li><a href="https://github.com/linbudu599/Node-CLI-Guide">linbudu599：NodeJs CLI 应用开发入门</a>。</li>
+</ul>

@@ -1,0 +1,194 @@
+<p>在开发大型项目，编写复杂业务逻辑时，我们就期望代码在运行到某个位置时能够暂停，这样方便我们定位问题和实时常看一些变量的值。</p>
+<p>此刻我们就需要进行代码调试，以便于快速定位问题，提高开发效率。</p>
+<p>接下来介绍几种 Node.js 的调试方式和调试技巧：</p>
+<ul>
+<li>VS Code 调试 (常用)；</li>
+<li>Chrome 调试 (常用)；</li>
+<li>命令行调试。</li>
+</ul>
+<h2>1 使用 VS Code 调试</h2>
+<p>我们先来一段用于调试的代码 <code>debug.js</code>，方便后续的展开。</p>
+<p><code>ts
+// 声明一个数组并初始化
+const myArray = [1, 2, 3, 4, 5]
+// 声明一个对象并初始化
+const myObject = {
+  name: 'Alice',
+  age: 30,
+  city: 'New York'
+}
+// 输出原始数组和对象
+console.log('The original array is:', myArray)
+console.log('The original object is:', myObject)
+// 向数组中添加一个元素
+myArray.push(6)
+// 更新对象中的一个属性
+myObject.age = 31
+// 输出修改后的数组和对象
+console.log('The modified array is:', myArray)
+console.log('The modified object is:', myObject)</code></p>
+<h3>1.1 创建断点</h3>
+<p>先为代码添加 2 个断点 (点击数字旁边的空白区域就能完成添加)，如下图所示。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3717ab538ea840c3b8226fec0ccda57e~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=774\&amp;h=695\&amp;s=128717\&amp;e=png\&amp;b=1f1f1f" /></p>
+<h3>1.2 调试运行</h3>
+<p>通过 VS Code 触发调试的方式有很多，下面介绍几个常用的。</p>
+<h4>1.2.1 快捷入口</h4>
+<p>按 <code>F5</code> 或者在右侧点击 <code>运行和调试</code>，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1c04a342ae4e43aeac5aac7782263542~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=478\&amp;h=468\&amp;s=46321\&amp;e=png\&amp;b=242426" /></p>
+<p>在弹出框中选择 <code>Node.js</code>。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/12b92c7bc90a4023a747e426eaa0869b~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=501\&amp;h=189\&amp;s=22096\&amp;e=png\&amp;b=252527" /></p>
+<h4>1.2.2 调试终端</h4>
+<p>在新建终端位置有个 <code>JavaScript调试终端选项</code>，或者 <code>运行和调试</code> 面板处，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8036845a16c8452a89d5bd65239f2f80~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=470\&amp;h=486\&amp;s=49953\&amp;e=png\&amp;b=242426" /></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6c9e6ff27f124f0cad6cfc546f9c8136~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=248\&amp;h=127\&amp;s=14836\&amp;e=png\&amp;b=1d1d1d" /></p>
+<p>通过这个调试终端执行指令都会唤起 debug 模式。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/603e8af4a4f443e6bec5a6231de73ae1~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=437\&amp;h=161\&amp;s=11025\&amp;e=png\&amp;b=1f1f1f" /></p>
+<h4>1.2.3 npm 脚本</h4>
+<p>在日常开发中，运行项目一般都是通过执行 npm 脚本，</p>
+<p>比如开发启动项目 <code>npm run dev</code>，构建项目 <code>npm run build</code> 等等。</p>
+<p><code>package.json</code> 内容如下。</p>
+<p><code>json
+{
+  "scripts": {
+    "dev": "node debug-chrome.js",
+    "build": "node debug-chrome.js"
+  }
+}</code></p>
+<p>可以通过上面的 <code>js调试终端</code> 运行进入调试，</p>
+<p>也可以在编辑器中触发。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ca2f63d28b094b24afdabe38ef426cf6~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=482\&amp;h=532\&amp;s=60448\&amp;e=png\&amp;b=1f1f1f" /></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8442fa9203e74ebbb3571b704bc75828~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=401\&amp;h=177\&amp;s=19963\&amp;e=png\&amp;b=292929" /></p>
+<h3>1.3 调试窗口介绍</h3>
+<p>在调试程序启动后，咱们可以看见有个黄色的箭头停在了第一个断点处，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/036bdb8fc4594b87b026c78c63e73018~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1200\&amp;h=1045\&amp;s=246824\&amp;e=png\&amp;b=1f1f1f" /></p>
+<p>在左侧可以看到 <code>变量</code>，<code>调用堆栈</code>，<code>监视</code>，<code>断点</code> 等小窗口，</p>
+<p>调试控制台里会展示 <code>console</code> 打印的信息，顶部还有一个 <code>debug</code> 控制条，</p>
+<p>下面我们逐个介绍每个窗口的作用。</p>
+<h4>1.3.1 变量窗口</h4>
+<p>展示此时此刻所有变量的信息，包含局部和本地，可以手动展开详细查看每个变量的数据和结构。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fcfaea1c251142bbbfa03f9a7f5b046f~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=438\&amp;h=587\&amp;s=60504\&amp;e=png\&amp;b=252527" /></p>
+<p>同时还可以手动修改，直接双击要修改的变量，直接编辑即可，按 <code>Enter（回车）</code> 保存。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3bb2941109ac4e74a10b80f6d66e6bca~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1138\&amp;h=760\&amp;s=990551\&amp;e=gif\&amp;f=188\&amp;b=21201c" /></p>
+<p>同时在编辑代码的区域，也可把鼠标悬浮上去，查看此时变量的信息。</p>
+<h4>1.3.2 监视窗口</h4>
+<p>这部分可以编写自定义的表达式</p>
+<p>比如下面的例子，添加了查看数组 <code>1,2</code> 两项目的值与和。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b6f989c82b3d486bb9d0b25424e2a308~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=458\&amp;h=202\&amp;s=13631\&amp;e=png\&amp;b=252527" /></p>
+<p>当相关值变动时，表达试的值也会变动。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fa5c4e51f890423280029eb1d6cec767~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=404\&amp;h=556\&amp;s=1397518\&amp;e=gif\&amp;f=195\&amp;b=202020" /></p>
+<h4>1.3.3 调试工具条</h4>
+<p>一共 6 个按钮，作用介绍如下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/14f4ba01393443a4bfc25bd401db2b40~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=294\&amp;h=171\&amp;s=11115\&amp;e=png\&amp;b=222222" /></p>
+<p>① 继续执行</p>
+<p>点击后会继续执行代码，直到发现下一个断点。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c3894c9a7f8e4c6383b6c171de08f7bf~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=642\&amp;h=630\&amp;s=751588\&amp;e=gif\&amp;f=28\&amp;b=1b1b1b" /></p>
+<p>② 单步跳过</p>
+<p>直接执行下一条语句，并跳过当前函数内部的所有语句。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6ea04ddb496f44d7887b4344a2c0cbbf~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=642\&amp;h=894\&amp;s=1424803\&amp;e=gif\&amp;f=70\&amp;b=1b1b1b" /></p>
+<p>如上图所示，不会执行 console.log 内部的逻辑，直接调到了下一个 console 语句，表现上像一行行的执行了，</p>
+<p>可以和下面的单步调试对比一下。</p>
+<p>③ 单步调试</p>
+<p>执行下一条语句并进入当前函数内部继续调试，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1c8067dd09c342bba689a9abc3b20806~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1036\&amp;h=894\&amp;s=2514676\&amp;e=gif\&amp;f=91\&amp;b=1d1d1d" /></p>
+<p>从左下角的调用堆栈可以看出来，是进入了 console.log 函数内部执行。</p>
+<h2>2 使用 Chrome/Edge 调试</h2>
+<p>不习惯使用 VS Code 里操作调试的话也可以使用浏览器进行调试。</p>
+<h3>2.1 inspect-brk</h3>
+<p>在使用命令行执行脚本时添加一个参数 <code>--inspect-brk</code>，</p>
+<p>表示以调试模式启动并且在首行断住。</p>
+<p><code>sh
+node --inspect-brk ./debug.js</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/dfb3bd3e15064288a7d389c770e003a1~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=839\&amp;h=184\&amp;s=24271\&amp;e=png\&amp;b=010101" /></p>
+<p>可以看到终端里打印了一个 <code>WebSocket</code> 地址。</p>
+<h3>2.2 浏览器访问</h3>
+<p>此时使用 <code>Chrome/Edge</code> 访问 <code>chrome://inspect</code> 或者 <code>edge://inspect</code> 就能看到咱们 debug 的目标程序，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5264ed9d0e784d30b292197a1682f61d~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=762\&amp;h=405\&amp;s=49545\&amp;e=png\&amp;b=fefefe" /></p>
+<p>点击 inspect 就能看见和 VS Code 里类似的调试面板了，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/4ecf7d72d8d34ba1a62425f608910e70~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1082\&amp;h=640\&amp;s=169944\&amp;e=png\&amp;b=232427" /></p>
+<p>同样的也是在左侧行号处添加断点，右侧包含与 <code>VS Code</code> 一样作用的 <code>监视器</code>、<code>断点</code>、<code>变量</code>，<code>调用堆栈</code> 等面板。</p>
+<p>当然断点也可以直接写在代码里，关键字为 <code>debugger</code>。</p>
+<p>咱们就用下面的代码来进行测试。</p>
+<p><code>js
+// 声明一个名为 print 的函数，用于打印传入的值
+function print(value) {
+  debugger
+  console.log('print', value) // 输出传入的值
+}
+// 声明一个数组并初始化
+const myArray = [1, 2, 3, 4, 5]
+// 声明一个对象并初始化
+const myObject = {
+  name: 'Alice',
+  age: 30,
+  city: 'New York'
+}
+debugger
+// 调用 print 函数，传入 myArray 作为参数，打印 myArray
+print(myArray)
+// 调用 print 函数，传入 myObject 作为参数，打印 myObject
+print(myObject)</code></p>
+<p>下面是实操演示。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/4edded51056346f5ba5f37a7dbb1c493~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1078\&amp;h=634\&amp;s=3493573\&amp;e=gif\&amp;f=249\&amp;b=1b1d1f" /></p>
+<h2>3 使用命令行调试</h2>
+<p>没有 IDE，没有 Chrome 能调试吗？当然能！！！</p>
+<p>Node 内置了命令行中调试的指令，下面慢慢道来。</p>
+<h3>3.1 inspect 指令</h3>
+<p><code>inspect</code> 是 Node.js 提供的一个命令行工具，具体用法如下：</p>
+<p><code>sh
+node inspect debug-inspect.js</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f38ef1d82c9646aeacf78e14dcdffaa5~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=819\&amp;h=387\&amp;s=53133\&amp;e=png\&amp;b=010101" /></p>
+<p>这里仍然使用上面的代码进行调试演示，<code>debugger</code> 同样生效。</p>
+<p><code>js
+// 声明一个名为 print 的函数，用于打印传入的值
+function print(value) {
+  debugger
+  console.log('print', value) // 输出传入的值
+}
+// 声明一个数组并初始化
+const myArray = [1, 2, 3, 4, 5]
+// 声明一个对象并初始化
+const myObject = {
+  name: 'Alice',
+  age: 30,
+  city: 'New York'
+}
+debugger
+// 调用 print 函数，传入 myArray 作为参数，打印 myArray
+print(myArray)
+// 调用 print 函数，传入 myObject 作为参数，打印 myObject
+print(myObject)</code></p>
+<h3>3.2 调试指令介绍</h3>
+<p>下面是一些常用的指令</p>
+<p>| 指令                   | 功能                                                                                                  |
+| -------------------- | --------------------------------------------------------------------------------------------------- |
+| <code>sb</code>、<code>setBreakpoint</code> | 在代码中的任何位置设置断点。可以使用  <code>sb(10)</code>  在第 10 行设置断点； <code>sb('filename.js', 10)</code>  在  <code>filename.js</code>  文件的第 10 行设置断点 |
+| <code>c</code>、<code>cont</code>           | 继续执行程序，直到碰到下一个断点或者程序结束                                                                              |
+| <code>n</code>、<code>next</code>           | 跳过当前行，执行下一行，并停在下一行                                                                                  |
+| <code>s</code>、<code>step</code>           | 进入当前行调用的函数，如果当前行没有函数调用，则执行下一行，并停在下一行                                                                |
+| <code>o</code>、<code>out</code>            | 跳出当前函数，到调用当前函数的函数处，并停在该函数的下一行                                                                       |
+| <code>repl</code>               | 进入 REPL 模式。在该模式下，你可以查看变量的值，运行任何表达式，甚至修改变量的值，而不需要停止程序运行                                              |
+| <code>watch</code>              | 观察变量的值的改变。例如， <code>watch('myArray')</code>  将观察  <code>myArray</code>  变量的值的改变，每当它的值改变时，调试器都会记录下来。                       |</p>
+<p>当然还提供了许多其他的指令，例如 <code>list（打印当前执行到的代码）</code>、<code>backtrace（调用堆栈信息）</code> 等等。你可以在调试过程中随时输入 <code>help</code> 来查看所有可用的指令。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1afa8cddb83e4dcf9680e61f69afbc4c~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=877\&amp;h=850\&amp;s=130288\&amp;e=png\&amp;b=010101" /></p>
+<p>下面演示一下常用指令的用法。</p>
+<h4>3.2.1 设置断点</h4>
+<p>除了使用 <code>debugger</code> 设置断点也可以在运行时使用 <code>sb</code> 设置，操作如下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f266dbba536a4e6e9b4b1b09fe216945~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1024\&amp;h=968\&amp;s=163221\&amp;e=png\&amp;b=010101" /></p>
+<h4>3.2.2 向下执行</h4>
+<p>使用 <code>c</code>，<code>n</code>，<code>s</code>，<code>o</code> 均可执行，具体效果如上面阐述那样，和 VS Code 里的调试工具调按钮作用一一对应。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/47730f3cb7b549a1a14ec873c759c78b~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=294\&amp;h=171\&amp;s=11115\&amp;e=png\&amp;b=222222" /></p>
+<h4>3.2.3 查看执行代码</h4>
+<p>使用 <code>list</code> 方法，<code>list()</code> 显示当前执行到的位置，<code>list(12)</code> 显示第 12 行的代码。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/d0dc0ecf168848d5be1dd8fa19da1da6~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=722\&amp;h=696\&amp;s=114025\&amp;e=png\&amp;b=010101" /></p>
+<h4>3.2.4 重启</h4>
+<p>使用 <code>r</code>。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/41220ac4c0f840bcbb63dea05c02530e~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=892\&amp;h=862\&amp;s=133931\&amp;e=png\&amp;b=010101" /></p>
+<h4>3.2.5 监视器</h4>
+<p><code>watch</code> 设置监视器，<code>watchers</code> 查看所有监视器的情况。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/76ae5fa7094d4f9b9d9d61693724ab13~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=876\&amp;h=756\&amp;s=134686\&amp;e=png\&amp;b=010101" /></p>
+<h4>3.2.6 调用栈</h4>
+<p>使用 <code>bt</code>。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2c0df6348cc54fd3a21ea0373eaaab5c~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=801\&amp;h=924\&amp;s=181293\&amp;e=png\&amp;b=020202" /></p>
+<h2>小结</h2>
+<p>本节主要介绍了 3 种 Node.js 的调试方法，前两种图形化调试方法，是最常用的，命令行调试方法了解即可 (在某些没有 UI 的场合能够用上)，</p>
+<p>期望大家能够掌握这些常用的调试技巧和方法，提高开发效率。</p>

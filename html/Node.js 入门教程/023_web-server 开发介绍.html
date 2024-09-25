@@ -1,0 +1,66 @@
+<p>Web Server (Web 服务器) 开发通常是指 Web 后端服务开发。</p>
+<p>除了直接利用 Node.js 内置的 <code>http</code> 开发外，还可以使用社区中已经封装好的 Node.js 开发框架，来提高开发效率。</p>
+<h2>1 一些流行的开发框架</h2>
+<p>下面是业界里较出名的一些 Node.js 框架。</p>
+<p>国外：
+* <a href="https://nestjs.com/">NestJS</a>：用于构建高效、可扩展的 Node.js 服务器端应用程序的开发框架；
+* <a href="https://github.com/expressjs/express">Express</a>：高度包容、快速而极简的 Node.js Web 框架；
+* <a href="https://koajs.com/">Koa</a>：基于 Node.js 平台的下一代 web 开发框架；
+* <a href="https://github.com/fastify/fastify">fastify</a>：快速并且低开销的 web 框架，专为 Node.js 平台量身打造。</p>
+<p>国内 (都是阿里出品)：
+* <a href="https://www.eggjs.org/zh-CN">Egg</a>：Egg.js 为企业级框架和应用而生；
+* <a href="https://midwayjs.org/">Midway</a>：Node.js 框架，通过自研的依赖注入容器，搭配各种上层模块，组合出适用于不同场景的解决方案。</p>
+<p>其它当下还比较小众的：
+* <a href="https://github.com/honojs/hono">hono</a>：小巧、简单且超快的 Web 框架，支持在任何 JS 运行时上运行；
+* <a href="https://github.com/deepkit/deepkit-framework">Deepkit</a>：高性能 TypeScript 框架，适用于企业级 TypeScript 应用程序开发。</p>
+<p>其中 <code>NestJS, Egg, Midway</code> 都是非常适合开发大型项目的，内置了许多开箱即用的能力和解决方案。</p>
+<p>其它的框架都是比较轻量级的，适合个人/小团队开发小型项目，利用社区生态中提供的丰富功能插件完成应用开发。</p>
+<p>接下来再简单介绍一下 <code>HTTP基础知识</code> 和 <code>RESTful API</code>，就开始使用 express 实践开发一个简单的 Web Server 实现资源的 <code>CRUD</code> 操作。</p>
+<h2>2 HTTP 介绍</h2>
+<blockquote>
+<p>超文本传输协议 (HyperText Transfer Protocol))。</p>
+</blockquote>
+<p>在 Web 应用网络通信中，最常用的网络协议。</p>
+<p>这里简单介绍一下 HTTP 中的 <code>请求方法</code> 和 <code>URL</code> 相关知识，更多细节可移步 <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP">MDN 文档：HTTP</a>。</p>
+<h3>2.1 请求方法</h3>
+<p>请求方法分为很多种，但最常用的也就是 <code>Get</code> 和 <code>Post</code>。</p>
+<p>虽然请求方法有很多，但是更多的是<strong>传达一个语义</strong>，而不是说 Post 能做的事情 Get 就不能做了。</p>
+<p>下面是简单的介绍 (<strong>主要关注前 5 个就行</strong>)。
+| 方法    | 常用场景                                                                     |
+| ------- | ---------------------------------------------------------------------------- |
+| GET     | 用于获取资源，如网页、图片等数据。GET 请求通常不会对服务器资源进行修改        |
+| POST    | 用于向服务器提交数据，通常会对服务器进行修改。常用于表单提交、注册、登录场景 |
+| PUT     | 更新服务器上的资源。通常用于更新或替换已有的资源                             |
+| DELETE  | 通常用于删除服务器上的资源                                                   |
+| OPTIONS | 用于获取与资源相关的选项，如允许的请求方法、代理等。通常用于跨域请求的预检   |
+| PATCH   | 用于对资源进行局部修改。常用于更新资源的部分属性                             |
+| HEAD    | 类似于 GET 请求，但不返回响应体。常用于检查资源的元数据，如长度、类型等。      |
+| CONNECT | 用于建立一个 TCP/IP 隧道到另一个服务器，如 <code>WebSocket</code> 场景。                   |
+| TRACE   | 用于调试信息。通常用于开发和测试场景。                                       |</p>
+<h3>2.2 URL 构成</h3>
+<p><code>sh
+scheme://host:port/path?query</code>
+| 名称   | 含义                             |
+| ------ | -------------------------------- |
+| scheme | 协议（HTTP/HTTPS/FTP..）         |
+| host   | 主机名（通常说的域名或ip）       |
+| port   | 端口号（默认HTTP 80，HTTPS 443） |
+| path   | 资源路径（例如 /hello）          |
+| query  | 用于查询的参数 (?id=1)           |</p>
+<h2>3 RESTful API 介绍</h2>
+<p>在当下的 Web 开发中，REST (Representational State Transfer) 架构风格被广泛采用。</p>
+<p>RESTful API 是一个基于 REST 架构风格构建的 Web 服务。</p>
+<p>它对数据的操作分别使用 HTTP 协议提供的 GET (获取数据)、POST (添加数据)、PUT (更新数据)、DELETE (删除数据) 等方法来表示。</p>
+<p>同时还可以配合路由传参，来编写更加语义化的 API。</p>
+<p>下面是一组例子。</p>
+<p>| 方法   | 路径           | 描述                                               |
+| ------ | -------------- | -------------------------------------------------- |
+| GET    | /api/users     | 获取所有用户信息                                   |
+| GET    | /api/users/:id | 根据用户ID获取用户信息                             |
+| POST   | /api/users     | 创建新用户，请求体包含新用户的信息                 |
+| PUT    | /api/users/:id | 根据用户ID更新用户信息，请求体包含更新后的用户信息 |
+| DELETE | /api/users/:id | 根据用户ID删除用户信息                             |</p>
+<p>接下来我们将使用 express 来实现一个简单的 Web Server，同时实现上面的这组 API</p>
+<h2>小结</h2>
+<p>本节介绍了 Web Server 开发相关的一些理论知识，包括 HTTP 基础知识、RESTful API 等。</p>
+<p>同时也简单介绍了一些国内外流行的 Node.js Web 框架，其中 <code>NestJS, Egg, Midway</code> 等是最适合开发大型项目的，<code>Express，Koa</code> 适合中小型项目。</p>

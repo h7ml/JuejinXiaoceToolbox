@@ -1,0 +1,76 @@
+<p>编写完脚本后，通常会在本地进行运行验证，那么该如何运行呢？</p>
+<p>下面将介绍几种常用的运行方式，供大家选择参考。</p>
+<h2>1 REPL 环境</h2>
+<blockquote>
+<p>REPL 的全称是 Read-Eval-Print Loop，它是一种编程语言交互式解释器的实现方式。</p>
+</blockquote>
+<p><code>Node.js REPL</code> 可以让用户在命令行中输入代码片段并立即获得结果，可以快速测试 JavaScript 代码片段，进行一些简单的算术操作、字符串处理、函数调用等等。</p>
+<p>在终端里我们输入 <code>node</code> 即可进入，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7cb3712df01a4c10a38a27fccfe67d2e~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=493\&amp;h=390\&amp;s=28916\&amp;e=png\&amp;b=010101" /></p>
+<p>可以在里面直接输入表达式并执行 (Enter 回车执行)。</p>
+<p>默认是单行输入，<strong>当然也可以输入 <code>.editor</code>，进行多行编辑</strong>，</p>
+<p>使用 <code>Ctrl+D</code> 结束输入 <code>Ctrl+C</code> 取消。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0e61d75949134f01bd152dedf2bf8ee6~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=642\&amp;h=288\&amp;s=22703\&amp;e=png\&amp;b=010101" /></p>
+<p>下面是使用演示。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/39f7414af8dd444ebba98dfb95a81ec1~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=944\&amp;h=522\&amp;s=111450\&amp;e=gif\&amp;f=284\&amp;b=000000" /></p>
+<h2>2 命令行执行</h2>
+<p>我们可以直接通过 <code>node</code> 命令来执行我们的脚本，这个也是最常用的方式，</p>
+<p>用于测试的 <code>hello.js</code> 代码如下。</p>
+<p><code>js
+const hello = 'hello'
+console.log(hello)</code></p>
+<p>① 直接指定脚本运行</p>
+<p><code>sh
+node hello.js</code></p>
+<p>② 通过 eval 参数直接运行</p>
+<p><code>sh
+node -e 'const a = "hello";console.log(a)'</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8f4ae4cc81384d309acac9be5765f9e3~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=581\&amp;h=247\&amp;s=26969\&amp;e=png\&amp;b=010101" /></p>
+<p>③ 通过管道运算法执行</p>
+<p>适用于部分 CI 环境中，直接拉 JS 脚本执行。</p>
+<p>```sh
+cat hello.js | node</p>
+<p>echo "console.log('hello')" | node</p>
+<h1>当然谨慎执行不明源码的脚本</h1>
+<p>curl https://script.sugarat.top/js/tests/test.js | node
+```</p>
+<h2>3 直接执行</h2>
+<blockquote>
+<p><em>Hashbang (也称为 shebang) 是一种特殊的注释，以 <code>#!</code> 开头，通常出现在可执行的脚本文件的第一行，用于告诉系统要使用哪个解释器来执行该脚本文件。</em></p>
+</blockquote>
+<p>给文件 (hello.js) 开头加入 <code>Hashbang</code>，即如下代码 (<code>#!/usr/bin/env node</code>)，</p>
+<p><em>PS：当该文件被执行时，系统将使用 <code>node</code> 解释器来执行该文件。这使得我们可以将 JavaScript 文件作为可执行的脚本文件来使用，而不必显式地调用解释器</em>。</p>
+<p>```js</p>
+<h1>!/usr/bin/env node</h1>
+<p>const hello = 'hello world'
+console.log(hello)
+```</p>
+<p>然后赋予文件可执行权限，</p>
+<p><code>sh
+chmod u+x ./hello.js</code></p>
+<p>紧接着直接执行即可。</p>
+<p><code>sh
+./hello.js</code></p>
+<p>下面是操作示例。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/add63bff794e44dbae6709f6c7901e4d~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=648\&amp;h=635\&amp;s=84825\&amp;e=png\&amp;b=020202" /></p>
+<h2>4 通过 VS Code 操作</h2>
+<p>上面都是在终端 (命令行) 里执行代码，在 VS Code 里我们也可以通过快捷键执行，</p>
+<p>① Code Runner</p>
+<p>前面我们安装了 <code>Code Runner</code> 插件。</p>
+<p>在 <code>编辑文件的右上角</code> 和 <code>右键菜单</code> 中都有执行入口
+<img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2a757006a5794cd2914c6a3eb65a0828~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=802\&amp;h=280\&amp;s=53405\&amp;e=png\&amp;b=232323" /></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/86c56160d5c44a2f9ea48b9d82d710cf~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=800\&amp;h=582\&amp;s=124008\&amp;e=gif\&amp;f=28\&amp;b=1f1e1a" /></p>
+<p>② VS Code 内置运行终端</p>
+<p>目标文件中按 <code>F5</code> 或者在左侧菜单中找到 <code>运行和调试</code> 进行点击，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9e733424724e4433aad8702b8c835f2c~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=992\&amp;h=550\&amp;s=83307\&amp;e=png\&amp;b=242424" /></p>
+<p>在弹出的选项中选择 Node.js 即可运行，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5a041674153b47f19fbddfecba2b39e9~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=695\&amp;h=172\&amp;s=22832\&amp;e=png\&amp;b=252527" /></p>
+<p>可以在调试控制台中看到执行结果。</p>
+<h2>小结</h2>
+<p>本文介绍了几种常用的运行方式 (<code>REPL</code>，<code>node 指令</code>，<code>直接运行</code>，<code>Vs Code快捷调用</code>)。</p>
+<p>同时还顺带介绍了 <code>REPL</code>，<code>Hashbang</code> 等概念：</p>
+<ul>
+<li><code>REPL</code> 是一种编程语言交互式解释器的实现方式；</li>
+<li><code>Hashbang</code> 是一种特殊的注释，以 <code>#!</code> 开头，通常出现在可执行的脚本文件的第一行，用于告诉系统要使用哪个解释器来执行该脚本文件。</li>
+</ul>
+<p>读者可以根据自己的使用场景，灵活使用各种方式。</p>

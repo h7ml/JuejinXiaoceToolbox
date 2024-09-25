@@ -1,0 +1,15 @@
+app_name: '掘金小册下载器'
+clean_dirs:
+  - 'build'
+  - 'dist'
+extra_modules:
+  - 'PyQt6.QtWidgets'
+  - 'PyQt6.QtCore'
+  - 'PyQt6.QtGui'
+exclude_modules:
+  - 'numpy'
+  - 'pandas'
+  - 'matplotlib'
+additional_files:
+  - 'README.md'
+  - 'LICENSE'

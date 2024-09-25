@@ -1,0 +1,130 @@
+<p>在此之前已经单独介绍了 npm 包管理工具相关知识，</p>
+<p>当我们想将封装的代码分享给其他人使用时，通常就需要开发一个 npm 包。</p>
+<p>本章将简单介绍如何运用前面所学知识开发一个 npm 包。</p>
+<h2>1 项目结构</h2>
+<p>当下通常的 npm 包源码结构如下，<code>src</code> 目录存放源码，同时使用 <code>ts</code> 进行开发。</p>
+<p><code>sh
+├── package.json
+└── src
+   └── index.ts</code></p>
+<p>比如这里的 <code>index.ts</code> 源码如下，我、我们导出两个通用方法。</p>
+<p><code>``ts
+export function hello(name: string) {
+  return</code>Hello ${name}!`
+}</p>
+<p>export function sum(a: number, b: number) {
+  return a + b
+}
+```</p>
+<h2>2 开发&amp;构建</h2>
+<p>实际用户运行的肯定是 js 代码，所以这里我们需要将 ts 代码编译成 js 代码，这里我们使用 <code>tsup</code> 进行构建。</p>
+<h3>2.1 安装构建工具</h3>
+<p>安装 2 个依赖 <code>tsup</code> 和 <code>typescript</code>。</p>
+<p><code>sh
+npm i tsup typescript -D</code></p>
+<h3>2.2 触发构建</h3>
+<p>调用 tsup 直接进行构建，命令如下。</p>
+<p><code>sh
+npx tsup src/index.ts --target es6 --format esm,cjs --dts</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/30df1493dd3f45f7b1519fc809787eb0~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=613\&amp;h=737\&amp;s=696484\&amp;e=png\&amp;b=051831" /></p>
+<p>可以看见<a href="https://app.warp.dev/block/mz9Uqg2i3Ysvypftmyv4tY">产物有 3 个</a> <code>包含cjs(.js),esm(.mjs)</code> 2 种格式，其中 <code>d.ts</code> 是 TS <a href="https://app.warp.dev/block/RGsjBRv4eG37ZpMtuOPWv1">类型定义文件</a>。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/e5ef57e2c9704c5cbaa2a26a96b384fa~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=633\&amp;h=207\&amp;s=183145\&amp;e=png\&amp;b=371949" /></p>
+<h3>2.3 开发构建</h3>
+<p>添加 <code>--watch</code> 参数可以，实现监听文件变化，自动构建。</p>
+<p><code>sh
+npx tsup src/index.ts --target es6 --format esm,cjs --dts --watch</code></p>
+<h2>3 调整 package.json</h2>
+<h3>3.1 添加脚本</h3>
+<p>将上述的脚本可以添加到 <code>package.json</code> 中，方便调用。</p>
+<p><code>json
+{
+  "scripts": {
+    "build": "tsup src/index.ts --target es6 --format esm,cjs --dts",
+    "dev": "tsup src/index.ts --target es6 --format esm,cjs --dts --watch"
+  }
+}</code></p>
+<h3>3.2 修改描述信息</h3>
+<p>将 <code>name</code>，<code>version</code>，<code>description</code>，<code>author</code>，等信息修改为自己需要的。</p>
+<h3>3.3 设置入口文件</h3>
+<p>设置 <code>main</code> 和 <code>exports</code> 内容如下。</p>
+<p><code>json
+{
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  }
+}</code></p>
+<h2>4 本地测试</h2>
+<h3>4.1 安装本地依赖</h3>
+<p>可以在其他项目中直接使用绝对路径安装。</p>
+<p><code>sh
+npm install /Users/sugar/pkg/path</code></p>
+<p>下面是示例，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/cf9474ea9172476b80777c6d199e4ef4~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=829\&amp;h=255\&amp;s=132294\&amp;e=png\&amp;b=202020" /></p>
+<p>安装完后可以看到 <code>package.json</code> 中出现了这个包和其相对路劲。</p>
+<h3>4.2 运行测试</h3>
+<p>测试代码如下，</p>
+<p>```js
+// index.js
+const { sum, hello} = require('npm-pkg')</p>
+<p>console.log(sum(1, 2))
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/21b31ce933c4469198937477af627566~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=549\&amp;h=345\&amp;s=290091\&amp;e=png\&amp;b=041d32" /></p>
+<p>```js
+// index.mjs
+import { hello } from 'npm-pkg'</p>
+<p>console.log(hello('world'))
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/604893cfad82476285bdefbfbf4262b0~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=455\&amp;h=328\&amp;s=203084\&amp;e=png\&amp;b=150b2f" /></p>
+<p>可以看到两种模块系统下均能正常工作我们的包。</p>
+<p>同时由于我们有类型定义文件 <code>index.d.ts</code> 我们在开发的时候是会有类型提示的。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ef01e6734bed4261a1e617b558e32c42~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1198\&amp;h=178\&amp;s=34874\&amp;e=png\&amp;b=232323" /></p>
+<h2>5 发布</h2>
+<h3>5.1 注册 npm 账号</h3>
+<p>前往 <a href="https://www.npmjs.com/">npm 官网</a>注册即可。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9977d925055241f98f81c15dc4fb1304~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1587\&amp;h=948\&amp;s=685622\&amp;e=png\&amp;b=ca3f2a" /></p>
+<h3>5.2 切换到 npm 源</h3>
+<p>这里使用前面推荐安装的 <code>yrm</code> 工具快速切换。</p>
+<p><code>sh
+yrm use npm</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ac04ffe220de40eb8c6cc8eb278a7c89~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=467\&amp;h=690\&amp;s=517251\&amp;e=png\&amp;b=041931" /></p>
+<h3>5.3 登录 npm 账号</h3>
+<p><code>sh
+npm login</code></p>
+<h3>5.4 发布</h3>
+<p><code>sh
+npm publish</code></p>
+<p>大功告成，我们的包已经发布到 npm 上了。</p>
+<h3>5.5 同步镜像源</h3>
+<p>如果通过其它镜像源找不到我们的包，我们可以手动同步一下。</p>
+<p>以<a href="https://npmmirror.com/">淘宝源</a>为例</p>
+<p>① 浏览器访问同步链接</p>
+<p><code>https://npmmirror.com/sync/express</code></p>
+<p><code>sync</code> 后面跟上要同步的包名即可。</p>
+<p>② 使用 CLI</p>
+<p>```sh</p>
+<h1>安装cnpm</h1>
+<p>npm install -g cnpm --registry=https://registry.npmmirror.com</p>
+<h1>同步模块</h1>
+<p>cnpm sync express
+```</p>
+<h2>小结</h2>
+<p>本文从 0-1 介绍了如何利用 TS 开发一个 npm 包，并发布到 npm 上。</p>
+<p>详细介绍了：</p>
+<ul>
+<li><code>tsup</code> 工具的使用方式：支持多种格式产物，支持监听文件变化自动构建；</li>
+<li>配置 package.json：使其在不同模块系统下都能正常工作；</li>
+<li>本地测试的方式；</li>
+<li>发布到 npm 上的流程；</li>
+<li>同步镜像源的方法。</li>
+</ul>
+<h2>推荐阅读</h2>
+<ul>
+<li><a href="https://juejin.cn/post/7145871172293361678">如何发布一个 npm 库，自动化管理版本号、生成 changelog、tag 等</a>；</li>
+<li><a href="https://juejin.cn/post/7125709933709885448">图文结合简单易学的 npm 包的发布流程</a>；</li>
+<li><a href="https://juejin.cn/post/7017404226808578084">Web-SDK/Library 模板工程搭建</a>。</li>
+</ul>

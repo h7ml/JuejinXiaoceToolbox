@@ -1,0 +1,148 @@
+name: 爬取掘金小册并上传结果
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+    inputs:
+      sessionid:
+        description: '掘金 sessionid'
+        required: true
+      cookie:
+        description: '掘金 cookie'
+        required: true
+      fetch_book_ids_online:
+        description: '是否在线获取booklet_id列表'
+        type: boolean
+        default: false
+      book_ids:
+        description: '要爬取的book_ids (用逗号分隔,如果fetch_book_ids_online为true则可以留空)'
+        required: false
+        default: '7307129524007731238'
+      save_dir:
+        description: '保存目录'
+        required: true
+        default: './html'
+      save_images_locally:
+        description: '是否将图片保存到本地'
+        type: boolean
+        default: false
+      overwrite_existing:
+        description: '是否覆盖已爬取的文件'
+        type: boolean
+        default: false
+      clear_log_folder:
+        description: '是否在运行前清除日志文件夹'
+        type: boolean
+        default: true
+      save_format:
+        description: '保存格式 (markdown 或 html)'
+        required: true
+        default: 'html'
+      compress_to_zip:
+        description: '是否将结果压缩为ZIP文件'
+        type: boolean
+        default: false
+
+jobs:
+  scrape-and-upload:
+    permissions:
+      contents: write
+      actions: write
+      checks: write
+      issues: write
+      pull-requests: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          persist-credentials: false
+          fetch-depth: 0
+
+      - name: 设置 Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 获取 pip 缓存路径
+        id: pip-cache
+        run: |
+          echo "::set-output name=dir::$(pip cache dir)"
+
+      - name: 缓存 Python 依赖
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pip-cache.outputs.dir }}
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: 安装依赖
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-glx libegl1-mesa libxkbcommon-x11-0 libdbus-1-3
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          python -m pip list
+
+      - name: 更新配置文件
+        run: |
+          cat << EOF > config.yml
+          sessionid: '${{ github.event.inputs.sessionid }}'
+          cookie: '${{ github.event.inputs.cookie }}'
+          fetch_book_ids_online: ${{ github.event.inputs.fetch_book_ids_online }}
+          book_ids: [${{ github.event.inputs.book_ids }}]
+          save_dir: '${{ github.event.inputs.save_dir }}'
+          save_images_locally: ${{ github.event.inputs.save_images_locally }}
+          overwrite_existing: ${{ github.event.inputs.overwrite_existing }}
+          clear_log_folder: ${{ github.event.inputs.clear_log_folder }}
+          save_format: '${{ github.event.inputs.save_format }}'
+          compress_to_zip: ${{ github.event.inputs.compress_to_zip }}
+          storage:
+            use_vercel: false
+            local_storage_path: './data'
+          EOF
+
+      - name: 执行爬虫脚本
+        run: python main.py --cli
+
+      - name: 检查更改
+        id: check_changes
+        run: |
+          if [[ -n $(git status -s) ]]; then
+            echo "changes_detected=true" >> $GITHUB_OUTPUT
+          else
+            echo "changes_detected=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: 提交更改
+        if: steps.check_changes.outputs.changes_detected == 'true'
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add .
+          git commit -m ":rocket: 更新掘金小册内容"
+
+      - name: 推送更改
+        if: steps.check_changes.outputs.changes_detected == 'true'
+        run: |
+          git push https://${{ secrets.ACTION_SECRET }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
+
+      - name: 验证推送
+        run: |
+          git fetch origin
+          LOCAL=$(git rev-parse HEAD)
+          REMOTE=$(git rev-parse origin/${{ github.ref_name }})
+          if [ "$LOCAL" = "$REMOTE" ]; then
+            echo "推送成功：本地和远程 HEAD 一致"
+          else
+            echo "推送失败：本地和远程 HEAD 不一致"
+            exit 1
+          fi
+
+      - name: 强制推送（如果验证失败）
+        if: failure()
+        run: |
+          git push --force https://${{ secrets.ACTION_SECRET }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}

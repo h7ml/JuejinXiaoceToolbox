@@ -1,0 +1,321 @@
+<h2>npm 是什么</h2>
+<p>NPM (Node.js Package Manager) 是 Node.js 的包管理工具，它可以方便地安装、更新、卸载和管理开发中需要用到的各种包和模块。</p>
+<p>NPM 会随 Node.js 的安装一同被下载，所以这个不需要单独安装啦 🤭，</p>
+<p>可以通过 <code>npm -v</code> 查看 npm 的版本信息。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0b452f6e5a724c67bd2d8de261eed25e~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=191\&amp;h=107\&amp;s=5193\&amp;e=png\&amp;b=010101" /></p>
+<p>本节主要介绍 npm 相关的周边知识：</p>
+<ul>
+<li>npm 镜像源配置；</li>
+<li>npm 常用指令；</li>
+<li>package.json 介绍；</li>
+<li>node_modules；</li>
+<li>package-lock.json；</li>
+<li><code>.npmrc</code>。</li>
+</ul>
+<p>下面让我们一起开始学习吧！</p>
+<h2>1 配置国内镜像源</h2>
+<p>npm 默认的镜像源地址是 <code>https://registry.npmjs.org/</code>，</p>
+<p>国内访问较慢，通常会使用淘宝开源的镜像站 <code>https://registry.npmmirror.com/</code>。</p>
+<h3>1.2 手动切换</h3>
+<p>查看当前的镜像源。</p>
+<p><code>sh
+npm config get registry</code></p>
+<p>设置为淘宝源。</p>
+<p><code>sh
+npm config set registry https://registry.npmmirror.com/</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/15281834e9224459b98f0bf6b1ddcb91~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=588\&amp;h=320\&amp;s=38932\&amp;e=png\&amp;b=010101" /></p>
+<h3>1.3 使用镜像源管理工具</h3>
+<p>在实际开发过程中可能会有频繁修改镜像源的场景，每次都手动维护，相对比较麻烦。</p>
+<p>可以使用 <a href="https://www.npmjs.com/package/yrm">yrm</a> 进行管理。</p>
+<p>① 安装</p>
+<p>通过 <code>npm</code> 进行安装。</p>
+<p><code>sh
+npm i -g yrm --registry=https://registry.npmmirror.com</code></p>
+<p>调整一下淘宝源地址。</p>
+<p><code>sh
+yrm add taobao https://registry.npmmirror.com</code></p>
+<p>② 查看可用源</p>
+<p><code>sh
+yrm ls</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/361a6c406be446c78f8e0d072a6d048c~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=504\&amp;h=257\&amp;s=31258\&amp;e=png\&amp;b=020202" /></p>
+<p>③ 切换源</p>
+<p>```sh
+yrm use npm</p>
+<p>yrm use taobao
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fdba158c0f4049879acb5f801d5d1bfe~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=705\&amp;h=456\&amp;s=40809\&amp;e=png\&amp;b=010101" /></p>
+<p>④ 添加自定义源</p>
+<p>在一般的中大型公司里，都会有自己的内网私有镜像源，可以通过如下方式添加到工具中，方便统一管理。</p>
+<p>```sh
+yrm add <registry> <url></p>
+<p>yrm add taobao https://registry.npmmirror.com
+```</p>
+<h2>2 常用 npm 指令介绍</h2>
+<p>本小节将会介绍如下几个指令的常见用法，</p>
+<p><code>init</code>，<code>install</code>，<code>update</code>，<code>uninstall</code>，<code>view</code>，<code>run</code>。</p>
+<p>更多指令请<a href="https://docs.npmjs.com/cli/v9/commands">查阅 npm cli 文档</a>。</p>
+<h3>2.1 init</h3>
+<p>初始化 Node.js 项目，通常配合 <code>-y</code> 参数使用，</p>
+<p><code>sh
+npm init -y</code></p>
+<p>会自动在当前目录下创建 <code>package.json</code> 描述文件。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/330b20566ed24741b272d58a5072eaae~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=772\&amp;h=385\&amp;s=42294\&amp;e=png\&amp;b=001419" /></p>
+<h3>2.2 install</h3>
+<p>主要用于包的安装。</p>
+<p>① 安装一个包到当前项目</p>
+<p>以安装 <a href="https://expressjs.com/">express</a> 为例 (一个流行的 Node web 框架)，</p>
+<p>```sh</p>
+<h1>作为 dependencies 安装</h1>
+<p>npm i express</p>
+<h1>作为 devDependencies 依赖安装</h1>
+<p>npm i express -D
+```</p>
+<p>不加 <code>-D</code> 参数依赖会出现在 package.json <code>dependencies</code> 中，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fff25d66dd52409d9fda29004ff88190~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=308\&amp;h=132\&amp;s=7482\&amp;e=png\&amp;b=000000" /></p>
+<p>反之则出现在 <code>devDependencies</code> 中。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/81d0176867f0438dbd6214044e9ad5e0~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=322\&amp;h=156\&amp;s=9710\&amp;e=png\&amp;b=000000" /></p>
+<p><em>TIP：如何使用这个库</em>。</p>
+<p>```js
+// index.js
+const express = require('express')</p>
+<p>const app = express()
+const port = 3000</p>
+<p>app.get('/', (req, res) =&gt; {
+  res.send('Hello World!')
+})</p>
+<p>app.listen(port, () =&gt; {
+  console.log(<code>Example app listening on port ${port}</code>)
+  console.log(<code>visit http://127.0.0.1:${port}</code>)
+})
+```</p>
+<p>运行，</p>
+<p><code>sh
+node index.js</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/d48c1f56fd684e97891e9a890cccb73f~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=481\&amp;h=160\&amp;s=17126\&amp;e=png\&amp;b=010101" /></p>
+<p>使用浏览器访问 <code>http://127.0.0.1:3000</code> 就能看到响应的内容。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/378519f0905d4cddbf447fefaa3c8f6a~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=278\&amp;h=111\&amp;s=5411\&amp;e=png\&amp;b=fefefe" /></p>
+<p>② 全局安装</p>
+<p>添加 <code>-g</code> 参数，</p>
+<p>对于一些带有 CLI 指令的包，通常使用这个参数，</p>
+<p>比如前面介绍的 <code>yrm</code>。</p>
+<p><code>sh
+npm i -g yrm</code></p>
+<p>③ 安装记录的依赖</p>
+<p>当打开一个存量项目的时候，依赖的很多包，这些包会被记录在 package.json 中，</p>
+<p>只需要执行 <code>npm install</code>，直接安装所有依赖即可。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/899c371a43d3430c9aea115d196a2dc7~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=558\&amp;h=141\&amp;s=14922\&amp;e=png\&amp;b=010101" /></p>
+<h3>2.3 update</h3>
+<p>更新某个包，</p>
+<p>```sh
+npm update <pkgName></p>
+<h1>例如</h1>
+<p>npm update express
+```</p>
+<p>当然也可以通过重新安装包的方式更新包。</p>
+<p>```sh
+npm install <pkgName></p>
+<h1>例如</h1>
+<p>npm install express
+```</p>
+<h3>2.4 uninstall</h3>
+<p>用于包的卸载。</p>
+<p>```sh</p>
+<h1>项目包</h1>
+<p>npm uninstall <name></p>
+<h1>全局包</h1>
+<p>npm uninstall <name> -g
+```</p>
+<h3>2.5 info/view</h3>
+<p>查看某个包的基本信息。</p>
+<p>```sh
+npm view <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#112;&#107;&#103;&#91;&#64;&#118;&#101;&#114;&#115;&#105;&#111;&#110;&#93;">&#112;&#107;&#103;&#91;&#64;&#118;&#101;&#114;&#115;&#105;&#111;&#110;&#93;</a></p>
+<p>npm view vue</p>
+<p>npm view vue@alpha
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7b08175679004b6eb1bc3bdb15495d73~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=830\&amp;h=584\&amp;s=102930\&amp;e=png\&amp;b=010101" /></p>
+<h3>2.6 run</h3>
+<p>用于运行 npm 自定义指令，需要配合 <code>package.json</code> 中的 <code>scripts</code> 一起使用，</p>
+<p>例如 <code>package.json</code> 中 <code>scripts</code> 中有如下内容。</p>
+<p><code>json
+{
+  "scripts": {
+    "server": "node index.js",
+    "hello": "echo hello world",
+    "test": "node test.js"
+  }
+}</code></p>
+<p><code>js
+// test.js
+console.log('run tests')</code></p>
+<p>我们就可以执行 <code>npm run &lt;scriptName&gt;</code> 来简化项目中命令的执行。</p>
+<p><code>sh
+npm run test
+npm run hello
+npm run server</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/69ac507ab801446cbdede3c67005966b~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=543\&amp;h=593\&amp;s=55781\&amp;e=png\&amp;b=010101" /></p>
+<p>当然一个脚本里也可以写多条指令用 <code>&amp;&amp;</code> 分割。</p>
+<p><code>json
+{
+  "scripts": {
+    "multiple":"node test.js &amp;&amp; npm run hello &amp;&amp; npm run test"
+  }
+}</code></p>
+<p><code>sh
+npm run multiple</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5a485023e22b4aea8924d70c9dd4b648~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=584\&amp;h=388\&amp;s=30446\&amp;e=png\&amp;b=010101" /></p>
+<h2>3 <code>package.json</code> 介绍</h2>
+<p><code>package.json</code> 是 Node.js 项目中的配置文件，用于描述项目的基本信息、依赖关系和脚本等细节信息。</p>
+<p>本小节主要介绍 <code>package.json</code> 中一些常用配置项，</p>
+<p>这些信息，大部分会在 <a href="https://www.npmjs.com/">npm</a> 上被展示出来。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0cfcaf8e386e41509cf9a71cfb942496~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=826\&amp;h=641\&amp;s=73925\&amp;e=png\&amp;b=fefefe" /></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7935fef48658487f86e91b25481a5a47~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=503\&amp;h=175\&amp;s=17552\&amp;e=png\&amp;b=fefefe" /></p>
+<h3>3.1 name</h3>
+<p>描述包名，</p>
+<p>每个包名在 <a href="https://www.npmjs.com/">npm</a> 上都是独一无二的，</p>
+<p>一般由 <code>小写字母</code> 与连字符 <code>-</code> 构成。</p>
+<p><code>json
+{
+  "name": "react"
+}</code></p>
+<p>也支持带有 scope，<code>@scope/pkgName</code>。</p>
+<p><code>json
+{
+  "name": "@vue/cli"
+}</code></p>
+<h3>3.2 version</h3>
+<p>描述包版本，</p>
+<p><code>json
+{
+  "version": "1.0.0"
+}</code></p>
+<p>通常结构是 <code>x.y.z</code> 对应 <code>major.minor.patch</code>。</p>
+<p>升级版本号的原则如下：</p>
+<ul>
+<li><code>major</code>：主版本号，不兼容的 API 修改时；</li>
+<li><code>minor</code>：次版本号，向下兼容的功能性新增；</li>
+<li><code>patch</code>：修订号，向下兼容的问题修复。</li>
+</ul>
+<h3>3.3 description</h3>
+<p>一般用于一句话描述包的作用。</p>
+<p><code>json
+{
+  "description": "The progressive JavaScript framework for building modern web UI."
+}</code></p>
+<h3>3.4 main</h3>
+<p>用于表明这个包的入口文件。</p>
+<p><code>json
+{
+   "main": "index.js"
+}</code></p>
+<p>例如当引入 <code>express</code> 的时候，如果有设置 <code>main</code> 属性，</p>
+<p><code>js
+const express = require('express')</code></p>
+<p>实际上加载的就是 <code>express/index.js</code> 这个文件。</p>
+<p><code>js
+const express = require('express/index.js')</code></p>
+<h3>3.5 scripts</h3>
+<p>这个用于设置自定义 npm 脚本。</p>
+<p>```json
+{
+  "scripts": {
+    "test": "node test.js"
+  }
+}</p>
+<p>```</p>
+<p>在上一节 (2.6 npm run) 中也有介绍，</p>
+<p>设置后通过 <code>npm run</code> 执行。</p>
+<p><code>sh
+npm run test</code></p>
+<h3>3.6 keywords</h3>
+<p>用于设置包的关键词，方便在 <a href="https://www.npmjs.com/">npm</a> 中检索，</p>
+<p><code>json
+{
+  "keywords": ["vue","plugin","console"]
+}</code></p>
+<p>比如我们通过关键词 “<code>color</code>，<code>console</code>”
+就能搜索到，彩色打印相关的包。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c2fa58d8ae2f4b019a7e1c5052482da0~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1170\&amp;h=676\&amp;s=83907\&amp;e=png\&amp;b=fcfcfc" /></p>
+<h3>3.7 devDependencies/dependencies</h3>
+<p>① 作用是什么</p>
+<p>两个属性都用于表明，运行这个包所需要的其它外部依赖，</p>
+<p><code>dependencies</code> 标明生产环境下需要用到的包 (运行这个包必备的外部其它依赖)，</p>
+<p><code>devDependencies</code> 标明开发环境下需要用到的包 (开发这个包时才用到的依赖)。</p>
+<p>在实际开发中，通常会将开发依赖与生产依赖分开，以便减小生产环境的包大小，并提高构建和部署的速度。</p>
+<p>下面举个例子方便理解，</p>
+<p>以 <code>express</code> 为例，其 <a href="https://www.npmjs.com/package/express?activeTab=code">package.json</a> 里有大量的依赖。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/94a6e3d40c904d4c9853d911b64b3b9d~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=336\&amp;h=785\&amp;s=84025\&amp;e=png\&amp;b=ffffff" /></p>
+<p>当我们的项目安装它的时候，会同时安装它 <code>dependencies</code> 指定的依赖，但不会安装 <code>devDependencies</code> 里的依赖。</p>
+<p>但当我们开发运行 <a href="https://github.com/expressjs/express">express 的源码</a>时，在其源码项目里执行 <code>npm install</code> 时就会安装 <code>devDependencies</code> 里的依赖。</p>
+<p>② 版本格式介绍</p>
+<p>在不指定版本安装时，版本前面会附带一个 <code>^</code>，除了它还有 <code>~</code>。</p>
+<p><code>json
+"express": "^4.18.2"
+"express": "~4.18.2"
+"express": "4.18.2"</code></p>
+<ul>
+<li><code>~</code> 符号：保持主版本号和次版本号不变，只更新小版本号。例如 <code>"~1.2.3"</code> 表示安装 1.2.x 系列的最新版本；</li>
+<li><code>^</code> 符号：保持主版本号不变，更新次版本和小版本号。例如 <code>"^1.2.3"</code> 表示安装 1.x.x 系列的最新版本。</li>
+</ul>
+<p>这样做的目的是提高依赖包的兼容性。使用 <code>^</code> 或 <code>~</code> 符号，可以在不破坏 API 的情况下，获取到最新的修复和功能更新。(当然只在包非常遵循前面说的版本更新规范前提下)，</p>
+<p>实际情况可能小版本也会带来 <code>break change</code>，</p>
+<p>这个问题在后面说的 <code>package-lock.json</code> 中会得到一定的解决。</p>
+<h2>4 node_modules</h2>
+<p>① 项目依赖存放路径</p>
+<p>这是项目里存放第三方包的一个目录，安装的第三方包都会出现在这里面，通常与 package.json 处在同一级目录，</p>
+<p>就比如前面安装的 <code>express</code>。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/914ff94a05e948b8b73ad95e237a581a~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=936\&amp;h=376\&amp;s=65172\&amp;e=png\&amp;b=010101" /></p>
+<p>除了我们安装的包外，当然还可能包含一些间接依赖，比如上图中 <code>express</code> 的 <code>dependencies</code> 依赖。</p>
+<p>② 全局依赖存放路径</p>
+<p>使用如下指令即可获取全局依赖的存放路径。</p>
+<p><code>sh
+npm root -g</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fd0090651e114151b28e9ad175cd16e1~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=669\&amp;h=112\&amp;s=16870\&amp;e=png\&amp;b=020202" /></p>
+<p>通过 <code>npm i xx -g</code> 安装的依赖就会存放在这里。</p>
+<h2>5 package-lock.json</h2>
+<p><code>package-lock.json</code> 主要用于锁定项目依赖的版本号，以确保在不同的机器和环境中安装相同的依赖和版本。</p>
+<p>它的作用主要有以下几个方面：</p>
+<ul>
+<li>一致性：确保在不同的机器和环境中安装相同的依赖版本；</li>
+<li>安装提速：文件记录了依赖包的具体版本号和依赖关系，因此在执行 <code>npm install</code> 命令时，npm 可以直接从缓存中读取已经下载的依赖包，从而加速依赖安装；</li>
+<li>稳定性：可以更加准确地控制项目的依赖版本，从而提高项目的稳定性和可靠性；如果不使用 <code>package-lock.json</code>，则每次安装依赖时，npm 可能会自动更新依赖包的版本，这可能会引入 bug 或导致行为发生变化，从而导致项目出现问题；</li>
+</ul>
+<p>下面简单阐述一下各个属性的作用。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/4cee0ab4ee0b42e3b255f089f2d5cd8c~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=636\&amp;h=587\&amp;s=72285\&amp;e=png\&amp;b=1e1e1e" /></p>
+<ul>
+<li>version：实际安装的版本；</li>
+<li>resolved：包下载的地址；</li>
+<li>integrity：用于安全校验的哈希值，确保下载的包与发布的包一致；</li>
+<li>dependencies：当前包依赖的所有包的版本信息；</li>
+<li>engines：当前包运行需要的 Node 版本。</li>
+</ul>
+<h2>6 <code>.npmrc</code> 介绍</h2>
+<p><code>.npmrc</code> 文件是 NPM 的配置文件，它包含了一些 NPM 的配置信息，比如代理、镜像、命令别名等。通过修改 <code>.npmrc</code> 文件，可以更改 NPM 的默认行为。</p>
+<p>全局中，<code>.npmrc</code> 文件通常位于用户主目录下 (Linux 和 Mac 是 <code>~/.npmrc</code>，Windows 是 <code>%USERPROFILE%/.npmrc</code>)。</p>
+<p>也可以在项目根目录下创建一个 <code>.npmrc</code> 文件，此时该项目下执行 npm 将会复用此份配置。</p>
+<p>例如修改 <code>registry</code> 配置，让项目协作同学不用主动设置镜像源的地址，也能和自己保持一致。</p>
+<p>```sh</p>
+<h1>.npmrc</h1>
+<p>registry=https://registry.npmjs.org/
+```</p>
+<p>在这个目录下获取到的 <code>registry</code> 和其它目录就会不同，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/afee4b31e83044c3854c6d82d0560333~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=981\&amp;h=126\&amp;s=22665\&amp;e=png\&amp;b=1f1f1f" /></p>
+<p>更多配置项可以参考 <a href="https://docs.npmjs.com/cli/v9/configuring-npm/npmrc">NPM 的官方文档</a>。</p>
+<h2>7 npx 介绍</h2>
+<p>npx 是随 Node.js 安装附带的另一个指令，可以更方便的调用 Node.js 生态中的包 (通常是一些 Node CLI 工具)，</p>
+<p>使用 npx，可以在不全局安装一个命令行工具的情况下直接运行它，同时也不会污染全局环境。</p>
+<p>比如 <code>nodemon</code> 这个 CLI 工具，可以在开发时替代 <code>node</code> 指令执行 js 文件，文件修改后自动重新执行。</p>
+<p>```sh</p>
+<h1>直接通过npx 调用执行</h1>
+<p>npx nodemon test.js</p>
+<h1>等价于</h1>
+<h1>① 全局安装CLI工具</h1>
+<p>npm i -g nodemon</p>
+<h1>② 调用执行</h1>
+<p>nodemon test.js
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/aa1baa52b70a44afaf1d40a1ea661f8a~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=506\&amp;h=482\&amp;s=376386\&amp;e=png\&amp;b=041f33" /></p>
+<h2>小结</h2>
+<p>本节主要介绍了 npm 相关的内容，包括 npm 的概念、如何配置国内镜像源、常用的 npm 指令、npm 配置文件及其作用，以及 npx 指令等。</p>
+<p>其中，配置国内镜像源用于解决网络访问问题，常用的 npm 指令介绍了 install、uninstall、run 等，npm 相关的文件包括 package.json、package-lock.json 和 <code>.npmrc</code>，npx 指令可以更方便地调用 Node.js 生态中的 CLI 工具。</p>
+<p>package.json 主要用于描述项目基本信息、管理依赖，package-lock.json 则用于锁定安装的依赖版本，以避免出现不必要的依赖升级问题。</p>
+<p>本节内容相对基础，建议熟练掌握 😄。</p>

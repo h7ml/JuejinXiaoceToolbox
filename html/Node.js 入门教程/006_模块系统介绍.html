@@ -1,0 +1,53 @@
+<p>在日常开发中，涉及到多人协作，复杂的软件开发时，代码直接被通过复制粘贴的方式运用到整个项目中时，会导致代码难以维护和修改。</p>
+<p>为了解决这个问题，模块化编程的概念诞生了。</p>
+<h2>1 什么是模块系统</h2>
+<blockquote>
+<p>模块系统是指代码组织结构的一种模式，通过模块化的方式将代码分为独立的模块，以提高代码复用性和可维护性。模块系统使得大型应用程序可以被分解成小的、独立的部分，每个部分解决一个特定的问题这样做既有助于协同开发大型应用，也能够使得交付的应用程序体积更加小巧。</p>
+</blockquote>
+<p><strong>模块化允许代码分离，将其组织为可维护的单元，提升代码的可复用性和可读性。</strong></p>
+<h2>2 为什么需要模块化</h2>
+<p>前端在没有模块化规范的早期时代，代码通常是下面这样的，直接使用内联脚本。</p>
+<p>```html</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        var a = 1
+        var b = 2
+        var c = a + b
+        console.log(c)
+    </script>
+</body>
+</html>
+<p>```</p>
+<p>但随着 js 能做的事越来越多，代码量越来越大，这种方式就不太合适了，于是我们开始使用外联脚本。</p>
+<p>```html</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Document</title>
+</head>
+<body>
+    <script src="./hello1.js"></script>
+    <script src="./hello2.js"></script>
+</body>
+</html>
+<p>```</p>
+<p>但随着项目越来越大，我们需要引入的外联脚本越来越多，管理越来越困难，相互依赖关系越来越复杂，需要严格的遵循引入顺序，</p>
+<p>没有模块化标准的问题就暴露出来了，于是 <code>CommonJS、AMD、CMD、UMD、ESM</code> 等模块化标准相继诞生。</p>
+<h2>3 Node.js 中的模块系统</h2>
+<p>早期的编程语言，如 C 语言，通常采用函数库的形式实现模块化，随着面向对象编程的兴起，类和对象被广泛应用于模块化设计。</p>
+<p>Node.js 在早期就采用了 <code>CommonJS</code> 规范实现了模块化，而 Web (浏览器) 中的 JS，在发展过程中诞生了 <code>ECMAScript 标准</code>，在 ES6(ES2015) 中才推出了 <code>ECMAScript Modules</code> 规范。</p>
+<blockquote>
+<p><em>PS：<code>ECMAScript</code> 是一种由 Ecma 国际组织制定的脚本语言标准，也被称为 ECMA-262 标准。它定义了 JavaScript 的语法、类型、对象和行为规范，提供了一种通用的、跨平台的脚本语言规范。</em></p>
+</blockquote>
+<p>在2015年 (ES2015/ES6) 发布较大更新后，此后每年都会发布一些新的特性的更新，具体可通过 <a href="https://link.juejin.cn/?target=https%3A%2F%2Fcompat-table.github.io%2Fcompat-table%2Fes2016plus%2F">ES Table</a> 查看。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/4564c6ddb3b64f8cb7bd285b23473d4f~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1981\&amp;h=1037\&amp;s=304923\&amp;e=png\&amp;b=f3eeed" /></p>
+<p>Node.js 不同版本对 ES 特性的支持情况，可以通过<a href="https://link.juejin.cn/?target=https%3A%2F%2Fcompat-table.github.io%2Fcompat-table%2Fes2016plus%2F">node-compat-table</a> 查看</p>
+<p><img alt="image.png" src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9e64a86ed9dd4eb7a6d8de62b042ab25~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=4024&amp;h=2076&amp;s=827965&amp;e=png&amp;b=fdfdfd" /></p>
+<p>时至今日，Node.js 的模块系统也支持了 <code>ESM</code> 语法，于是，我们可以在 <code>Node.js</code> 中使用 CJS 和 ESM 两种模块系统。</p>
+<p>接下来将分别介绍 <code>CJS（CommonJS）</code> 和 <code>ESM（ECMAScript Modules）</code> 两种模块系统的用法，以及其异同。</p>
+<p>在后续的教程中，示例代码会以 ESM 为主，这个也是现在开发中最常用的方式。</p>

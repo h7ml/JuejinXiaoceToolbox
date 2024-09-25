@@ -1,0 +1,145 @@
+<p>在部分系统模块中 (例如 <code>fs</code>)，你可能会奇怪为什么有 <code>fs.readFile</code>，<code>fs.readFileSync</code>，<code>fs.promises.readFile</code> 3 种方式。</p>
+<p>实际上对应着 3 种编码方式，最初只有同步 (sync) 和异步回调 (callback) 两种方式，在 ES6 (ES2015) 推出之后才有的 <code>async/await</code> 和 <code>Promise</code>。</p>
+<ol>
+<li>
+<p>同步操作：同步操作会阻塞当前线程，直到操作完成。<strong>因此，在执行耗时操作时，应避免使用同步操作方式，因为它可能导致应用程序的响应性变差</strong>；</p>
+</li>
+<li>
+<p>异步回调函数 (Callbacks)：最初的异步执行依托于回调函数实现，回调函数是一个作为参数传递给另一个函数的函数，当异步操作完成时，回调函数会被调用，但当多层嵌套的时候会导致回调地狱；</p>
+</li>
+<li>
+<p>异步方法 (Async/Await)：ES6 引入的新语法可让我们更方便地写异步代码，并且避免了回调地狱。</p>
+</li>
+</ol>
+<p>下面举一些实际的例子来帮助理解。</p>
+<h2>1 同步方法</h2>
+<h3>1.1 常见的同步方法</h3>
+<p>下面是最常见的同步方法，</p>
+<p><code>js
+function hello(){
+    console.log('hello world')
+}</code></p>
+<p>代码会一行行的执行，不会跳着执行。</p>
+<p><code>js
+console.log(1)
+hello()
+console.log(2)</code></p>
+<h3>1.2 实现同步 fetch</h3>
+<p>通常在带有异步方法的情况下，内容输出时机与异步方法执行时间有关，</p>
+<p>比如下面的打印 <code>123</code>。</p>
+<p>```js
+const { readFile } = require('fs')</p>
+<p>console.log(1)
+readFile(__filename, () =&gt; {
+  console.log(3)
+})
+console.log(2)
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/61c4e209143b470da64abef203232605~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=289\&amp;h=154\&amp;s=64455\&amp;e=png\&amp;b=100f12" /></p>
+<p>如果要输出 <code>132</code> 咱们只能使用 <code>readFileSync</code> 方法，</p>
+<p>那么如何实现一个类似的 Sync 方法呢？我们以 fetch 为例，实现一个 fetchSync，</p>
+<p>可以结合使用 <code>child_process.spawnSync</code> 创建子进程来实现一个简单的 fetchSync。</p>
+<p>```js
+const { spawnSync } = require('child_process')</p>
+<p>function fetchSync(url, options = {}) {
+  // 将请求参数和 URL 传递给子进程
+  const child = spawnSync(process.argv[0], [
+    './_fetch-sync.js',
+    JSON.stringify(url),
+    JSON.stringify(options)
+  ])</p>
+<p>// 子进程的标准输出即为请求结果
+  const result = child.stdout.toString()
+  const responseData = JSON.parse(result)
+  return responseData.body
+}
+```</p>
+<p>子进程代码如下 <code>_fetch-sync.js</code>。</p>
+<p>```js
+// 如果当前文件是被子进程执行的
+if (process.argv.length === 4) {
+  // 从子进程的参数中获取请求参数
+  const url = JSON.parse(process.argv[2])
+  const options = JSON.parse(process.argv[3])</p>
+<p>fetch(url, options).then(async (response) =&gt; {
+    // 将响应数据发送给父进程
+    const result = {
+      status: response.status,
+      body: await response.json()
+    }
+    console.log(JSON.stringify(result))
+  })
+}
+```</p>
+<p>运行结果如下。</p>
+<p><code>js
+console.log(1)
+console.log(
+  fetchSync(
+    'https://api.juejin.cn/content_api/v1/content/article_rank?category_id=1&amp;type=hot&amp;count=3&amp;from=1&amp;aid=2608&amp;uuid=7145810834685003271&amp;spider=0'
+  )
+)
+console.log(2)</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/18aa4b01c941499fa3babcaad85c5e25~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=380\&amp;h=668\&amp;s=405843\&amp;e=png\&amp;b=041931" /></p>
+<h2>2 异步回调函数</h2>
+<h3>2.1 使用示例</h3>
+<p>读取文件的同时，可以执行其它代码，</p>
+<p>```js
+import fs from 'fs'</p>
+<p>console.log(1)
+fs.readFile('./index.mjs', (err, data) =&gt; {
+  console.log(2, data.toString())
+})
+console.log(3)
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/40538b9b66b04aa199e15b04c646ddba~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=528\&amp;h=276\&amp;s=236830\&amp;e=png\&amp;b=041b32" /></p>
+<p>但如果在回调里还要执行异步的回调就会有回调地狱的问题，下面是一个例子。</p>
+<h3>2.2 回调地狱</h3>
+<p>比如要顺序读取 3 个文件，使用回调的方式就需要像下面这样书写，非常的不优雅。</p>
+<p>```js
+import fs from 'fs'</p>
+<p>const fileA = 'index.mjs'
+const fileB = 'index.mjs'
+const fileC = 'index.mjs'
+fs.readFile(fileA, (err, dataA) =&gt; {
+  console.log('File A content:')</p>
+<p>fs.readFile(fileB, (err, dataB) =&gt; {
+    console.log('File B content:')</p>
+<pre><code>fs.readFile(fileC, (err, dataC) =&gt; {
+  console.log('File C content:')
+})
+</code></pre>
+<p>})
+})
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/d1d3f09272da4e908dbb52beee4b2e70~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=353\&amp;h=202\&amp;s=111261\&amp;e=png\&amp;b=201228" /></p>
+<p>在实际复杂的业务场景中会导致难以维护代码，</p>
+<p>下面看看 async/await 如何解决这个问题。</p>
+<h2>3 async/await</h2>
+<p>利用 <code>async/await</code> 配合 Promise 可以很优雅的处理异步代码。</p>
+<p>```js
+import fs from 'fs/promises'</p>
+<p>const fileA = 'index.mjs'
+const fileB = 'index.mjs'
+const fileC = 'index.mjs'
+async function main() {
+  const dataA = await fs.readFile(fileA)
+  console.log('File A content:')
+  const dataB = await fs.readFile(fileB)
+  console.log('File B content:')
+  const dataC = await fs.readFile(fileC)
+  console.log('File C content:')
+}</p>
+<p>main()
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0c41888662114de5a32f01a106fe8c51~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=507\&amp;h=174\&amp;s=128959\&amp;e=png\&amp;b=201229" /></p>
+<h2>小结</h2>
+<p>本节介绍了同步方法、异步回调函数、async/await 三种编码方式的异同：</p>
+<ul>
+<li>同步：阻塞当前线程，直到操作完成；</li>
+<li>异步回调：容易出现回调地狱的情况；</li>
+<li>ES6 (Async/Await)：ES6 引入的新语法可让我们更方便地写异步代码，同时避免了回调地狱的问题。</li>
+</ul>
+<p>在介绍同步方法时，介绍了如何利用 <code>child_process.spawnSync</code> 实现一个同步方法 <code>fetchSync</code>，</p>
+<p>在介绍异步回调函数时，介绍了回调地狱的问题，</p>
+<p>最后通过 async/await 优雅的编写异步调用代码。</p>

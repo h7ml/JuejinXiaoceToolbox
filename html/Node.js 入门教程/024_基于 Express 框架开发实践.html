@@ -1,0 +1,923 @@
+<p>本节将详细的介绍了如何使用 Express 开发一个 Web 服务器。</p>
+<p>包含从<strong>项目创建 =&gt; 编写代码&amp;创建服务 =&gt; 测试服务 =&gt; 线上部署</strong>完整流程。</p>
+<h2>1 准备工作</h2>
+<h3>1.1 初始化项目</h3>
+<p>新建一个目录 <code>express-demo</code>，进入目录，执行 <code>npm init -y</code> 初始化项目。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0be6145275654303825fc2d80048c2c0~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=365\&amp;h=391\&amp;s=224833\&amp;e=png\&amp;b=150b2e" /></p>
+<p>同时设置 <code>package.json</code> 的 <code>type</code> 字段为 <code>module</code>，以便使用 ESM 语法编写代码 (当然也可以使用构建工具转换语法，这个后面单独介绍)。</p>
+<p>① 安装依赖</p>
+<p><code>sh
+npm i express</code></p>
+<p>② 创建 <code>app.js</code> 文件，编写如下内容</p>
+<p>```js
+import express from 'express'</p>
+<p>const PORT = 3000 // 用于设置端口号
+const app = express() // 创建一个express应用程序实例</p>
+<p>// 创建一个 GET /hello 路由
+app.get('/hello', (req, res) =&gt; {
+  // 返回一个包含 "Hello World" 的 H1 标题的响应
+  res.send('<h1>Hello World</h1>')
+})</p>
+<p>// 启动 Express 应用程序，监听在指定的端口上
+app.listen(PORT, () =&gt; {
+  // 在控制台输出服务器运行信息
+  console.log(<code>Server is running at http://localhost:${PORT}</code>)
+})
+```</p>
+<p>③ 安装 <code>nodemon</code>，用于监听文件变化，自动重启服务</p>
+<p><code>sh
+npm i nodemon -D</code></p>
+<p>④ 配置开发启动指令</p>
+<p><code>package.json</code> 加入如下内容。</p>
+<p><code>json
+{
+  "scripts": {
+    "dev": "nodemon app.js"
+  }
+}</code></p>
+<h3>1.2 启动服务</h3>
+<p>使用 <code>npm run dev</code> 启动项目。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/32b43d9b871645b4a1c81c124d1e1106~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=560\&amp;h=314\&amp;s=276684\&amp;e=png\&amp;b=041e32" /></p>
+<p>打开浏览器访问 <code>http://localhost:3000/hello</code>，可以看到如下页面。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/4035023e52dc46d7b462e26172b8e952~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=327\&amp;h=138\&amp;s=7714\&amp;e=png\&amp;b=fefefe" /></p>
+<p><strong>注意：如果 <code>localhost</code> 无法访问，可能是 <code>hosts</code> 文件没有配置与 <code>127.0.0.1</code> 的映射，可以使用 <code>127.0.0.1</code> 访问(<code>http://127.0.0.1:3000/hello</code>)，或者配置 hosts 文件。</strong></p>
+<h3>1.3 测试服务</h3>
+<p>通常后端开发我们都会使用一些客户端工具来调试我们的接口，</p>
+<p>这里推荐一个开源的 <a href="https://github.com/Postcatlab/postcat">postcat</a>，非常轻量，无需登录注册也可使用，能满足基本的开发调试。</p>
+<p>当然功能更加丰富的可以使用 <a href="https://www.eolink.com/pc">eolink</a> 或者 <a href="https://apifox.com/">Apifox</a>，这里不再过多展开，读者选取一个趁手的就行。</p>
+<p>下面使用 <code>postcat</code> 演示 API 测试。</p>
+<p>安装好后，打开可看见如下界面，先配置一个本地环境。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f4c4164ec7094cad84602f0cda5b134b~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1285\&amp;h=690\&amp;s=68253\&amp;e=png\&amp;b=fefefe" /></p>
+<p>在 API 页面发起请求的示例如下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/95e80a84d8794bc2b0d55fa0dc733323~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1283\&amp;h=532\&amp;s=119417\&amp;e=png\&amp;b=fefefe" /></p>
+<p>可以看到这里返回了我们设置的内容。</p>
+<p>我们可以再修改一下代码为 (保存后会自动重启立马生效)</p>
+<p><code>js
+res.send('&lt;h1&gt;Hello Express&lt;/h1&gt;')</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/13657efe06f64a0a9e7f7d500ef99902~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=834\&amp;h=568\&amp;s=157538\&amp;e=png\&amp;b=fdfdfd" /></p>
+<p>接下来介绍一下 Express 相关方法的使用，过程中再进一步介绍 <code>postcat</code> 的使用。</p>
+<h2>2 常用方法介绍</h2>
+<h3>2.1 app.use</h3>
+<p>用于设置中间件函数来处理请求和响应，Express 会按照设置的顺序依次调用中间件函数。</p>
+<p>中间件函数支持接受三个参数：</p>
+<ul>
+<li>req：请求对象；</li>
+<li>res：响应对象；</li>
+<li>next 函数：将请求转发给下一个中间件函数。</li>
+</ul>
+<p>写一个 <code>app.use</code> 放在之前的 <code>app.get</code> 之前。</p>
+<p><code>``js
+app.use((req, res, next) =&gt; {
+  const { method, path } = req
+  console.log(</code>[${method}] ${path}`)
+  next()
+})</p>
+<p>// 省略之前的代码
+// app.get('/hello',xxx)
+```</p>
+<p>在通过服务请求可以查看所有请求的方法和路径被打印到终端里。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/a49a1812049f45e89f37dc20279364a1~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1041\&amp;h=772\&amp;s=417267\&amp;e=png\&amp;b=fdfdfd" /></p>
+<h3>2.2 传递参数</h3>
+<p>支持通过 <code>query</code>，<code>headers</code>，<code>body</code>，<code>params</code> 传递参数。</p>
+<p>我们继续完善一下刚刚的 <code>app.use</code> 代码。</p>
+<p><code>js
+app.use((req, res, next) =&gt; {
+  const { method, path, query, body, headers } = req
+  console.log(`[${method}] ${path}`)
+  console.log('query:', query)
+  console.log('headers:', headers)
+  console.log('body:', body)
+  next()
+})</code></p>
+<p>再用工具测试一下。</p>
+<p>设置一些传递的参数，
+<img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6c2356ad6dec45cf8e2a61afb7e3488d~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1227\&amp;h=312\&amp;s=97263\&amp;e=png\&amp;b=fcfcfc" /></p>
+<p>发送请求，结果如下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8efd8ec001e248a08f41c506873a2892~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=646\&amp;h=307\&amp;s=253597\&amp;e=png\&amp;b=190b2f" /></p>
+<p>可以看到正确的获取了传递的 <code>query</code> 和 <code>headers</code> 但是 body 是空的。</p>
+<p>这是因为 <code>express</code> 默认不支持解析传递的请求体数据，所以我们需要引入一个中间件来解析这种类型的数据，这里使用 <a href="https://expressjs.com/zh-cn/4x/api.html#express.json">express.json()</a> 这个内置的中间件 (基于 <a href="https://expressjs.com/en/resources/middleware/body-parser.html">body-parser</a>)。</p>
+<p><code>js
+const app = express() // 创建一个express应用程序实例
+// 支持JSON数据解析
+app.use(express.json())</code></p>
+<p>再次发送请求就可以看到获取到了 <code>body</code> 数据。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c3a82a2f28194bd8a8b05696db941280~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=673\&amp;h=344\&amp;s=329999\&amp;e=png\&amp;b=251440" /></p>
+<p>其中 <code>params</code> 主要指路由中携带的 REST 参数，下面是个示例。</p>
+<p><code>js
+app.get('/hello/:id', (req, res) =&gt; {
+  const { params } = req
+  console.log('params', params)
+  res.json(params)
+})</code></p>
+<p>请求 <code>GET /hello/123</code> 结果如下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5aff0a0ef4564f60b71196c8e29ca96e~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=425\&amp;h=438\&amp;s=28453\&amp;e=png\&amp;b=fcfcfc" /></p>
+<p>也可以利用工具提供的 <code>REST</code> 参数，请求路径调整为 <code>GET /hello/{id}</code> (部分工具支持的格式也可能是 <code>GET /hello/:id</code>)。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/02d8b81a478242bc9a82b8a28c137358~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=516\&amp;h=434\&amp;s=35142\&amp;e=png\&amp;b=fcfcfc" /></p>
+<h3>2.3 不同的请求方法</h3>
+<p>我们可以通过 <code>app.get</code>、<code>app.post</code>、<code>app.put</code>、<code>app.delete</code> 等方法来设置不同的请求方法，格式如下。</p>
+<ul>
+<li>app 是 express 的实例；</li>
+<li>METHOD 是 HTTP 请求方法；</li>
+<li>PATH 是服务器上的路径；</li>
+<li>HANDLER 是在路由匹配时执行的函数。</li>
+</ul>
+<p><code>js
+app.METHOD(PATH, HANDLER)</code></p>
+<p>下面我们单独新建一个文件 <code>routes/method.js</code> 来使用这些方法。</p>
+<p><code>js
+export default function mountMethodDemo(app) {
+  app.get('/method/get', (req, res) =&gt; {
+    res.send('GET request')
+  })
+  app.post('/method/post', (req, res) =&gt; {
+    res.send('POST request')
+  })
+  app.put('/method/put', (req, res) =&gt; {
+    res.send('PUT request')
+  })
+  app.delete('/method/delete', (req, res) =&gt; {
+    res.send('DELETE request')
+  })
+}</code></p>
+<p>在 <code>app.js</code> 中引入。</p>
+<p><code>js
+import mountMethodDemo from './routes/method.js'
+// 省略之前的代码
+mountMethodDemo(app)</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/697e9e2ac70e468892de04afb71e2742~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=652\&amp;h=563\&amp;s=85243\&amp;e=png\&amp;b=202020" /></p>
+<p>然后就可以通过工具来测试了。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8a90b916dfea4281bc6cc0670bc1dd8c~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=402\&amp;h=217\&amp;s=15395\&amp;e=png\&amp;b=fbfbfb" /></p>
+<p>同时还支持一种特殊的 <code>app.all</code>，可以匹配所有的请求方法。</p>
+<p><code>js
+app.all('/method/all', (req, res) =&gt; {
+  const { method } = req
+  res.send(`${method} request`)
+})</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5145aa3dbb0c47a8a9431978be1928a8~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=344\&amp;h=455\&amp;s=30066\&amp;e=png\&amp;b=fafafa" /></p>
+<h3>2.4 路由路径</h3>
+<p>Express 使用 <a href="https://www.npmjs.com/package/path-to-regexp">path-to-regexp</a> 来匹配路由路径，</p>
+<p>路由路径可以是 <code>字符串</code>、<code>字符串模式</code> 或 <code>正则表达式</code>。</p>
+<p>其中字符串的方式，就是上面的常规写法。</p>
+<p>\===<strong>字符串模式</strong>的方式===</p>
+<p>可以使用 <code>?(存在或者不存在)</code>、<code>+(连续一个或多个)</code>、<code>*(任意字符0个或多个)</code> 和 <code>()</code> 等特殊字符。</p>
+<p><code>js
+// 匹配 acd 和 abcd
+app.get('/ab?cd', (req, res) =&gt; {
+  res.send('ab?cd')
+})
+// 匹配 abcd、abbcd、abbbcd等
+app.get('/ab+cd', (req, res) =&gt; {
+  res.send('ab+cd')
+})
+// 匹配 abcd、abxcd、abRABDOMcd、ab123cd等
+app.get('/ab*cd', (req, res) =&gt; {
+  res.send('ab*cd')
+})
+// 匹配 /abe 和 /abcde
+app.get('/ab(cd)?e', (req, res) =&gt; {
+  res.send('ab(cd)?e')
+})</code></p>
+<p>\===<strong>正则模式</strong>===</p>
+<p>可以使用正则表达式来匹配路由。</p>
+<p><code>js
+// 匹配路径中含有 world 的路径
+app.get(/world/, (req, res) =&gt; {
+  res.send('hello hello')
+})</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/348c3e79f81c4c438660cce246b1aaf1~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=439\&amp;h=255\&amp;s=14536\&amp;e=png\&amp;b=fcfcfc" /></p>
+<h3>2.5 Router</h3>
+<p>使用 <code>express.Router</code> 可以创建单独的路由实例，这样非常方便我们模块化开发应用。</p>
+<p><code>Router</code> 实例是完整的中间件和路由系统。</p>
+<p>下面我们新建一个文件 <code>routes/router-demo.js</code> 来演示 <code>Router</code> 实例的应用。</p>
+<p>```js
+import express from 'express'</p>
+<p>const router = express.Router()</p>
+<p>router.get('/router/get', (req, res) =&gt; {
+  res.send('GET router request')
+})</p>
+<p>router.post('/router/post', (req, res) =&gt; {
+  res.send('POST router request')
+})</p>
+<p>export default router
+```</p>
+<p>在 <code>app.js</code> 中引入。</p>
+<p>```js
+import demoRouter from './routes/router-demo.js'
+// 省略其他代码</p>
+<p>// 注册 demoRouter 路由
+app.use(demoRouter)
+// 将 demoRouter 路由注册到 /demo 路径下，路由会自动拼接上 /demo 前缀
+app.use('/demo', demoRouter)
+```</p>
+<p>请求结果如下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/d7da519bb9014d2985eca563b8738bc2~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=384\&amp;h=452\&amp;s=37704\&amp;e=png\&amp;b=fbfbfb" /></p>
+<h3>2.6 app.route</h3>
+<p><code>app.route()</code> 可以用来创建链式路由，可以避免重复的路由名称。</p>
+<p>可以用于创建相同路由名称的不同请求方法，同时可以通过 <code>all</code> 设置所有请求的前置处理逻辑。</p>
+<p><code>js
+app
+  .route('/route/any')
+  .all((req, res, next) =&gt; {
+    console.log('pre all', req.method, req.path)
+    next()
+  })
+  .get((req, res) =&gt; {
+    console.log('get request')
+    res.send('get request')
+  })
+  .post((req, res) =&gt; {
+    console.log('post request')
+    res.send('post request')
+  })</code></p>
+<p>测试结果如下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/993e22f9bb4a4fae8be832bb9c3fc379~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=664\&amp;h=341\&amp;s=58706\&amp;e=png\&amp;b=fdfdfd" /></p>
+<h3>2.7 响应数据</h3>
+<p>express 内置了许多开箱即用的设置响应数据的方法，下面我们介绍一些常用的，</p>
+<p>我们新建一个文件 <code>routes/response.js</code> 来存放这一小节的路由代码 (同理在 <code>app.js</code> 中引入即可。</p>
+<p>```js
+// routes/response.js
+import express from 'express'</p>
+<p>const router = express.Router()
+// 省略后续的路由代码</p>
+<p>export default router</p>
+<p>// app.js中引入
+import responseRouter from './routes/response.js'</p>
+<p>app.use(responseRouter)
+```</p>
+<p>① <code>res.json</code></p>
+<p>主要用于发送 JSON 数据。</p>
+<p><code>js
+router.get('/response/json', (req, res) =&gt; {
+  res.json({
+    name: 'express',
+    type: 'framework'
+  })
+})</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/133d980adcdd428289993544a1ed4cfd~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=539\&amp;h=259\&amp;s=22251\&amp;e=png\&amp;b=fdfdfd" /></p>
+<p>② <code>res.send</code></p>
+<p>可以用于发送任意类型的数据。</p>
+<p>```js
+router.get('/response/send', (req, res) =&gt; {
+  // html
+  res.send('<h1>hello express</h1>')</p>
+<p>// json
+  //   res.send({
+  //     name: 'express',
+  //     type: 'framework'
+  //   })</p>
+<p>// string
+  // res.send('hello express')</p>
+<p>// Buffer
+  // res.send(Buffer.from('hello express'))
+})
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/4cf7ed7abae64830ad52c0a045f124c3~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=422\&amp;h=458\&amp;s=33858\&amp;e=png\&amp;b=fcfcfc" /></p>
+<p>③ <code>res.download</code></p>
+<p>用于下载文件。</p>
+<p>```js
+import path from 'path'</p>
+<p>router.get('/response/download', (req, res) =&gt; {
+  // 指定文件路径
+  // res.download('package.json')
+  res.download(path.resolve('./package.json'))
+})
+```</p>
+<p>打开浏览器访问 <code>http://localhost:3000/response/download</code></p>
+<p>即可看见触发了文件下载。</p>
+<h3>2.8 操作 header</h3>
+<p>新建一个文件 <code>routes/headers.js</code> 来存放这一小节的路由代码 (同理在 <code>app.js</code> 中引入即可。</p>
+<p>① 获取 Request header</p>
+<p>直接通过 <code>req.headers</code> 即可获取到请求头。</p>
+<p><code>js
+router.get('/response/get/header', (req, res) =&gt; {
+  res.json(req.headers)
+})</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3ea81159cd6f4d4d9d16cafb074ac89c~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=833\&amp;h=314\&amp;s=66912\&amp;e=png\&amp;b=fdfcfc" /></p>
+<p>② 设置 Response header</p>
+<p>可以通过 <code>res.set</code> 来设置 response header。</p>
+<p><code>js
+router.get('/response/set/header', (req, res) =&gt; {
+  res.set('Content-Type', 'text/html')
+  res.set('token', '123456')
+  res.send('&lt;h1&gt;hello express&lt;/h1&gt;')
+})</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/abd637a373fc4b779a7f667cf4569a03~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=452\&amp;h=335\&amp;s=36563\&amp;e=png\&amp;b=fdfdfd" /></p>
+<h3>2.9 代码整理</h3>
+<p>前面的代码中的路由有一部分是写在 <code>app.js</code> 中，导入注册也是在 app.js 中，这样会导致代码相对臃肿，我们可以处理成下面的目录结构。</p>
+<p><code>sh
+├── app.js
+├── middleware
+|  └── index.js
+├── package-lock.json
+├── package.json
+└── routes
+   ├── headers.js
+   ├── index.js
+   ├── method.js
+   ├── response.js
+   └── router-demo.js</code></p>
+<p>将中间件注册和路由注册的逻辑放在 <code>app.js</code> 中，具体实现放在 <code>routes/index.js</code> 和 <code>middleware/index.js</code> 下。</p>
+<p>这样 app.js 的代码就变成了这样，看上去就简洁很多了。</p>
+<p>```js
+// app.js
+import express from 'express'
+import mountMiddleware from './middleware/index.js'
+import mountRouters from './routes/index.js'</p>
+<p>const PORT = 3000 // 用于设置端口号
+const app = express() // 创建一个express应用程序实例</p>
+<p>mountMiddleware(app)
+mountRouters(app)</p>
+<p>// 启动 Express 应用程序，监听在指定的端口上
+app.listen(PORT, () =&gt; {
+  // 在控制台输出服务器运行信息
+  console.log(<code>Server is running at http://localhost:${PORT}</code>)
+})
+```</p>
+<p><code>mountMiddleware</code> 函数的实现如下。</p>
+<p>```js
+import express from 'express'</p>
+<p>export default function mountMiddleware(app) {
+  app.use(express.json()) // 支持body解析</p>
+<p>// 自定义中间件函数
+  app.use((req, res, next) =&gt; {
+    const { method, path, query, body, headers } = req
+    console.log(<code>[${method}] ${path}</code>)
+    console.log('query:', query)
+    console.log('headers:', headers)
+    console.log('body:', body)
+    next()
+  })
+}
+```</p>
+<p><code>mountRouters</code> 函数的实现如下。</p>
+<p>```js
+import headerRouter from './headers.js'
+import responseRouter from './response.js'
+import demoRouter from './router-demo.js'
+import mountMethodDemo from './method.js'</p>
+<p>const routers = [headerRouter, responseRouter, demoRouter]</p>
+<p>export default function mountRouters(app) {
+  mountMethodDemo(app)</p>
+<p>// 注册所有router
+  app.use(routers)</p>
+<p>// 将 demoRouter 路由注册到 /demo 路径下，路由会自动拼接上 /demo 前缀
+  app.use('/demo', demoRouter)</p>
+<p>// 一些自定义路由
+  app.get('/hello/:id', (req, res) =&gt; {
+    const { params } = req
+    console.log('params', params)
+    res.json(params)
+  })</p>
+<p>// 创建一个 GET /hello 路由
+  app.get('/hello', (req, res) =&gt; {
+    // 返回一个包含 "Hello World" 的 H1 标题的响应
+    //   res.send('<h1>Hello World</h1>')
+    res.send('<h1>Hello Express</h1>')
+  })
+}
+```</p>
+<h3>2.10 其它</h3>
+<p>上面只介绍了一些 express 入门掌握的内容，更多 API 可以阅读官方文档掌握：</p>
+<ul>
+<li><a href="https://expressjs.com/zh-cn/4x/api.html#req">Request</a>；</li>
+<li><a href="https://expressjs.com/zh-cn/4x/api.html#res">Response</a>。</li>
+</ul>
+<h2>3 Restful API 实现</h2>
+<p>在上一章中我们定义了一些 <code>Restful</code> 风格的 API，我们这里可以利用前面掌握的内容来简单实现一下。</p>
+<p>新建 <code>routes/restful.js</code> 文件，编写一下如下路由。</p>
+<p>| 方法     | 路径             | 描述                         |
+| ------ | -------------- | -------------------------- |
+| GET    | /api/users     | 获取所有用户信息                   |
+| GET    | /api/users/:id | 根据用户ID获取用户信息               |
+| POST   | /api/users     | 创建新用户，请求体包含新用户的信息          |
+| PUT    | /api/users/:id | 根据用户ID更新用户信息，请求体包含更新后的用户信息 |
+| DELETE | /api/users/:id | 根据用户ID删除用户信息               |</p>
+<p>```js
+import express from 'express'</p>
+<p>const router = express.Router()</p>
+<p>// 用于测试的数据
+const userList = [
+  {
+    id: 1,
+    name: '张三'
+  },
+  {
+    id: 2,
+    name: '李四'
+  },
+  {
+    id: 3,
+    name: '王五'
+  }
+]</p>
+<p>router.get('/users', (req, res) =&gt; {
+  res.json(userList)
+})</p>
+<p>router.get('/users/:id', (req, res) =&gt; {
+  // 根据用户 id 查找用户信息
+  const user = userList.find((item) =&gt; item.id === Number(req.params.id))
+  res.json(user)
+})</p>
+<p>router.post('/users', (req, res) =&gt; {
+  // 创建新用户
+  const user = {
+    id: userList.length + 1,
+    name: req.body.name // 从请求体中获取用户名
+  }
+  userList.push(user)
+  res.json(user)
+})</p>
+<p>router.put('/users/:id', (req, res) =&gt; {
+  // 根据用户 id 查找用户信息
+  const user = userList.find((item) =&gt; item.id === Number(req.params.id))
+  // 更新用户名称
+  user.name = req.body.name // 从请求体中获取新的用户名
+  res.json(user)
+})</p>
+<p>router.delete('/users/:id', (req, res) =&gt; {
+  // 查找要删除的用户在列表中的索引位置
+  const index = userList.findIndex((item) =&gt; item.id === Number(req.params.id))
+  // 获取要删除的用户信息
+  const delUser = userList[index]
+  // 从列表中删除该用户
+  userList.splice(index, 1)
+  res.json({
+    message: '删除成功',
+    data: delUser
+  })
+})</p>
+<p>export default router
+```</p>
+<p>然后在 <code>routes/index.js</code> 中注册路由。</p>
+<p>```js
+import restfulRouter from './restful.js'</p>
+<p>app.use('/api', restfulRouter)
+```</p>
+<p>测试结果如下。</p>
+<p>| 方法     | 路径             | 结果                                                                                                                                                                          |
+| ------ | -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | /api/users     | <img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ade3d8b84e7e4842af7ab1967a8b0e10~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=340\&amp;h=434\&amp;s=24221\&amp;e=png\&amp;b=fdfdfc" />   |
+| GET    | /api/users/:id | <img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/db83352e2e7a4466803aeca3b25875ee~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=463\&amp;h=260\&amp;s=17536\&amp;e=png" />             |
+| POST   | /api/users     | <img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/644b95eab3814c4da173866e5866b4b3~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=809\&amp;h=466\&amp;s=93955\&amp;e=png\&amp;b=fcfbfb" />   |
+| PUT    | /api/users/:id | <img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ef5640ac721948908d1ff783763a0a2d~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1025\&amp;h=484\&amp;s=105921\&amp;e=png\&amp;b=fcfcfc" /> |
+| DELETE | /api/users/:id | <img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fe50e70ae2db46c19b74247ba06fc266~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=939\&amp;h=391\&amp;s=71209\&amp;e=png\&amp;b=fdfdfc" />   |</p>
+<h2>4 静态资源目录代理</h2>
+<p>可以使用 <code>express.static</code> 设置静态资源目录，</p>
+<p>这样可以直接访问目标目录下的文件资源。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/125f0e194ea64607a982f97cd68256a5~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=366\&amp;h=402\&amp;s=238438\&amp;e=png\&amp;b=041b31" /></p>
+<p><code>js
+app.use(express.static('public'))</code></p>
+<p>访问 <code>http://localhost:3000/</code> 即可看到效果。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b0c630a5e2324db896d5114ea8b01faf~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=998\&amp;h=363\&amp;s=73484\&amp;e=png\&amp;b=212225" /></p>
+<p>几个文件代码如下。</p>
+<p>```html</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="./index.css">
+</head>
+<body>
+    <h1>Hello Express</h1>
+    <script src="./index.js"></script>
+    <button id="btn">say hello</button>
+</body>
+</html>
+<p>```</p>
+<p><code>css
+h1{
+    color: red;
+}</code></p>
+<p><code>js
+window.onload = () =&gt; {
+  document.querySelector('#btn').addEventListener('click', () =&gt; {
+    window.alert('Hello World!')
+  })
+}</code></p>
+<h2>5 文件上传</h2>
+<p>处理文件上传的第三方库有很多，比如 <a href="https://www.npmjs.com/package/busboy">busboy</a>，<a href="https://www.npmjs.com/package/multer">multer</a>，<a href="https://www.npmjs.com/package/formidable">formidable</a> 等等。</p>
+<p>这里我们使用 <code>multer</code> 来处理文件上传。</p>
+<p>① 安装依赖</p>
+<p><code>sh
+npm i multer</code></p>
+<p>② 编写文件上传路由 <code>routes/upload.js</code></p>
+<p><code>js
+// 引入需要的模块
+import express from 'express' // 引入 Express 框架
+import multer from 'multer' // 引入 Multer 模块
+import fs from 'fs'
+// 引入 Node.js 文件系统模块
+const router = express.Router()
+// 指定文件存储位置和文件名
+const storage = multer.diskStorage({
+  destination(req, file, cb) {
+    // 这里的 destination() 函数指定了文件存储的目录
+    const dir = './uploads' // './uploads' 为指定文件存储的目录
+    if (!fs.existsSync(dir)) {
+      // 如果该目录不存在，则创建该目录
+      fs.mkdirSync(dir, { recursive: true })
+    }
+    cb(null, './uploads') // 将文件存储到指定目录
+  },
+  filename(req, file, cb) {
+    // 这里的 filename() 函数指定了文件命名规则
+    const ext = file.originalname.split('.').pop() // 获取文件后缀名
+    cb(null, `${Date.now()}-${file.fieldname}.${ext}`) // 将文件存储到指定位置，并以指定的文件名命名
+  }
+})
+// 创建一个 multer 实例并配置相关选项
+const upload = multer({
+  storage, // 存储位置和文件名规则
+  limits: {
+    fileSize: 1024 * 1024 * 5 // 限制文件大小为 5 MB
+  },
+  fileFilter(req, file, cb) {
+    // 这里的 fileFilter() 函数指定了文件类型过滤规则
+    // 拒绝上传非图片类型的文件
+    if (!file.mimetype.startsWith('image/')) {
+      const err = new Error('Only image files are allowed!') // 错误的具体信息
+      err.status = 400 // 设置错误状态码为 400
+      return cb(err, false)
+    }
+    return cb(null, true)
+  }
+})
+// 处理文件上传请求
+router.post('/upload/image', upload.single('file'), (req, res) =&gt; {
+  // 这里的 upload.single() 函数指定了只上传单个文件
+  res.json({ message: '文件上传成功', data: req.file }) // 返回上传成功的信息和上传的文件信息
+})
+export default router // 导出路由模块</code></p>
+<p>③ 新建 <code>public/upload.html</code> 上传文件页面</p>
+<p>```html</p>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>上传文件示例</title>
+  <meta charset="utf-8">
+</head>
+<body>
+  <h1>上传文件示例</h1>
+  <form id="upload-form" action="/upload/image" method="post" enctype="multipart/form-data">
+    <div>
+      <label for="file-input">选择文件</label>
+      <input id="file-input" type="file" name="file">
+    </div>
+    <div>
+      <button type="submit">上传</button>
+    </div>
+  </form>
+</body>
+</html>
+<p>```</p>
+<p>④ 访问页面测试 <code>http://localhost:3000/upload.html</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/d04bdd7d06e94b66b8f7001145d068ee~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=708\&amp;h=705\&amp;s=541126\&amp;e=png\&amp;b=f9f8f8" /></p>
+<p>测试页面上传。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8f3174e1c53c4a7e92a29ed6bd7bfc42~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=483\&amp;h=300\&amp;s=28145\&amp;e=png\&amp;b=fefefe" /></p>
+<p>上传结果如下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/121a7d0bc7314679a7b368a705725edf~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1121\&amp;h=557\&amp;s=512081\&amp;e=png\&amp;b=fbfbfb" /></p>
+<h2>6 操作数据库</h2>
+<p>要让应用真正的活起来，当然离不开数据库，常用的数据库有 <code>MySQL、MongoDB、Redis</code> 等等。</p>
+<p><em>PS：默认读者已经了解了数据库的基本操作，本小节不会介绍数据库相关的基本知识和安装</em></p>
+<blockquote>
+<p>关于SQL入门大家可以阅读 <a href="https://www.liaoxuefeng.com/wiki/1177760294764384">廖雪峰: SQL教程</a> </p>
+<p>数据库管理工具，笔者使用 VS Code 插件: <a href="https://marketplace.visualstudio.com/items?itemName=cweijan.dbclient-jdbc">Database Client</a>，支持操作常见的关系型与非关系型数据库</p>
+</blockquote>
+<p><img alt="image.png" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5eabc346823343d7962fcf556fa6e718~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=2308&amp;h=1466&amp;s=285820&amp;e=png&amp;b=212121" /></p>
+<blockquote>
+<p>在配置 <code>localhost</code> 不生效的场景，可将其改为 <code>127.0.0.1</code></p>
+</blockquote>
+<details>
+    <summary> 如何检查&配置 localhost 与 127.0.0.1 映射？</summary>
+
+* linux/mac：修改`/etc/hosts` 文件配置
+* windows：修改 `C:\Windows\System32\drivers\etc\hosts` 文件配置
+</details>
+
+<p>下面介绍一下如何在 Node.js 中操作数据库。</p>
+<p>常用的操作数据库的第三方库有很多，比如 <a href="https://www.npmjs.com/package/sequelize">Sequelize</a>、<a href="https://www.npmjs.com/package/mongoose">Mongoose</a>，<a href="https://github.com/typeorm/typeorm">typeorm</a>，<a href="https://www.npmjs.com/package/prisma">prisma</a> 等等。</p>
+<p>下面是一个近期的<a href="https://npmtrends.com/mongoose-vs-prisma-vs-sequelize-vs-typeorm">下载量</a>对比。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1482f73ccfc34bdeaa11b734d2a1b28e~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1334\&amp;h=533\&amp;s=44469\&amp;e=png\&amp;b=fefefe" /></p>
+<p><code>Sequelize</code>，<code>Mongoose</code> 略多一点，后 2 者比较适合大型项目使用，功能更加丰富。</p>
+<p>下面分别介绍一下使用它们如何简单操作 mysql 和 mongodb。</p>
+<h3>6.1 Sequelize 操作 MySQL</h3>
+<p>新建一个 <code>node_test</code> 数据库和一张用于测试的 <code>users</code> 表。</p>
+<p>```sql
+create database node_test;</p>
+<p>CREATE TABLE IF NOT EXISTS <code>users</code> (
+  <code>id</code> INT(11) NOT NULL AUTO_INCREMENT,
+  <code>name</code> VARCHAR(50) NOT NULL,
+  <code>age</code> INT(3) NOT NULL,
+  PRIMARY KEY (<code>id</code>)
+);
+```</p>
+<p>创建 <code>db/mysql.js</code> 文件存放本小节代码。</p>
+<p>安装依赖。</p>
+<p><code>sh
+npm i sequelize mysql2</code></p>
+<p>创建 <code>Sequelize</code> 实例。</p>
+<p>```js
+import Sequelize from 'sequelize'</p>
+<p>const sequelize = new Sequelize('node_test', 'root', 'password', {
+  host: 'localhost',
+  dialect: 'mysql'
+})
+```</p>
+<p>定义 <code>users</code> 表对应的模型。</p>
+<p><code>js
+// 定义模型
+const User = sequelize.define(
+  'User',
+  {
+    id: {
+      type: Sequelize.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+      allowNull: false
+    },
+    name: {
+      type: Sequelize.STRING(50),
+      allowNull: false
+    },
+    age: {
+      type: Sequelize.INTEGER(3),
+      allowNull: false
+    }
+  },
+  {
+    tableName: 'users', // 指定表格名称
+    timestamps: false // 禁止 Sequelize 自动生成 createdAt 和 updatedAt 字段
+  }
+)</code></p>
+<p>创建 <code>CRUD</code> 操作方法。</p>
+<p>```js
+// 创建记录
+async function createUser(name, age) {
+  const user = await User.create({ name, age })
+  return user.toJSON()
+}</p>
+<p>// 查询所有记录
+async function findAllUsers() {
+  const users = await User.findAll()
+  return users.map((user) =&gt; user.toJSON())
+}</p>
+<p>// 根据 id 查询记录
+async function findUserById(id) {
+  const user = await User.findByPk(id)
+  return user?.toJSON()
+}</p>
+<p>// 更新记录
+async function updateUser(id, name, age) {
+  const user = await User.findByPk(id)
+  if (user) {
+    user.name = name
+    user.age = age
+    await user.save()
+    console.log(user.toJSON())
+  } else {
+    console.log('User not found')
+  }
+  return user
+}</p>
+<p>// 删除记录
+async function deleteUser(id) {
+  const user = await User.findByPk(id)
+  if (user) {
+    await user.destroy()
+    console.log('User deleted')
+  } else {
+    console.log('User not found')
+  }
+  return user
+}</p>
+<p>export const UserDb = {
+  User,
+  createUser,
+  findAllUsers,
+  findUserById,
+  updateUser,
+  deleteUser
+}
+```</p>
+<p>创建一个测试文件 <code>tests/mysql.js</code> 测试上述的方法。</p>
+<p>```js
+import { UserDb } from '../db/mysql.js'</p>
+<p>// 测试
+async function test() {
+  // 添加3个用户信息
+  console.log('create', await UserDb.createUser('Alice', 25))
+  console.log('create', await UserDb.createUser('Tom', 20))
+  console.log('create', await UserDb.createUser('Lisa', 22))</p>
+<p>// 查询所有的用户信息
+  console.log('findAll', await UserDb.findAllUsers())</p>
+<p>// 查询id为1的用户信息
+  console.log('findById', await UserDb.findUserById(1))</p>
+<p>// 更新id为1的用户信息
+  await UserDb.updateUser(1, 'Alice Smith', 28)
+  // 删除id为2的用户信息
+  await UserDb.deleteUser(2)</p>
+<p>// 查询所有的用户信息
+  console.log('findAll', await UserDb.findAllUsers())
+}</p>
+<p>test()
+```</p>
+<p>|                                                                                    运行前                                                                                    |                                                                                    运行结果                                                                                    |                                                                                    运行后                                                                                    |
+| :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| <img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8a7bd5252e5f49f3bb70b716f50f0bca~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=518\&amp;h=231\&amp;s=20179\&amp;e=png\&amp;b=202020" /> | <img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5e4dbf2515124874ab019ed67ec98070~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=993\&amp;h=614\&amp;s=933057\&amp;e=png\&amp;b=2d1a2c" /> | <img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3ea5cf63dd814db69243f933019a13db~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=492\&amp;h=249\&amp;s=25276\&amp;e=png\&amp;b=202020" /> |</p>
+<p>开发中只需要将数据库操作和路由结合就能完成常规的 <code>CRUD</code> 接口开发了。</p>
+<h3>6.2 Mongoose 操作 MongoDB</h3>
+<p>① 项目安装依赖</p>
+<p><code>sh
+npm i mongoose</code></p>
+<p>创建一个 <code>db/mongodb.js</code> 存放本小节代码</p>
+<p>② 建立数据库连接</p>
+<p><code>js
+// 引入mongoose库
+import mongoose from 'mongoose'
+// 连接MongoDB数据库，本地地址为mongodb://localhost:27017/node_test
+mongoose.connect('mongodb://localhost:27017/node_test')</code></p>
+<p>③ 定义模型</p>
+<p>```js
+// 获取Schema对象
+const { Schema } = mongoose</p>
+<p>// 定义userSchema，包含id、name和age字段
+const userSchema = new Schema({
+  id: Number,
+  name: String,
+  age: Number
+})
+// 根据userSchema创建用户模型，集合名为users
+const User = mongoose.model('User', userSchema, 'users')
+```</p>
+<p>④ 创建 <code>CRUD</code> 操作方法</p>
+<p>```js
+// 创建记录
+function createUser(id, name, age) {
+  const newUser = new User({
+    id,
+    name,
+    age
+  })
+  // 保存记录并返回Promise实例
+  return newUser.save()
+}</p>
+<p>// 查询所有记录
+function findAllUsers() {
+  // 查找所有用户记录，并返回Promise实例
+  return User.find({})
+}
+// 根据id查询记录
+function findUserById(id) {
+  // 根据id查找用户记录，并返回Promise实例
+  return User.findOne({ id })
+}</p>
+<p>// 更新记录
+function updateUser(id, name, age) {
+  // 根据id更新用户记录，并返回Promise实例
+  return User.updateOne({ id }, { name, age })
+}</p>
+<p>// 删除记录
+function deleteUser(id) {
+  // 根据id删除用户记录，并返回Promise实例
+  return User.deleteOne({ id })
+}</p>
+<p>// 导出定义的库对象，包括User模型和各种操作方法
+export const UserDb = {
+  User,
+  createUser,
+  findAllUsers,
+  findUserById,
+  updateUser,
+  deleteUser
+}
+```</p>
+<p>编写一个测试文件 <code>tests/mongodb.js</code> 测试上述的方法。</p>
+<p>```js
+import { UserDb } from '../db/mongodb.js'</p>
+<p>// 测试
+async function test() {
+  // 添加3个用户信息
+  console.log('create', await UserDb.createUser(1, 'Alice', 25))
+  console.log('create', await UserDb.createUser(2, 'Tom', 20))
+  console.log('create', await UserDb.createUser(3, 'Lisa', 22))</p>
+<p>// 查询所有的用户信息
+  console.log('findAll', await UserDb.findAllUsers())</p>
+<p>// 查询id为1的用户信息
+  console.log('findById', await UserDb.findUserById(1))</p>
+<p>// 更新id为1的用户信息
+  await UserDb.updateUser(1, 'Alice Smith', 28)</p>
+<p>// 删除id为2的用户信息
+  await UserDb.deleteUser(2)</p>
+<p>// 查询所有的用户信息
+  console.log('findAll', await UserDb.findAllUsers())
+}
+test()
+```</p>
+<p><center></p>
+<p><a href="https://app.warp.dev/block/Ljlio6lHT7k9DrBp0g0yvR">运行结果</a></p>
+<p></center></p>
+<p>|                                                                                    运行前                                                                                   |                                                                                    运行结果                                                                                    |                                                                                    运行后                                                                                    |
+| :----------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| <img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/666421a84edb4ba880f10e015694cb23~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=326\&amp;h=172\&amp;s=9885\&amp;e=png\&amp;b=202020" /> | <img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c1957f8dc4544a74a11ab2c5a9ea8ab3~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=580\&amp;h=741\&amp;s=621881\&amp;e=png\&amp;b=041931" /> | <img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/4aca5fe69fde4677a590960c266fdc92~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=769\&amp;h=303\&amp;s=49184\&amp;e=png\&amp;b=202020" /> |</p>
+<p>针对 id mongodb 会自动生成一个私有的字段 <code>_id</code>，用户也可以使用 <a href="https://github.com/mongodb/js-bson/blob/main/src/objectid.ts">MongoDB-ObjectId</a> 去生成自己的字段。</p>
+<p>下面是 ObjectId 的使用示例。</p>
+<p>```js
+// 引入mongoose库
+import mongoose from 'mongoose'
+// 获取ObjectId对象
+const { ObjectId } = mongoose.Types
+// 创建新的objectId实例
+const objectId = new ObjectId()</p>
+<p>// 打印objectId实例
+console.log(objectId)
+// 打印objectId实例的字符串格式
+console.log(objectId.toString())
+// 打印objectId实例的16进制字符串格式
+console.log(objectId.toHexString())
+// 打印objectId实例的日期时间戳
+console.log(objectId.getTimestamp())
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/dedd04573fc8415fbbd9665c027a04d2~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=450\&amp;h=169\&amp;s=131478\&amp;e=png\&amp;b=051e32" /></p>
+<h2>7 线上部署服务</h2>
+<p>开发的时候我们使用了 <code>nodemon</code> 部署的时候，通常需要考虑 <code>日志记录</code>，<code>崩溃自动重启</code>，<code>应用监控</code> 等问题，</p>
+<p>因此我们线上部署就要使用一些工具辅助部署解决这些问题。</p>
+<p>常用的部署方式有两种，一种是直接部署到服务器 (如使用 <a href="https://pm2.keymetrics.io/">PM2</a>)，另一种是使用容器部署 (如 <a href="https://hub.docker.com/_/node">Docker</a>)。</p>
+<p>我们主要介绍一下 <code>PM2</code> 的用法。</p>
+<h3>7.1 PM2 介绍</h3>
+<p>PM2 是一个守护进程管理器，可以帮助我们管理和监控 Node.js 应用。</p>
+<p>通过 <code>npm</code> 即可一键安装。</p>
+<p><code>sh
+npm i -g pm2</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9955f7a48ee64b93ac3241905cb256fd~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=276\&amp;h=323\&amp;s=141907\&amp;e=png\&amp;b=041b30" /></p>
+<h3>7.2 PM2 启动服务</h3>
+<p>启动方式有很多种，咱们一个个介绍一下。</p>
+<p>① 类似 Node 直接执行的方式</p>
+<p><code>sh
+pm2 start app.js</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/49259545a10c4236b0785d24ddb568b6~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=827\&amp;h=302\&amp;s=385133\&amp;e=png\&amp;b=041f33" /></p>
+<p>查看运行日志。</p>
+<p><code>sh
+pm2 logs</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9fbdf2310e074228887bb24be5aa9a43~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=637\&amp;h=130\&amp;s=129486\&amp;e=png\&amp;b=180b30" /></p>
+<p>此时我们访问 <code>http://localhost:3000</code> 即可看到之前设置的页面。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/a1d127f0012c4abf8f70840f6cd7d081~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=687\&amp;h=599\&amp;s=412351\&amp;e=png\&amp;b=fafafa" /></p>
+<p>修改文件服务也不会 <code>重启</code>。</p>
+<p>可以使用 <code>pm2 stop &lt;name&gt;</code> 来停止目标服务。</p>
+<p><code>sh
+pm2 stop app</code></p>
+<p><a href="https://app.warp.dev/block/sDlbVTyx19eg5wb4BaYAi5">运行结果</a></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/363f8dfb557140f4823f28430d0335ba~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=619\&amp;h=234\&amp;s=236502\&amp;e=png\&amp;b=061631" /></p>
+<p>② 启动时设置服务名称</p>
+<p><code>sh
+pm2 start app.js --name myapp</code></p>
+<p><a href="https://app.warp.dev/block/u6itEeE6nsS3XxU0fAmCyX">运行结果</a>。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2b57d4e0e84646c78b8b524396e24c59~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=830\&amp;h=302\&amp;s=400879\&amp;e=png\&amp;b=25163e" /></p>
+<p>③ 通过运行指定 npm 指令启动</p>
+<p>通常我们会在项目里定义一个 <code>npm start script</code> 用于启动项目。</p>
+<p><code>json
+"scripts": {
+  "dev": "nodemon app.js",
+  "start": "node app.js"
+}</code></p>
+<p>可以通过 <code>pm2 start npm</code> 来启动项目。</p>
+<p>```sh</p>
+<h1>pm2 start npm --name <appName> -- run start</h1>
+<p>pm2 start npm --name app2 -- run start
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/60252d1ed6d049b9b6caca5afaa26708~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=676\&amp;h=594\&amp;s=590712\&amp;e=png\&amp;b=051731" /></p>
+<h3>7.3 其它常用命令</h3>
+<ul>
+<li><code>pm2 ls</code>：<a href="https://app.warp.dev/block/ltDvXDAnmnow1nf9trmqIL">查看所有服务</a>；</li>
+<li><code>pm2 stop &lt;name|id&gt;</code>：<a href="https://app.warp.dev/block/sseaQk8s07gxsjTli1aeUh">停止服务</a>；</li>
+<li><code>pm2 delete &lt;name|id&gt;</code>：<a href="https://app.warp.dev/block/fZvPh3FDOvtzXyloFk0vCr">删除服务</a>；</li>
+<li><code>pm2 monit</code>：服务性能监控。<ul>
+<li><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0e22230a0ae1415c9df8a7925cd53e7d~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1205\&amp;h=915\&amp;s=1603069\&amp;e=png\&amp;b=181126" /></li>
+</ul>
+</li>
+</ul>
+<p>进一步了解可以阅读文章<a href="https://juejin.cn/post/7229595897813712957">为什么 Node 应用要用 PM2 来跑？</a>。</p>
+<h2>小结</h2>
+<p>本节详细的介绍了如何使用 Express 开发一个 Web 服务器。</p>
+<p>(从项目创建 =&gt; 编写代码&amp;创建服务 =&gt; 测试服务 =&gt; 线上部署)</p>
+<p>过程中介绍了 <code>Express</code> 常见用法和一些重要概念：</p>
+<ul>
+<li>概念：介绍了 <code>中间件</code>，<code>路由</code> 等概念；</li>
+<li>用法：<ul>
+<li>多种传递参数的方式 query，headers，body，params；</li>
+<li>不同的请求方式支持；</li>
+<li>多种路由匹配方式：字符串，字符串模式，正则表达式。</li>
+</ul>
+</li>
+</ul>
+<p>实践部分介绍了：</p>
+<ul>
+<li>推荐的项目目录结构；</li>
+<li>Restful API 设计与实现；</li>
+<li>静态资源服务实现：使用 <code>express.static</code> 设置静态资源目录；</li>
+<li>文件上传：使用 <code>multer</code> 处理文件上传；</li>
+<li>数据库操作：Sequelize 操作 MySQL，Mongoose 操作 MongoDB 等。</li>
+</ul>
+<p>最后详细介绍了如何使用 <code>PM2</code> 对项目进行部署，介绍了多种部署方式。</p>

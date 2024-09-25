@@ -1,0 +1,127 @@
+<p>Node.js 除了官配的 <code>npm</code> 之外，社区还有其它有些包管理工具。</p>
+<p>解决了 npm 的一些问题，比如速度慢，安装包冲突等，各有优劣，本章不做过多展开，主要介绍一下各自的特色和入门用法。</p>
+<h2>1 <a href="https://pnpm.io/zh/">pnpm</a> (力荐)</h2>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/77befc02ab8747a59b3f122d4563f08f~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=120\&amp;h=53\&amp;s=1386\&amp;e=png\&amp;b=ffffff" /></p>
+<h3>1.1 简介</h3>
+<p>快速的，节省磁盘空间的包管理工具。</p>
+<p>主要有以下几点优势：</p>
+<ul>
+<li>节省磁盘空间：所有文件都会存储在硬盘上的某一位置。当软件包被被安装时，包里的文件会硬链接到这一位置，而不会占用额外的磁盘空间，多项目可以共享同一依赖；</li>
+<li>极快的依赖安装速度；</li>
+<li>非扁平的 node_modules 目录：pnpm 使用符号链接将项目的直接依赖项添加到模块目录的根目录中。</li>
+</ul>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/17d4d8763fdf4dcf9ba20f94581a252c~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=275\&amp;h=349\&amp;s=19305\&amp;e=png\&amp;b=fefefe" /></p>
+<h3>1.2 使用</h3>
+<p>① 安装 (支持通过 npm 安装)</p>
+<p><code>sh
+npm i -g pnpm</code></p>
+<p>② 安装依赖</p>
+<p>```sh</p>
+<h1>开发环境依赖</h1>
+<p>pnpm add nodemon -D</p>
+<h1>生成环境依赖</h1>
+<p>pnpm add express</p>
+<h1>全局安装</h1>
+<p>pnpm add -g typescript</p>
+<h1>安装项目依赖</h1>
+<p>pnpm install
+```</p>
+<p>会生成 <code>pnpm-lock.yaml</code> 文件记录安装的依赖具体的版本信息。</p>
+<p>③ 卸载依赖</p>
+<p><code>sh
+pnpm remove express</code></p>
+<p>④ 运行指令</p>
+<p>```sh
+pnpm run dev</p>
+<h1>省略 run</h1>
+<p>pnpm dev
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/356ed061027b4796825df90e6bce9cbf~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=251\&amp;h=306\&amp;s=130166\&amp;e=png\&amp;b=051831" /></p>
+<h2>2 <a href="https://classic.yarnpkg.com/en/">yarn</a></h2>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c46d8563d9084d8c98e67526195e9d3f~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=138\&amp;h=52\&amp;s=1810\&amp;e=png\&amp;b=ffffff" /></p>
+<h3>2.1 简介</h3>
+<p>快速、可靠、安全的 JavaScript 依赖管理。</p>
+<h3>2.2 使用</h3>
+<p>① 安装 (支持通过 npm 安装)</p>
+<p><code>sh
+npm i -g yarn</code></p>
+<p>② 安装依赖</p>
+<p>```sh</p>
+<h1>开发环境依赖</h1>
+<p>yarn add nodemon -D</p>
+<h1>生成环境依赖</h1>
+<p>yarn add express</p>
+<h1>全局安装</h1>
+<p>yarn global add typescript</p>
+<h1>安装项目依赖</h1>
+<p>yarn install
+```</p>
+<p>会生成 <code>yarn.lock</code> 文件记录安装的依赖具体的版本信息。</p>
+<p>③ 卸载依赖</p>
+<p><code>sh
+yarn remove express</code></p>
+<p>④ 运行指令</p>
+<p>```sh
+yarn run dev</p>
+<h1>省略 run</h1>
+<p>yarn dev
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/75c2cd241e764e7ea425b76714efefe4~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=339\&amp;h=463\&amp;s=259170\&amp;e=png\&amp;b=051831" /></p>
+<h2>3 <a href="https://bun.sh/docs/cli/install">bun</a> (尝鲜)</h2>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/48e412adda234db892726b59bc644ffd~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=184\&amp;h=86\&amp;s=3984\&amp;e=png\&amp;b=14151a" /></p>
+<p>前面已经介绍过多次了，当下很 🔥 的一个工具，当然它也支持包管理 </p>
+<p><strong>2023年9月8日正式发布1.0版本</strong></p>
+<p>(macOS and Linux 可使用完整功能，<a href="https://bun.sh/docs/installation#windows">Windows</a> 环境下目前还是实验性的支持，喜欢尝鲜的可以在自己的项目或风险可控的项目中使用)。</p>
+<p>① 安装 (支持通过 npm 安装)</p>
+<p><code>sh
+npm install -g bun</code></p>
+<p>② 安装依赖</p>
+<p>```sh</p>
+<h1>开发环境依赖</h1>
+<p>bun add nodemon -D</p>
+<h1>生成环境依赖</h1>
+<p>bun add express</p>
+<h1>全局安装</h1>
+<p>bun add typescript -g</p>
+<h1>安装项目依赖</h1>
+<p>bun install
+```</p>
+<p>会生成 <code>bun.lockb(二进制)</code> 文件记录安装的依赖具体的版本信息。</p>
+<p>③ 卸载依赖</p>
+<p><code>sh
+bun remove express</code></p>
+<p>④ 运行指令</p>
+<p><code>sh
+bun run dev</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/aca3f0d01fdc453b820723f6bbad0b9b~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=331\&amp;h=575\&amp;s=304964\&amp;e=png\&amp;b=041a31" /></p>
+<h2>4 工具推荐 <a href="https://github.com/antfu/ni">ni</a></h2>
+<p>antfu 大神的作品 <code>@antfu/ni</code>，提供了一系列简化包管理工具使用的指令，比如 <code>ni/nr/nun</code> 等等，不用关心项目用了啥包管理工具，</p>
+<p>使用一套指令，工具会自动根据 lock 文件识别工作。</p>
+<p><em>PS：ni 本身只是一个 Node CLI 工具，本身不具备包管理功能</em>。</p>
+<p>① 安装工具</p>
+<p><code>sh
+npm i -g @antfu/ni</code></p>
+<p>② 安装依赖</p>
+<p><code>sh
+ni axios</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6c1b7471e2954138971f7ab1ea0e36a3~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=296\&amp;h=135\&amp;s=65363\&amp;e=png\&amp;b=041c2f" /></p>
+<p>③ 卸载依赖</p>
+<p><code>sh
+nun axios</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7dafaf4ea55e435b8ac4f957bfafaf2c~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=334\&amp;h=238\&amp;s=130749\&amp;e=png\&amp;b=080e2f" /></p>
+<p>④ 运行指令</p>
+<p><code>sh
+nr dev</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ec5fc16dca33495f8b6efa5a98872ee8~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=219\&amp;h=134\&amp;s=43040\&amp;e=png\&amp;b=150b2e" /></p>
+<p>极大的简化了指令操作，再也不用去记各种包管理工具的指令。</p>
+<h2>小结</h2>
+<p>Node.js 除了官配的 npm 包管理工具，还有很多其他的包管理工具，比如 <code>pnpm</code>、<code>yarn</code>、<code>bun</code> 等等。</p>
+<p>本文简单介绍了其它包管理工具的特色和简单用法。</p>
+<p>最后推荐了一个工具 <code>ni</code>，可以简化包管理工具的使用，简化大家操作项目的时间。</p>
+<h2>推荐阅读</h2>
+<p>如果想知道更多的包管理工具相关信息，可以阅读下面的文章：</p>
+<ul>
+<li><a href="https://juejin.cn/post/7127295203177676837">pnpm 是凭什么对 npm 和 yarn 降维打击的</a>；</li>
+<li><a href="https://juejin.cn/post/6932046455733485575">为什么现在我更推荐 pnpm 而不是 npm/yarn</a>；</li>
+<li><a href="https://juejin.cn/post/7023910122770399269">尤雨溪推荐神器 ni，能替代 npm/yarn/pnpm？</a>。</li>
+</ul>

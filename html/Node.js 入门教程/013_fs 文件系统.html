@@ -1,0 +1,227 @@
+<p><a href="https://nodejs.org/docs/latest-v18.x/api/fs.html">fs (File system)</a> 是文件系统模块，用于操作文件和目录。</p>
+<p>支持同步 (sync) 或者异步 (async/callback) 调用，其中同步调用会阻塞主线程，异步调用不会阻塞。</p>
+<p>以读取文件内容为例 (<code>test.txt</code>)。</p>
+<p><code>sh
+hello world
+bye bye</code></p>
+<p>下面分别是 3 种写法，日常开发中常用 <code>同步操作</code> 和 <code>Promise形式异步操作</code>。</p>
+<p>```js
+import fs from 'fs'</p>
+<p>// 同步读取
+const syncData = fs.readFileSync('./test.txt', 'utf-8')
+console.log('====sync read====')
+console.log(syncData)</p>
+<p>// 回调形式 异步读取
+fs.readFile('./test.txt', 'utf-8', (err, callbackData) =&gt; {
+  if (!err) {
+    console.log('====callback read====')
+    console.log(callbackData)
+  }
+})</p>
+<p>// promise形式 异步读取
+fs.promises.readFile('./test.txt', 'utf-8').then((promiseData) =&gt; {
+  console.log('====promise read====')
+  console.log(promiseData)
+})</p>
+<p>// promise 形式还可以是如下写法（常用）
+// import fs from 'fs/promises'
+// fs.readFile('./test.txt', 'utf-8').then((promiseData) =&gt; {
+//   console.log('====promise read====')
+//   console.log(promiseData)
+// })
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0c49fdc1e6b343a89234777f9a5ecb0d~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=391\&amp;h=323\&amp;s=216671\&amp;e=png\&amp;b=041f33" /></p>
+<p>接下来将介绍一些常用 API，为降低理解成本，主要使用同步方法的形式进行讲解和操作演示。</p>
+<h2>1 文件操作</h2>
+<h3>1.1 读取文件</h3>
+<p><code>fs.readFileSync</code> 基础用法如下：</p>
+<ul>
+<li>参数 1：设置要读取的文件路径 (相对或者绝对)；</li>
+<li>参数 2：设置读取的编码格式。</li>
+</ul>
+<p>```js
+import fs from 'fs'</p>
+<p>const txtContent = fs.readFileSync('./test.txt', 'utf-8')
+```</p>
+<p>以二进制形式读取，操作。</p>
+<p>```js
+const buf = fs.readFileSync('./test.txt')</p>
+<p>// 打印Buffer大小
+console.log(buf.length)
+// 修改前2个字符
+buf.write('gg')</p>
+<p>// 输出修改后的内容
+console.log(buf.toString())
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/965c982ebf4c4467877c224493c9dbdc~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=287\&amp;h=186\&amp;s=92423\&amp;e=png\&amp;b=120b2f" /></p>
+<h3>1.2 写入文件</h3>
+<p>基础用法如下 <code>fs.writeFileSync</code>：</p>
+<ul>
+<li>参数 1：输出文件路径；</li>
+<li>参数 2：输出内容；</li>
+<li>参数 3 (可选)：编码格式。</li>
+</ul>
+<p><code>js
+fs.writeFileSync('./newTest.txt', 'hello world')</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6ee5f7845f1c4892acb3931655123aaf~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=782\&amp;h=493\&amp;s=652105\&amp;e=png\&amp;b=051b34" /></p>
+<p>写入二进制文件 (读取一个图片，然后输出到一个新的位置)。</p>
+<p>```js
+// 读取一个图片
+const imgBuf = fs.readFileSync('./logo.png')
+console.log('isBuffer', Buffer.isBuffer(imgBuf), 'bufferSize', imgBuf.length)</p>
+<p>// 写入到新文件
+fs.writeFileSync('newLogo.png', imgBuf, 'binary')
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ce382f035da04df69b9ee707a9a7321d~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=517\&amp;h=131\&amp;s=99746\&amp;e=png\&amp;b=110c1a" /></p>
+<h3>1.3 获取文件信息</h3>
+<p>通过 <code>fs.statSync</code> 获取文件或者目录的基本信息。</p>
+<p>```js
+import fs from 'fs'</p>
+<p>console.log(fs.statSync('./test.txt'))
+console.log(fs.statSync('./test-dir'))
+```</p>
+<p>返回的对象属性如下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3492392713ce4738ab26b7cb65a092bd~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=831\&amp;h=409\&amp;s=646713\&amp;e=png\&amp;b=051832" /></p>
+<p>常用字段的意义如下。</p>
+<p>| 属性名         | 描述                                                   |
+| ----------- | ---------------------------------------------------- |
+| dev         | 设备 ID，表示该文件所在的设备。                                    |
+| mode        | 文件权限，包括读、写、执行等权限。                                    |
+| nlink       | 硬链接数。                                                |
+| uid         | 用户 ID，表示该文件所属的用户。                                    |
+| gid         | 组 ID，表示该文件所属的组。                                      |
+| rdev        | 设备类型，表示该文件所属设备的类型。                                   |
+| blksize     | 块大小，表示该文件所属设备的块大小。                                   |
+| ino         | inode 号，表示该文件的 inode 编号。                             |
+| size        | 该文件的大小，以字节为单位。                                       |
+| blocks      | 该文件占用的总块数。                                           |
+| atimeMs     | 最后访问时间，以毫秒为单位。                                       |
+| mtimeMs     | 最后修改时间，以毫秒为单位。                                       |
+| ctimeMs     | 最后状态改变时间，以毫秒为单位。                                     |
+| birthtimeMs | 创建时间，以毫秒为单位。                                         |
+| atime       | 最后访问时间的格式化字符串，通常为 “YYYY-MM-DDTHH:MM:SS.mmmzz” 的形式。   |
+| mtime       | 最后修改时间的格式化字符串，通常为 “YYYY-MM-DDTHH:MM:SS.mmmzz” 的形式。   |
+| ctime       | 最后状态改变时间的格式化字符串，通常为 “YYYY-MM-DDTHH:MM:SS.mmmzz” 的形式。 |
+| birthtime   | 创建时间的格式化字符串，通常为 “YYYY-MM-DDTHH:MM:SS.mmmzz” 的形式。     |</p>
+<p>返回的对象上还包含可直接调用的方案，用于判断文件类型。</p>
+<p>```js
+const fileInfo = fs.statSync('./test.txt')
+// 判断是文件还是目录
+console.log(fileInfo.isFile(), fileInfo.isDirectory())</p>
+<p>const dirInfo = fs.statSync('./test-dir')
+// 判断是文件还是目录
+console.log(dirInfo.isFile(), dirInfo.isDirectory())</p>
+<p>try {
+  // 查询一个不存在的文件/目录信息（会抛出异常，需要自行捕获）
+  fs.statSync('not_exist.txt')
+} catch (e) {
+  console.log('文件不存在')
+}
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c8aaec1f9497418fbdbeacc26ab2b162~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=218\&amp;h=147\&amp;s=54996\&amp;e=png\&amp;b=180b2e" /></p>
+<h3>1.4 追加输出</h3>
+<p>使用 <code>fs.appendFileSync</code> 向文件末尾追加写入内容。</p>
+<p>```js
+// 引入文件系统模块
+import fs from 'fs';</p>
+<p>// 使用 fs.appendFileSync() 方法向指定文件追加内容
+// 参数1：指定文件路径
+// 参数2：要追加的内容
+fs.appendFileSync('test.txt', 'Hello World2!');
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c3957895c5cd4e88a81ab4f1533a102e~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=644\&amp;h=575\&amp;s=617259\&amp;e=png\&amp;b=051a33" /></p>
+<h3>1.5 移动/重命名文件</h3>
+<p><code>fs.renameSync</code> 方法用于文件移动，当然也可以是重命名文件。</p>
+<p>下面是文件重命名示例。</p>
+<p>```js
+import fs from 'fs'</p>
+<p>fs.renameSync('test.txt', 'test2.txt')
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/bae2cd47c77945c98eb4ddb4dda2cdc2~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=569\&amp;h=427\&amp;s=426883\&amp;e=png\&amp;b=23142d" /></p>
+<p>下面是移动文件示例。</p>
+<p><code>js
+fs.renameSync('test2.txt', 'test-dir/test2.txt')</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7941694d3d2b402fb62848f18c71d3e3~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=676\&amp;h=359\&amp;s=423868\&amp;e=png\&amp;b=2e1834" /></p>
+<h3>1.6 删除文件</h3>
+<p><code>fs.unlinkSync</code> 和 <code>fs.rmSync</code> 都可用于单文件删除。</p>
+<p>```js
+import fs from 'fs'</p>
+<p>fs.unlinkSync('test-dir/test2.txt')
+// fs.rmSync('test-dir/test2.txt')
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/03b094a04a124d35882e702e0c21db5e~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=641\&amp;h=315\&amp;s=346971\&amp;e=png\&amp;b=281631" /></p>
+<p>当然后者还支持删除目录，递归删除子文件/目录等。</p>
+<p><code>js
+// 删除 test-dir 目录（包含其子文件）
+fs.rmSync('test-dir', { recursive: true })</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/206250402c1b42ef9423f67845b7486a~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=451\&amp;h=291\&amp;s=230879\&amp;e=png\&amp;b=182334" /></p>
+<h2>2 目录操作</h2>
+<h3>2.1 读取目录所有文件</h3>
+<p>通过 <code>fs.readdirSync</code> 获取目录下的文件信息。</p>
+<p>```js
+import fs from 'fs'</p>
+<p>const files = fs.readdirSync('test-dir')</p>
+<p>console.log(files)
+```</p>
+<p>默认情况下只会返回名称。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9786dd985da34862b0e7cfcfff81b93b~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=496\&amp;h=113\&amp;s=93620\&amp;e=png\&amp;b=22132d" /></p>
+<p>可通过指定第二个参数 <code>withFileTypes:true</code> 使返回结果包含类型。</p>
+<p><code>js
+const files2 = fs.readdirSync('test-dir', { withFileTypes: true })
+console.log(files2.map((f) =&gt; ({ name: f.name, isDirectory: f.isDirectory() })))</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/744045a00f334a059eb9f662dca29d41~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=586\&amp;h=288\&amp;s=246021\&amp;e=png\&amp;b=190b30" /></p>
+<h3>2.2 创建目录</h3>
+<p>使用 <code>fs.mkdirSync</code> 创建目录，可通过设置 <code>recursive:true</code> 来递归创建多级目录。</p>
+<p><code>js
+fs.mkdirSync('test-dir/a/b/c/d', { recursive: true })</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/76b21ae6a34549deadf7d59867f28149~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=632\&amp;h=317\&amp;s=348897\&amp;e=png\&amp;b=051732" /></p>
+<h3>2.3 删除目录</h3>
+<p>可以使用 <code>fs.rmdirSync</code> 删除目标目录，<code>recursive: true</code> 表明删除包含其子目录。</p>
+<p><code>js
+fs.rmdirSync('test-dir/a', { recursive: true })</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/af075d9b6fe748d9be4ea89cea8ede4d~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=637\&amp;h=416\&amp;s=457074\&amp;e=png\&amp;b=041b33" /></p>
+<p>也可以使用上面提到的 <code>fs.rmSync</code>。</p>
+<p><code>js
+fs.rmSync('test-dir/a', { recursive: true })</code></p>
+<h3>2.4 监听目录变更</h3>
+<p>利用 <code>fs.watch</code> 即可实现。</p>
+<p><code>js
+import fs from 'fs'
+// 监听当前目录下所有的文件和子目录中的文件
+fs.watch('./', { recursive: true }, (eventType, filename) =&gt; {
+  console.log(`File '${filename}' has changed: ${eventType}`)
+})</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2c02f8b563184287a2b1dd50d2713bec~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=443\&amp;h=258\&amp;s=202196\&amp;e=png\&amp;b=041f33" /></p>
+<h2>3 实践</h2>
+<p>上面主要阐述了日常开发中常用到的一些方法，下面主要介绍 1 个实际开发中常用的例子。</p>
+<p><strong>获取指定目录下所有文件的绝对路径</strong>。</p>
+<p>利用 <code>fs.readdirSync</code> 和 <code>path.resolve</code> 即可实现。</p>
+<p>```js
+import fs from 'fs'
+import path from 'path'</p>
+<p>function getAllFiles(dirPath, arrayOfFiles) {
+  const files = fs.readdirSync(dirPath, { withFileTypes: true })</p>
+<p>arrayOfFiles = arrayOfFiles || []</p>
+<p>files.forEach((file) =&gt; {
+    if (file.isDirectory()) {
+      arrayOfFiles = getAllFiles(path.resolve(dirPath, file.name), arrayOfFiles)
+    } else {
+      arrayOfFiles.push(path.resolve(dirPath, file.name))
+    }
+  })</p>
+<p>return arrayOfFiles
+}</p>
+<p>// 获取当前目录下所有文件
+console.log(getAllFiles('./'))
+```</p>
+<p>下面是运行结果。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/12262de1d3dc408d9b7c863b1f4d0bc6~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=913\&amp;h=535\&amp;s=904383\&amp;e=png\&amp;b=1f0e36" /></p>
+<h2>小结</h2>
+<p>本小节先简单介绍了三种调用文件系统 API 的方式：</p>
+<ul>
+<li>同步 (Sync)：例如 <code>fs.readFileSync</code>，会阻塞主线程；</li>
+<li>异步 (Async/Callback)：<code>fs.promises.readFile</code>，<code>fs.readFile</code>，不会阻塞主线程。</li>
+</ul>
+<p>日常使用中推荐使用 <code>fs/promise</code> 的方式。</p>
+<p>紧接着分别介绍了文件和目录的常规的 CRUD 方法，</p>
+<p>最后综合运用上面介绍的方法，解决一个常见场景问题<strong>获取指定目录下所有文件的绝对路径</strong> 。</p>

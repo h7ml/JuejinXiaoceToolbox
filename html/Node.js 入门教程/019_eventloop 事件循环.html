@@ -1,0 +1,188 @@
+<blockquote>
+<p>事件循环是一个循环，只要 Node.js 应用程序正在运行，它就会一直运行。每个循环中有六个不同的队列，每个队列都包含一个或多个需要在调用堆栈上执行的回调函数。</p>
+</blockquote>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b088b38eb7be4d0183657a5baecc0c7f~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1152\&amp;h=648\&amp;s=136784\&amp;e=png\&amp;b=030303" /></p>
+<p>下面这个配图展示了常见的异步回调方法。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6d99a30a88a543c3982670df2cab1bc8~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1598\&amp;h=900\&amp;s=366121\&amp;e=png\&amp;b=1e1e1e" /></p>
+<p>看到上面的配图是不是有一点点蒙？不知道这些回调的执行顺序是怎样的？</p>
+<p>当我们了解完 Node.js 的事件循环 (Event Loop) 规则之后就能够知道。</p>
+<h2>1 node 中的 Event Loop</h2>
+<p>Node 与浏览器中的 Event Loop 完全不同，</p>
+<p>Node 的 Event Loop 分为 <strong>6 个阶段</strong>，会按照<strong>顺序</strong>反复执行，每当进入某一个阶段的时候，都会从对应的回调队列中取出函数去执行。</p>
+<p><img alt="图片" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/4ba501d7c8f7434bb95ef193ce3599c0~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=745\&amp;h=442\&amp;s=44611\&amp;e=png\&amp;b=2d2d2d" /></p>
+<h2>2 阶段介绍</h2>
+<h3>2.1 6 个阶段</h3>
+<ul>
+<li>timers (定时器)：执行 <code>setTimeout</code> 和 <code>setInterval</code> 回调；</li>
+<li>pending callbacks (挂起的回调)：执行推迟到下一个循环迭代的 <code>I/O</code> 回调，比如 <code>fs</code>/<code>http</code> 模块执行的回调；</li>
+<li>idle，prepare (空闲/准备)：内部使用；</li>
+<li>poll：检索新的 <code>I/O</code> 事件；执行 I/O 相关的回调 (几乎是除关闭回调、定时器回调和 setImmediate 以外的回调)；在适当的时候节点将阻塞在这里；</li>
+<li>check：执行 <code>setImmediate</code> 回调 (Node.js 专有方法)；</li>
+<li>close callbacks：一些事件的关闭回调，例如 <code>socket.on('close', ...)</code>。</li>
+</ul>
+<h3>2.2 2 个微任务队列</h3>
+<ul>
+<li>nextTick 队列：存储与 process.nextTick 函数相关的回调函数；</li>
+<li>Promise 队列：存储与 <code>JavaScript</code> 中的原生 Promise 相关的回调函数。</li>
+</ul>
+<blockquote>
+<p>在 6 个阶段中并没有显示 <code>process.nextTick</code>，虽然它也是异步的，因为从实现上来说他不是事件循环的一部分。在某一操作完成后，将处理 <code>nextTickQueue</code>，而不考虑事件循环的当前阶段。</p>
+<p>在给定阶段调用 <code>process.nextTick()</code> 时，在 <code>process.nextTick()</code> 触发的所有回调执行之前，事件循环将会停顿。</p>
+<p>这可能会带来一些极端的情况，通过递归调用 <code>process.nextTick()</code> 而使 I/O 停止，可以阻止事件循环进入轮循阶段。</p>
+</blockquote>
+<p>我们通过下面的例子先来简单看看结果。</p>
+<h3>2.3 简单输出示例</h3>
+<p>下面是个较完整的包含相关阶段执行的例子，</p>
+<p>```js
+import fs from 'fs'</p>
+<p>process.on('exit', () =&gt; {
+  console.log('11')
+})</p>
+<p>// 异步读取文件
+fs.readFile('./1.mjs', () =&gt; {
+  console.log('10')
+})</p>
+<p>setTimeout(() =&gt; {
+  console.log('8')
+}, 0)
+setTimeout(() =&gt; {
+  console.log('9')
+}, 0)</p>
+<p>process.nextTick(() =&gt; {
+  console.log('2')
+  Promise.resolve().then(() =&gt; {
+    console.log('5')
+  })
+  process.nextTick(() =&gt; {
+    console.log('3')
+    process.nextTick(() =&gt; {
+      console.log('4')
+    })
+  })
+})</p>
+<p>setImmediate(() =&gt; {
+  console.log('6')
+  Promise.resolve().then(() =&gt; {
+    console.log('7')
+  })
+})</p>
+<p>console.log('1')
+```</p>
+<p>下面展开介绍一下执行规则。</p>
+<h2>3 执行规则总结</h2>
+<p>毋庸置疑，<strong>先执行同步代码</strong>，紧接着才是回调部分。</p>
+<ol>
+<li>执行微任务队列中所有的回调：首先执行 <code>nextTick队列</code>，然后 <code>promise队列</code>。</li>
+</ol>
+<p>```js
+Promise.resolve().then(() =&gt; {
+  console.log(4)
+})</p>
+<p>process.nextTick(() =&gt; {
+  console.log(2)
+  Promise.resolve().then(() =&gt; {
+    console.log(5)
+  })
+  process.nextTick(() =&gt; {
+    console.log(3)
+  })
+})</p>
+<p>console.log(1)
+```</p>
+<ol>
+<li>执行计时器队列中的所有回调，<strong>执行过程中如果存在微任务队列，则在每个回调之后就执行微任务队列中的回调</strong>。</li>
+</ol>
+<p>```js
+setTimeout(() =&gt; {
+  Promise.resolve().then(() =&gt; {
+    console.log(4)
+  })
+  process.nextTick(() =&gt; {
+    console.log(3)
+  })
+  console.log(2)
+}, 0)</p>
+<p>setTimeout(() =&gt; {
+  console.log(5)
+}, 0)</p>
+<p>console.log(1)
+```</p>
+<ol>
+<li>执行 I/O 队列中的所有回调，如果过程中存在微任务队列，则先执行微任务。</li>
+</ol>
+<p>```js
+const fs = require('fs')</p>
+<p>fs.readFile(__filename, () =&gt; {
+  console.log(3)
+  Promise.resolve().then(() =&gt; {
+    console.log(3)
+  })
+})</p>
+<p>fs.readFile(__filename, () =&gt; {
+  console.log(4)
+  Promise.resolve().then(() =&gt; {
+    console.log(4)
+  })
+})</p>
+<p>setTimeout(() =&gt; {
+  console.log(2)
+}, 0)</p>
+<p>console.log(1)</p>
+<p>// 输出结果有2种，取决于哪个异步IO事件先被系统处理完
+// 124433
+// 123344
+```</p>
+<ol>
+<li>执行 <code>setImmediate</code> 回调，同理有微任务，优先执行微任务。</li>
+</ol>
+<p>```js
+setImmediate(() =&gt; {
+  Promise.resolve().then(() =&gt; {
+    console.log(4)
+  })
+  process.nextTick(() =&gt; {
+    console.log(3)
+  })
+  console.log(2)
+})</p>
+<p>setImmediate(() =&gt; {
+  console.log(5)
+})
+console.log(1)
+```</p>
+<ol>
+<li>执行关闭队列中的所有回调，最后执行剩余的微任务。</li>
+</ol>
+<p>```js
+process.on('exit', () =&gt; {
+  Promise.resolve().then(() =&gt; {
+    console.log(4)
+  })
+  console.log(2)
+})</p>
+<p>process.on('exit', () =&gt; {
+  Promise.resolve().then(() =&gt; {
+    console.log(5)
+  })
+  console.log(3)
+})</p>
+<p>console.log(1)
+```</p>
+<h2>小结</h2>
+<p>本节主要介绍了 Node.js 中事件循环的工作原理，以及各个阶段的执行顺序和执行规则。</p>
+<p>这个是很有必要掌握的知识，因为它是 Node.js 异步编程的基础，也是理解 Node.js 的关键。</p>
+<p>掌握其原理，从而更从容的使用 Node.js。</p>
+<h2>推荐阅读</h2>
+<p>如果笔者的介绍还是不能让你清晰的理解，可以进一步阅读下面的推荐材料。</p>
+<p><em>文中部分配图来自于下面的参考文章</em>。</p>
+<ul>
+<li>英文<ul>
+<li><a href="https://nodejs.org/en/docs/guides/event-loop-timers-and-nexttick">Node.js 官方文档介绍事件循环</a></li>
+<li><a href="https://www.builder.io/blog/visual-guide-to-nodejs-event-loop">Node.js 事件循环可视化指南</a></li>
+</ul>
+</li>
+<li>中文<ul>
+<li><a href="https://dev.nodejs.cn/learn/the-nodejs-event-loop/">中翻：Node.js 官方文档介绍事件循环</a></li>
+</ul>
+</li>
+</ul>
