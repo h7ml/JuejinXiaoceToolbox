@@ -131,41 +131,41 @@ jobs:
           user_email: 'github-actions[bot]@users.noreply.github.com'
           commit_message: '${{ steps.commit_message.outputs.message }}'
 
-      - name: 检查更改
-        id: check_changes
-        run: |
-          if [[ -n $(git status -s) ]]; then
-            echo "changes_detected=true" >> $GITHUB_OUTPUT
-          else
-            echo "changes_detected=false" >> $GITHUB_OUTPUT
-          fi
+      # - name: 检查更改
+      #   id: check_changes
+      #   run: |
+      #     if [[ -n $(git status -s) ]]; then
+      #       echo "changes_detected=true" >> $GITHUB_OUTPUT
+      #     else
+      #       echo "changes_detected=false" >> $GITHUB_OUTPUT
+      #     fi
 
-      - name: 提交更改
-        if: steps.check_changes.outputs.changes_detected == 'true'
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add .
-          git commit -m ":rocket: 更新掘金小册内容"
+      # - name: 提交更改
+      #   if: steps.check_changes.outputs.changes_detected == 'true'
+      #   run: |
+      #     git config --global user.name 'github-actions[bot]'
+      #     git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+      #     git add .
+      #     git commit -m ":rocket: 更新掘金小册内容"
 
-      - name: 推送更改
-        if: steps.check_changes.outputs.changes_detected == 'true'
-        run: |
-          git push https://${{ secrets.ACTION_SECRET }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
+      # - name: 推送更改
+      #   if: steps.check_changes.outputs.changes_detected == 'true'
+      #   run: |
+      #     git push https://${{ secrets.ACTION_SECRET }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref_name }}
 
-      - name: 验证推送
-        run: |
-          git fetch origin
-          LOCAL=$(git rev-parse HEAD)
-          REMOTE=$(git rev-parse origin/${{ github.ref_name }})
-          if [ "$LOCAL" = "$REMOTE" ]; then
-            echo "推送成功：本地和远程 HEAD 一致"
-          else
-            echo "推送失败：本地和远程 HEAD 不一致"
-            exit 1
-          fi
+      # - name: 验证推送
+      #   run: |
+      #     git fetch origin
+      #     LOCAL=$(git rev-parse HEAD)
+      #     REMOTE=$(git rev-parse origin/${{ github.ref_name }})
+      #     if [ "$LOCAL" = "$REMOTE" ]; then
+      #       echo "推送成功：本地和远程 HEAD 一致"
+      #     else
+      #       echo "推送失败：本地和远程 HEAD 不一致"
+      #       exit 1
+      #     fi
 
-      - name: 强制推送（如果验证失败）
-        if: failure()
-        run: |
-          git push --force https://${{ secrets.ACTION_SECRET }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
+      # - name: 强制推送（如果验证失败）
+      #   if: failure()
+      #   run: |
+      #     git push --force https://${{ secrets.ACTION_SECRET }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }}
