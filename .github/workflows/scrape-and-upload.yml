@@ -108,6 +108,29 @@ jobs:
       - name: 执行爬虫脚本
         run: python main.py --cli
 
+      - name: 生成提交信息
+        id: commit_message
+        run: |
+          echo "message=feat(scraper): 更新掘金小册内容" >> $GITHUB_OUTPUT
+
+      - name: 提交更改
+        if: steps.check_changes.outputs.changes_detected == 'true'
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add .
+          git commit -m "${{ steps.commit_message.outputs.message }}"
+
+      - name: 部署到 GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ github.event.inputs.save_dir }}
+          force_orphan: true
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          commit_message: '${{ steps.commit_message.outputs.message }}'
+
       - name: 检查更改
         id: check_changes
         run: |
