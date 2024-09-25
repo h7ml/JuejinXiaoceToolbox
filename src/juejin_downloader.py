@@ -325,7 +325,7 @@ class Juejinxiaoce2Markdown:
             section_title = self.clear_filename(section['title'])
             file_extension = '.html' if self.save_format == 'html' else '.md'
             file_name = f"{index+1:03d}_{section_title}{file_extension}"
-            content += f"{index+1}. <a href='{file_name}'>{section_title}</a>\n"
+            content += f"- <a href='{file_name}'>{section_title}</a>\n"
         
         if self.save_format == 'html':
             await self.save_html(index_path, content)
@@ -333,7 +333,6 @@ class Juejinxiaoce2Markdown:
             await self.save_markdown(index_path, content)
 
     async def generate_main_index(self) -> None:
-        """生成主目录的索引文件"""
         self.detailed_log("开始生成主索引文件")
         index_file = 'index.html' if self.save_format == 'html' else 'README.md'
         index_path = os.path.join(self.save_dir, index_file)
@@ -347,12 +346,12 @@ class Juejinxiaoce2Markdown:
             with open(index_path, 'r', encoding='utf-8') as f:
                 existing_content = f.read()
                 for line in existing_content.split('\n'):
-                    if line.startswith(('1.', '2.', '3.', '4.', '5.', '6.', '7.', '8.', '9.')):
+                    if line.startswith('- '):
                         book_id = line.split('/')[-1].split(')')[0]
                         existing_books.add(book_id)
                 content = existing_content
 
-        for index, book_id in enumerate(self.book_ids):
+        for book_id in self.book_ids:
             if book_id in existing_books:
                 self.detailed_log(f"小册 {book_id} 已存在于索引中，跳过")
                 continue
@@ -361,18 +360,17 @@ class Juejinxiaoce2Markdown:
                 book_info = await self.get_book_info_res(book_id)
                 
                 if book_info is None or 'data' not in book_info or not book_info['data']:
-                    content += f"{len(existing_books) + 1}. <a href='{self.base_url}{book_id}'>获取失败的小册 (ID: {book_id})</a>\n"
+                    content += f"- <a href='{self.base_url}{book_id}'>获取失败的小册 (ID: {book_id})</a>\n"
                     continue
                 
                 book_title = clear_slash(book_info['data']['booklet']['base_info']['title'])
-                book_dir = f"{len(existing_books) + 1:03d}_{self.clear_filename(book_title)}"
                 book_url = f"{self.base_url}{book_id}"
                 book_index = 'index.html' if self.save_format == 'html' else 'README.md'
-                content += f"{len(existing_books) + 1}. <a href='{book_dir}/{book_index}'>{book_title}</a> - <a href='{book_url}' target='_blank'>原文地址</a>\n"
+                content += f"- <a href='{book_title}/{book_index}'>{book_title}</a> - <a href='{book_url}' target='_blank'>原文地址</a>\n"
                 existing_books.add(book_id)
             except Exception as e:
                 self.log_message(f"生成主索引时处理小册 {book_id} 出错: {str(e)}")
-                content += f"{len(existing_books) + 1}. <a href='{self.base_url}{book_id}'>处理失败的小册 (ID: {book_id})</a>\n"
+                content += f"- <a href='{self.base_url}{book_id}'>处理失败的小册 (ID: {book_id})</a>\n"
         
         if self.save_format == 'html':
             self.detailed_log("保存为 HTML 格式")
@@ -380,7 +378,7 @@ class Juejinxiaoce2Markdown:
         else:
             self.detailed_log("保存为 Markdown 格式")
             await self.save_markdown(index_path, content)
-    
+
         self.detailed_log(f"主索引文件生成完成: {index_path}")
 
     def clear_log_folder(self):
