@@ -1,0 +1,118 @@
+<p><a href="https://nodejs.org/docs/latest-v18.x/api/util.html">util</a> 模块是一个工具模块，提供了一些常用的辅助函数。</p>
+<p>下面将逐介绍一下常用的方法。</p>
+<h2>1 常用方法</h2>
+<h3>1.1 对象转字符串</h3>
+<p><code>util.inspect(object, [options])</code>，常与 <code>console.log</code> 搭配使用，可以友好的将对象转为字符串，打印更加友好。</p>
+<p>下面是一个用于测试的对象。</p>
+<p><code>js
+// 复杂对象
+const testObj = {
+  a: 1,
+  b: {
+    c: 2,
+    d: [3, 4, 5],
+    e: () =&gt; {
+      console.log(6)
+    }
+  },
+  f: '7',
+  g: [{ 8: [{ 9: 10 }] }],
+  h() {
+    console.log(11)
+  }
+}</code></p>
+<p>首先是普通打印，可以看到嵌套的数组和函数没有办法打印出来，</p>
+<p><code>js
+console.log(testObj)</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6a0e3fbe645f43228f874939275409bd~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=525\&amp;h=212\&amp;s=184723\&amp;e=png\&amp;b=21132c" /></p>
+<p>然后是通过 <code>JSON.stringify</code>。</p>
+<p><code>js
+console.log(JSON.stringify(testObj, null, 2))</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/00be80f46aad4de49e686b4ed5a352af~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=312\&amp;h=449\&amp;s=228564\&amp;e=png\&amp;b=041932" /></p>
+<p>可以看到函数没有了，</p>
+<p>最后是 <code>util.inspect</code>，其中 <code>depth</code> 用于控制展开的层级。</p>
+<p><code>js
+console.log(util.inspect(testObj, { depth: Math.Infinity }))</code></p>
+<p>可以看到深层的数组和对象被展开了。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9b58480d173846b3918c68a9c1f54eed~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=533\&amp;h=215\&amp;s=175007\&amp;e=png\&amp;b=190b30" /></p>
+<p>当然实际开发中可以使用 <a href="https://www.npmjs.com/package/javascript-stringify">javascript-stringify</a> 这个库，来实现更佳完整友好的转换。</p>
+<p>```sh</p>
+<h1>安装依赖</h1>
+<p>npm i javascript-stringify
+```</p>
+<p>运行结果如下。</p>
+<p>```js
+import { stringify } from 'javascript-stringify'</p>
+<p>console.log(stringify(testObj, null, 2))
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/a81b57735c464031a1d5d337c48d9a10~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=277\&amp;h=582\&amp;s=264287\&amp;e=png\&amp;b=041931" /></p>
+<p>能保持和传入的结果基本一致。</p>
+<h3>1.2 格式化字符串</h3>
+<p><a href="https://nodejs.org/api/util.html#utilformatformat-args">util.format(format[, ...args])</a> 类似于 C 语言中的使用 <code>printf</code> 方法的传参，</p>
+<p>该方法支持占位符 (%s、%d、%j 等) 来表示不同类型的变量，支持传入多个参数。</p>
+<p>```js
+import util from 'util'</p>
+<p>console.log(util.format('%s:%s', 'foo', 'bar')) // 'foo:bar'
+console.log(util.format('%d + %d = %d', 1, 2, 3)) // '1 + 2 = 3'</p>
+<p>console.log(
+  util.format('My name is %j', { firstName: 'John', lastName: 'Doe' })
+)
+// 'My name is {"firstName":"John","lastName":"Doe"}'
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/67f0aa28ab514145b715538d8e380600~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=549\&amp;h=136\&amp;s=123318\&amp;e=png\&amp;b=23142f" /></p>
+<h3>1.3 promise 转回调</h3>
+<p><code>util.callbackify</code> 可以将一个返回 <code>promise</code> 的函数转为回调形式的函数。</p>
+<p>```js
+import util from 'util'</p>
+<p>function foo() {
+  return Promise.resolve('hello world')
+}</p>
+<p>function bar() {
+  return Promise.reject(new Error('error reject'))
+}</p>
+<p>const callbackFoo = util.callbackify(foo)
+const callbackBar = util.callbackify(bar)</p>
+<p>callbackFoo((err, ret) =&gt; {
+  if (err) {
+    console.log('err', err)
+    return
+  }
+  console.log(ret)
+})</p>
+<p>callbackBar((err, ret) =&gt; {
+  if (err) {
+    console.log('err', err)
+    return
+  }
+  console.log(ret)
+})
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1eedc436ca2f4bbf927f9bb60fadf461~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=414\&amp;h=228\&amp;s=173088\&amp;e=png\&amp;b=041f33" /></p>
+<h3>1.4 回调转 promise</h3>
+<p><code>util.promisify(original)</code> 用于将常规带有回调函数的方法转为返回 Promise 对象的方法。</p>
+<p>以 <code>fs.readFile</code> 举例。</p>
+<p><code>js
+// 引入 Node.js 内置模块 util 和 fs
+import util from 'util'
+import fs from 'fs'
+// 将 fs.readFile 方法转换为返回 Promise 的函数
+const fsRead = util.promisify(fs.readFile)
+// 使用 Promise 的方式读取文件内容并输出
+fsRead('./package.json').then((data) =&gt; {
+  console.log(data.toString())
+})</code></p>
+<h3>1.5 判断数据类型</h3>
+<p>当然这些方法编辑器会显示已经弃用 (deprecated，即表示有其它可替代的方法了)，<strong>当然也不妨碍了解一下</strong>。</p>
+<p>```js
+import util from 'util'</p>
+<p>// 判断数据类型
+console.log(util.isArray([])) // true
+console.log(util.isRegExp(/some regexp/)) // true
+console.log(util.isDate(new Date())) // true
+console.log(util.isPrimitive(null)) // true
+console.log(util.isPrimitive(1)) // true
+```</p>
+<h2>小结</h2>
+<p>本节介绍了 <code>util</code> 模块的常用方法，包括，</p>
+<p>对象转字符串 (<code>inspect</code>)、格式化字符串 (<code>format</code>)、promise 转回调 (<code>callbackify</code>)、回调转 promise (<code>promisify</code>)、判断数据类型等方法。</p>
+<p>熟练利用这些方法，可以避免自己重复书写同样的工具方法，提高编码效率。</p>

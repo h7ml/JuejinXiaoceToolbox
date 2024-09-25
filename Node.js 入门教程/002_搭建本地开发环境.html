@@ -1,0 +1,241 @@
+<h2>前言</h2>
+<p>在 <a href="https://nodejs.org/zh-cn/download">Node.js 官网</a>上可以直接下载到各个平台的安装包，可以直接安装使用。</p>
+<p><strong>但是需要注意！！</strong></p>
+<p><strong>直接通过下载安装包安装，并不最佳实践！！！</strong></p>
+<p><strong>直接通过下载安装包安装，并不最佳实践！！！</strong></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/a8a50a2244464aeba334d947675d759d~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1318\&amp;h=690\&amp;s=132644\&amp;e=png\&amp;b=fefefe" /></p>
+<p>国内用户通过官网下载一般速度很慢，安装后部分用户还会遇到一些权限问题 (导致执行 node 得加 <code>sudo</code> 切换管理员权限)，</p>
+<p>同时在实际开发场景中，一般会接触到多个项目，每个项目对 Node 的版本要求也是不一样的，所以咱需要一个 Node.js 的版本管理工具，</p>
+<p>当然如果就想使用安装包安装的话，推荐使用<a href="https://registry.npmmirror.com/binary.html?path=node/">国内镜像：npmmirror</a> 进行下载，速度更快，无需魔法。</p>
+<p>下面按照流行程度 (star⭐️ 数量) 分别介绍一下如下三个工具：</p>
+<ul>
+<li><a href="https://github.com/nvm-sh/nvm#intro">nvm</a>：基于 Shell 脚本实现，老牌的 Node.js 包管理工具；</li>
+<li><a href="https://github.com/Schniz/fnm">fnm</a>：快速简便的 Node.js 版本管理器，使用 Rust 编写；</li>
+<li><a href="https://github.com/volta-cli/volta">volta</a>：快速无缝地安装和运行任何 JS 工具！Volta 是在 Rust 中构建的，并作为一个快速的静态二进制运行。</li>
+</ul>
+<p>使用体感上，<code>nvm</code> 相对后 2 者相对慢一点，具体可以看这篇<a href="https://sugarat.top/bigWeb/node/nvm-iterm.html#giscus-css">文章：安装 nvm 后终端启动变慢，更快的 Node 版本管理工具推荐</a>。</p>
+<p><strong>读者选择上述三个中的一个工具安装成功即可！</strong></p>
+<p><strong>读者选择上述三个中的一个工具安装成功即可！</strong></p>
+<p><strong>读者选择上述三个中的一个工具安装成功即可！</strong></p>
+<p><em>安装多个可能会导致相互冲突。</em></p>
+<hr />
+<p>下面开始介绍安装和简单使用方法 (分操作系统展开)，<strong>读者可以先看一下大概的安装步骤和使用方法，最后再选择一个自己喜欢 (安装顺利) 的即可</strong>。</p>
+<p>当然笔者推荐 Mac 和 Linux 使用 <code>fnm</code> 或者 <code>volta</code>，Windows 使用 <code>nvm</code>。</p>
+<h2>1 安装 Node.js 版本管理工具</h2>
+<blockquote>
+<p><em>由于网络原因，部分工具安装过程可能不顺利，笔者本章节涉及的安装脚本和安装包都会汇总在最后的云盘资源中</em>。</p>
+</blockquote>
+<p>本小节<strong>主要介绍不同操作系统如何安装</strong> <code>nvm</code>，<code>fnm</code>，<code>volta</code> 等这些工具，并在国外网站资源访问不通畅导致资源下载慢的情况下，提供了一些简单的解决方案。</p>
+<p>示例使用设备如下。</p>
+<p>|                                                                                    Mac                                                                                    |                                                                                   Linux                                                                                   |  Windows  |
+| :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-------: |
+|                                                                  Mac mini (M1, 2020)，macOS Monterey 12.6                                                                  |                                                                                 Deepin V20                                                                                | Windows10 |
+| <img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1f8b02b108744416a831447b874372e7~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=586\&amp;h=313\&amp;s=57187\&amp;e=png\&amp;b=30302f" /> | <img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1a0b953fb7fe470ea8c0d62ac1a68735~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=467\&amp;h=640\&amp;s=45162\&amp;e=png\&amp;b=fafafa" /> |     -     |</p>
+<h3>1.1 Mac &amp; Linux</h3>
+<h4>nvm</h4>
+<p>方式 1：直接执行一键安装的脚本即可。</p>
+<p><code>sh
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash</code></p>
+<p>可能由于网络原因会导致 <code>raw.githubusercontent.com</code> 的资源拉取失败。</p>
+<p>方式 2：可以先将资源 <a href="https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh">v0.39.3-install.sh</a> 下载到本地，然后通过 <code>bash</code> 执行，</p>
+<p><code>sh
+bash ./v0.39.3-install.sh</code></p>
+<p>最新的版本资源可以访问 <a href="https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating">GitHub：nvm-sh/nvm</a> 获取</p>
+<p>完成安装执行后，将会 <a href="https://app.warp.dev/block/hKwgPA3rYAvZJV0rV3ri01">提示配置环境变量</a></p>
+<p>将下面这段配置添加到 <code>~/.zshrc</code> 或者 <code>~/.bashrc</code> 中，</p>
+<p><code>sh
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] &amp;&amp; \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] &amp;&amp; \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion</code></p>
+<p><em>可以通过 <code>echo $0</code> 来查看默认的终端工具，来确定修改哪个文件</em>。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/009e0ee1561140f6a6f6ad10c43c6486~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=242\&amp;h=111\&amp;s=4244\&amp;e=png\&amp;b=010101" /></p>
+<p>配置完后，重启终端工具，验证结果如下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ca9c6f206e004164a96c06777b67b859~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=198\&amp;h=77\&amp;s=5378\&amp;e=png\&amp;b=010101" /></p>
+<h4>fnm</h4>
+<p>方式 1：一键安装脚本。</p>
+<p><code>sh
+curl -fsSL https://fnm.vercel.app/install | bash</code></p>
+<p>方式 2：同理也可以先将资源 <a href="https://fnm.vercel.app/install">fnm-install.sh</a> 下载到本地，然后 bash 执行。</p>
+<p><code>sh
+bash ./fnm-install.sh</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3b9716579ae34f4b89fbe266991fe7e6~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=248\&amp;h=114\&amp;s=7373\&amp;e=png\&amp;b=030303" /></p>
+<p>配置环境变量，将下面这段内容加入到 <code>~/.zshrc</code> 或者 <code>~/.bashrc</code> 中，</p>
+<p><em>可以通过 <code>echo $0</code> 来查看默认的终端工具，来确定修改哪个文件</em>。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/009e0ee1561140f6a6f6ad10c43c6486~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=242\&amp;h=111\&amp;s=4244\&amp;e=png\&amp;b=010101" /></p>
+<p><code>sh
+eval "$(fnm env --use-on-cd)"</code></p>
+<h4>volta</h4>
+<p>方式 1：一键安装脚本。</p>
+<p><code>sh
+curl https://get.volta.sh | bash</code></p>
+<p>方式 2：资源下载到本地 <a href="https://get.volta.sh">get.volta.sh</a>，再自行安装。</p>
+<p><code>sh
+bash ./get.volta.sh</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b005072c840748b09ed9402d39fa4c47~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=209\&amp;h=121\&amp;s=6202\&amp;e=png\&amp;b=020202" /></p>
+<h3>1.2 Windows</h3>
+<p>推荐终端工具使用 Git Bash (随 Git 安装附带)，更加适合日常开发。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ee98b491efc04d3cbc5535cc9da6ff3c~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=745\&amp;h=449\&amp;s=25584\&amp;e=png\&amp;b=000000" /></p>
+<p>当然没安装也不要紧，可以先用系统自动的 powershell 进行后续的操作。</p>
+<h4>nvm</h4>
+<p>window 上需要安装 <a href="https://github.com/coreybutler/nvm-windows">nvm-window</a>，</p>
+<p>下载<a href="https://github.com/coreybutler/nvm-windows/releases">安装包</a>，一路下一步就行。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3d726aa8eb4c4601a8aec6e9a4734112~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=283\&amp;h=80\&amp;s=4366\&amp;e=png\&amp;b=000000" /></p>
+<h4>fnm</h4>
+<p><strong>全程使用管理员权限的 PowerShell 操作</strong>。</p>
+<p>使用 <a href="https://chocolatey.org/">Chocolatey</a> 进行安装
+(Chocolatey 是 windows 上的软件包管理工具)，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/4b03595bc01747a78522f610965b632a~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=307\&amp;h=129\&amp;s=9924\&amp;e=png\&amp;b=012357" /></p>
+<p>如果没有 <code>choco</code> 指令，可以运行下述脚本一键安装 (这段脚本在官网也有)。</p>
+<p><code>sh
+Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))</code></p>
+<p>接下来是安装 <code>fnm</code>，</p>
+<p><code>sh
+choco install fnm</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/a1eac6ef8796416ba88cc6de48c8c7c4~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=666\&amp;h=371\&amp;s=39227\&amp;e=png\&amp;b=012357" /></p>
+<p>查看版本，检查安装情况。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fc1fb9d04b484924871a722da028ff25~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=310\&amp;h=193\&amp;s=16835\&amp;e=png\&amp;b=000000" /></p>
+<p><strong>配置环境变量!!! 重要</strong>。</p>
+<p>(<strong>推荐 😄</strong>) 使用 <code>Git Bash</code> 作为终端工具，</p>
+<p>将下面的内容添加到 <code>~/.bashrc</code> 中即可。</p>
+<p><code>sh
+eval "$(fnm env --use-on-cd)"</code></p>
+<p>推荐使用内置 <code>vi</code> 编辑器直接进行文件内容的编辑，下面是操作演示：</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/cda74cc733794fc586e11a92c8c6d93a~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=996\&amp;h=448\&amp;s=191834\&amp;e=gif\&amp;f=190\&amp;b=000000" /></p>
+<p>(不推荐 😞) 如果使用 <code>powershell</code> 将下面的内容添加到 <code>~\Documents\PowerShell\Microsoft.PowerShell_profile.ps1</code> 中。</p>
+<p><em>也可通过 <code>$PROFILE</code> 获取到这个文件的路径</em>。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b9f6b437660343548c58981de7e3efc7~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=722\&amp;h=90\&amp;s=11701\&amp;e=png\&amp;b=012356" /></p>
+<p><code>powershell
+fnm env --use-on-cd | Out-String | Invoke-Expression</code></p>
+<h4>volta</h4>
+<p>同样需要通过<a href="https://docs.volta.sh/guide/getting-started">安装包</a>进行安装，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/692988c385104930926ed0943b5beb07~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1066\&amp;h=338\&amp;s=43283\&amp;e=png\&amp;b=ffffff" /></p>
+<p>一路回车下一步即可。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c1c10fa6871a4b4c8fcb429b86a2ad5a~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=618\&amp;h=483\&amp;s=38495\&amp;e=png\&amp;b=fbfbfb" /></p>
+<p>验证一下是否安装成功。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/dde460f427d544599a06b731550740dc~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=294\&amp;h=74\&amp;s=3748\&amp;e=png\&amp;b=000000" /></p>
+<h2>2 安装 Node.js</h2>
+<p>本小节主要介绍各个包管理工具如何 <code>安装Node</code>，<code>查看已安装Node版本</code>，<code>切换Node版本</code> 等常规操作，</p>
+<p>通过 <a href="https://github.com/nodejs/Release">Node.js Release 仓库</a>我们可以看到当下各版本的 EOF(End-of-life) 时间。</p>
+<p><em>------------ 2023-12-07 截图 -------------</em>
+<img alt="image.png" src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/aa30c076d7194ad0ad18cde2a23ecb46~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=856&amp;h=515&amp;s=72406&amp;e=png&amp;b=ffffff" /></p>
+<p>可以看到当下的 LTS (长期支持) 版本是 v20，</p>
+<p>由于编写时间原因教程示例使用 18 展开，读者可以安装当下最新的或者 v18 均可（使用上不会有任何区别）</p>
+<p>下面读者选取一个自己设备上安装的 Node 版本管理工具开始安装即可。</p>
+<h3>2.1 nvm</h3>
+<p>① 设置镜像源</p>
+<p>先设置国内镜像源，加快安装速度。</p>
+<p>```sh</p>
+<h1>linux 和 mac使用下面这条</h1>
+<p>export NVM_NODEJS_ORG_MIRROR=https://npmmirror.com/mirrors/node</p>
+<h1>windows 使用</h1>
+<p>nvm node_mirror https://npmmirror.com/mirrors/node/
+```</p>
+<p>② 安装 Node</p>
+<p>安装目标版本。</p>
+<p><code>sh
+nvm install v18.16.0</code></p>
+<p>③ 查看已安装 Node 版本</p>
+<p><code>sh
+nvm ls</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/77dbe90b86b542aa8156a5e4ea1b948b~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=287\&amp;h=81\&amp;s=7485\&amp;e=png\&amp;b=1e1e1e" /></p>
+<p>④ 切换到已安装的其它版本</p>
+<p><code>sh
+nvm use v16.17.0</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/960d3b70e9124d56bcfd7d055a85f12e~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=338\&amp;h=126\&amp;s=17163\&amp;e=png\&amp;b=1f1f1f" /></p>
+<p>更多指令见官方文档 <a href="https://github.com/nvm-sh/nvm#usage">nvm-sh</a>，<a href="https://github.com/coreybutler/nvm-windows#usage">nvm-windows</a>。</p>
+<h3>2.2 fnm</h3>
+<p>① 设置国内镜像源</p>
+<p><code>sh
+export FNM_NODE_DIST_MIRROR="https://npmmirror.com/mirrors/node"</code></p>
+<p>② 安装 Node</p>
+<p>将需要安装的版本记录到文件里 <code>.node-version</code>。</p>
+<p><code>sh
+echo 18.16.0 &gt;.node-version</code></p>
+<p>执行安装。</p>
+<p><code>sh
+fnm install</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/981fcb1acff945f680793f4cc04a7a99~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1027\&amp;h=337\&amp;s=46161\&amp;e=png\&amp;b=252525" /></p>
+<p>③ 查看已安装的版本</p>
+<p><code>sh
+fnm list</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0d8416bb208c4436b4bbf17d3572f8d4~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=353\&amp;h=160\&amp;s=15900\&amp;e=png\&amp;b=252525" /></p>
+<p>④ 切换版本</p>
+<p>```sh
+fnm use <version></p>
+<h1>demo</h1>
+<p>fnm use 16
+fnm use 18
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/33da9212ab4542f8a519016cf20d948d~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=397\&amp;h=353\&amp;s=43978\&amp;e=png\&amp;b=252525" /></p>
+<p>更多指令详见官方文档 <a href="https://github.com/Schniz/fnm/blob/master/docs/commands.md">fnm:docs/commands.md</a>。</p>
+<h3>2.3 volta</h3>
+<p><em>暂不支持修改 Node 镜像源，但可以通过设置终端代理加速下载，前提是自己拥有代理服务</em>。</p>
+<p>```sh</p>
+<h1>终端中执行如下指令，临时设置变量</h1>
+<p>export https_proxy=http://127.0.0.1:7890 http_proxy=http://127.0.0.1:7890 all_proxy=socks5://127.0.0.1:7890
+```</p>
+<p>① 安装目标版本</p>
+<p><code>sh
+volta install node@18.16.0</code></p>
+<p>② 查看已安装版本</p>
+<p><code>sh
+volta list node</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/acc8585948fc44c1beff2cddc20818ee~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=333\&amp;h=94\&amp;s=10300\&amp;e=png\&amp;b=1f1f1f" /></p>
+<p>③ 切换版本</p>
+<p>切换全局默认版本，同样执行 install 指令 (已存在的不会重复安装)。</p>
+<p>```sh
+volta install node@version</p>
+<h1>demo</h1>
+<p>volta install node@18</p>
+<p>volta install node@18.16.0
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c873d94e66a249e4bcfd1e1aa487904d~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=586\&amp;h=236\&amp;s=37625\&amp;e=png\&amp;b=1e1e1e" /></p>
+<p>设置项目默认版本，也可以为某个项目设置要使用的版本 (相关配置会自动添加到 <code>package.json</code> 文件中)。</p>
+<p><code>sh
+volta pin node@16</code></p>
+<p>这样针对多人协作项目也能保持版本一致 (前提是都用 volta)，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/cd44b90cb08243f9aeeb721a5ae10e49~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=946\&amp;h=341\&amp;s=54633\&amp;e=png\&amp;b=1e1e1e" /></p>
+<p>更多指令详见官方文档 <a href="https://docs.volta.sh/reference/">volta</a>。</p>
+<h2>3 安装&amp;配置 IDE</h2>
+<p>本小节主要介绍编码的时候使用的工具 <a href="https://code.visualstudio.com/">VS Code</a> 以及一些推荐的插件及用法。</p>
+<h3>3.1 安装 VS Code</h3>
+<p>直接访问<a href="https://code.visualstudio.com/">官网</a>，安装即可，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/58e92766bc534af3aaa2ca58a81ee52d~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1205\&amp;h=613\&amp;s=229283\&amp;e=png\&amp;b=2a2a2f" /></p>
+<p>安装过程中，无特殊情况，直接按照默认配置一直下一步 (Next) 即可，</p>
+<p>各平台 logo 大体一致。</p>
+<p>|                                                                                     mac                                                                                    |                                                                                  windows                                                                                  |                                                                                   linux                                                                                   |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| <img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3caed4b6b0d0422b9fe90055d67267a7~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=196\&amp;h=188\&amp;s=22809\&amp;e=png\&amp;b=566564" />· | <img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/063003eb40c8411bb9e92d70a5270365~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=106\&amp;h=120\&amp;s=14545\&amp;e=png\&amp;b=c8d3db" /> | <img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/bea9f6c07d1f40d39c1b6afcdbe846b6~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=151\&amp;h=183\&amp;s=18654\&amp;e=png\&amp;b=042426" /> |</p>
+<p>VS Code 安装同时会注册一个 <code>code</code> 指令，方便快速通过终端打开文件或文件夹，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0ad1407db84e4aec8afea4d604dd6c4c~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=380\&amp;h=98\&amp;s=8111\&amp;e=png\&amp;b=1f1f1f" /></p>
+<p>```sh</p>
+<h1>打开某个文件</h1>
+<p>code filepath</p>
+<h1>打开文件夹</h1>
+<p>code dirPath
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0cb75940343444a3b62d5ce77ddbc1b5~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1468\&amp;h=910\&amp;s=11534591\&amp;e=gif\&amp;f=133\&amp;b=010101" /></p>
+<p>如果提示指令不存在，可以打开 VS Code，按 <code>F1</code> 在对话框里输入 shell 自动完成相关环境变量的添加。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8afd73a2332f46ea93e7194c511a3889~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=699\&amp;h=151\&amp;s=30076\&amp;e=png\&amp;b=242426" /></p>
+<p><em>TIP：当然不习惯指令打开文件的用户，可以直接将目录或者文件拖拽到编辑器中打开</em>。</p>
+<h3>3.2 必要插件安装</h3>
+<p>本小节介绍几个常用的插件，方便后续开发，</p>
+<p>在编辑器的左侧可以看到安装插件的入口。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7d4be829d23f414b889d8b642988043f~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=461\&amp;h=738\&amp;s=108390\&amp;e=png\&amp;b=252527" /></p>
+<h4>简体中文支持</h4>
+<p>对于英文不习惯的，可以安装汉化插件，对高频操作场景都做了汉化处理。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9754f0db33f542c2ac2eb951d92cf821~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=673\&amp;h=238\&amp;s=47517\&amp;e=png\&amp;b=1f1f1f" /></p>
+<h4>Code Runner</h4>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8e66af2284d4411a96f9ce7ed4f37f44~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=684\&amp;h=233\&amp;s=31777\&amp;e=png\&amp;b=1e1e1e" /></p>
+<p>右键菜单中加入一个，唤起终端工具直接执行脚本的入口。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/05685bbe2c284e168adbf4ca3eed23d7~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=674\&amp;h=246\&amp;s=37213\&amp;e=png\&amp;b=1f1f1f" /></p>
+<h4>Error Lens</h4>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2f38e864c6c043e881b93df1489b0f7f~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=677\&amp;h=248\&amp;s=39128\&amp;e=png\&amp;b=1f1f1f" /></p>
+<p>会将错误信息直接显示在代码旁边。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/38fa67b028954217872e18353529c8b1~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=664\&amp;h=135\&amp;s=16354\&amp;e=png\&amp;b=1f1f1f" /></p>
+<h2>4 下载资源汇总</h2>
+<ul>
+<li>阿里云盘：<a href="https://www.aliyundrive.com/s/QvHZv9xZhrz">nvm-fnm-volta 各端安装包和 shell</a>。</li>
+</ul>
+<h2>小结</h2>
+<p>这一节主要介绍了在不同平台上安装 Node 的最佳实践，以及如何使用 nvm、fnm、volta 等工具管理多个 Node 版本，最后介绍了 VS Code 的安装和常用插件的安装。</p>

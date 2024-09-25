@@ -1,0 +1,116 @@
+<p><a href="https://nodejs.org/docs/latest-v18.x/api/child_process.html">child_process</a> 是 Node.js 的一个核心模块，可以用于创建子进程，</p>
+<p>因此虽然 js 是单线程的，但通过创建子进程也能实现多任务并行处理，也可通过其调用系统的功能指令完成复杂的任务。</p>
+<p>主要提供了 4 个方法：<code>spawn</code>、<code>exec</code>、<code>execFile</code> 和 <code>fork</code>。</p>
+<p>下面逐一介绍各个方法的用法和作用。</p>
+<h2>1 spawn 方法</h2>
+<p>支持 <code>同步(spawnSync)</code> 和 <code>异步(spawn)</code> 2 种调用方式。</p>
+<p>比如我们经常用 <code>pwd</code> 获取当前目录的路径，<code>ls</code> 获取当前目录下的文件，下面是通过 <code>spawnSync</code> 调用示例。</p>
+<p>```js
+import ChildProcess from 'child_process'</p>
+<p>const { spawn, spawnSync } = ChildProcess</p>
+<p>const pwd = spawnSync('pwd')
+console.log(pwd.stdout.toString())
+const ls = spawnSync('ls', ['-lh'])
+console.log(ls.stdout.toString())
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b065bd7f276f4125861c5a1543bac73e~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=616\&amp;h=181\&amp;s=170207\&amp;e=png\&amp;b=23142f" /></p>
+<p>通过 Git 获取某个文件最近一次的改动时间，</p>
+<p><code>sh
+git log -1 --pretty="%ci" ../fs/index.mjs</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/273b22b9279c4060ad0a4fd29a787fe4~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=511\&amp;h=120\&amp;s=95857\&amp;e=png\&amp;b=21132b" /></p>
+<p>下面是 <code>spawn</code> 实现。</p>
+<p>```js
+import ChildProcess from 'child_process'</p>
+<p>const { spawn, spawnSync } = ChildProcess
+const file = './../fs/index.mjs'
+const spawnProcess = spawn('git', ['log', '-1', '--pretty="%ci"', file])
+spawnProcess.stdout.on('data', (data) =&gt; {
+  console.log(<code>stdout: ${data}</code>)
+  console.log(new Date(data))
+})
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/b152eb5668f040feacc6cad3298e15ac~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=650\&amp;h=160\&amp;s=154546\&amp;e=png\&amp;b=231430" /></p>
+<p>有时候我们就想直接执行，让它按照之前的方式正常打印 log 和交互，不需要内部处理。</p>
+<p>可以设置 <code>stdio:'inherit'</code>，表示将子进程的标准输入/输出/错误流与父进程共享。</p>
+<p>```js
+spawnSync('pwd', {
+  stdio: 'inherit'
+})</p>
+<p>spawn('ls', {
+  stdio: 'inherit'
+})
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/27aef0204fb448bc9ae6bc1ade798e86~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=723\&amp;h=124\&amp;s=152774\&amp;e=png\&amp;b=041f34" /></p>
+<h2>2 exec 方法</h2>
+<p>同样的也是支持同步和异步两种 <code>exec</code>，<code>execSync</code>，</p>
+<p>简单的实现一下上面的例子。</p>
+<p>```js
+import { exec, execSync } from 'child_process'</p>
+<p>const pwd = execSync('pwd')
+console.log(pwd.toString())
+const ls = execSync('ls -lh')
+console.log(ls.toString())</p>
+<p>const file = './../fs/index.mjs'
+const execProcess = exec(<code>git log -1 --pretty="%ci" ${file}</code>)
+execProcess.stdout.on('data', (data) =&gt; {
+  console.log(<code>stdout: ${data}</code>)
+  console.log(new Date(data))
+})
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/530c5d800dc94c7aa3f7386cc9f4d64c~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=650\&amp;h=316\&amp;s=334496\&amp;e=png\&amp;b=041f33" /></p>
+<h2>3 execFile 方法</h2>
+<p>执行某个可执行文件，支持同步和异步两种方式，</p>
+<p>我们先编写一个可执行文件 <code>hello</code>，代码内容如下。</p>
+<p>```js</p>
+<h1>!/usr/bin/env node</h1>
+<p>const hello = 'hello world'
+console.log(hello)
+console.log(process.env)
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fafdbd3f96d7432b817ec871fb9f03b4~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=425\&amp;h=283\&amp;s=207352\&amp;e=png\&amp;b=041c32" /></p>
+<p>通过 <code>execFile</code> 调用执行。</p>
+<p>```js
+import { execFile, execFileSync } from 'child_process'</p>
+<p>const file = './hello'
+const execData = execFileSync(file)
+console.log(execData.toString())</p>
+<p>execFile(file, (error, stdout, stderr) =&gt; {
+  if (error) {
+    throw error
+  }
+  console.log(stdout)
+  console.log(stderr)
+})
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/39967ce571754202a4e378a2adde036f~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=358\&amp;h=180\&amp;s=116709\&amp;e=png\&amp;b=031c32" /></p>
+<h2>4 fork 方法</h2>
+<p>在父进程中，我们可以使用 fork() 方法创建一个子进程，并与子进程进行通信，</p>
+<p>下面是具体的例子。</p>
+<p><code>child.mjs</code> 代码如下。</p>
+<p><code>js
+process.on('message', (msg) =&gt; {
+  // 监听来自父进程的消息
+  console.log(`Message from parent: ${msg}`)
+  process.send('Hello from child!') // 向父进程发送消息
+})</code></p>
+<p><code>fork.mjs</code> 代码如下。</p>
+<p>```js
+import { fork } from 'child_process'</p>
+<p>const child = fork('child.mjs') // 使用 fork() 方法创建子进程</p>
+<p>child.on('message', (msg) =&gt; {
+  // 监听来自子进程的消息
+  console.log(<code>Message from child: ${msg}</code>)
+})</p>
+<p>child.send('Hello from parent!') // 向子进程发送消息
+```</p>
+<p>运行结果如下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6316eeccc28540c2856b34f9898b5f2c~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=542\&amp;h=146\&amp;s=120014\&amp;e=png\&amp;b=22132c" /></p>
+<h2>小结</h2>
+<p>通过 <code>child_process</code> 可以创建子进程实现多任务并行处理，也可通过其调用系统的功能指令完成复杂的任务，</p>
+<p>主要介绍了如下 4 个方法的用法和作用。</p>
+<ul>
+<li><code>spawn</code> 启动一个子进程来执行指定的命令，并且可以通过流式数据通信与子进程进行交互；</li>
+<li><code>exec</code> 启动一个 shell，并在 shell 中执行指定命令，执行完毕后插入 <code>stdout/stderr</code> 中，适用于一些命令行工具；</li>
+<li><code>execFile</code> 与 <code>exec</code> 类似，但是可以直接执行某个文件，而无需通过 shell 执行；</li>
+<li><code>fork</code> 专门用于在 Node.js 中衍生新的进程来执行 JavaScript 文件，并且建立一个与子进程的 IPC 通信管道。</li>
+</ul>

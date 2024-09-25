@@ -1,0 +1,104 @@
+<p>单元测试是一种在代码层面对软件进行测试的技术，目的是检测代码中的问题和错误。</p>
+<p>它通常是自动化的，并且针对一个单独的函数、方法或模块进行测试。</p>
+<p>单元测试可以帮助开发人员更快地发现问题，提高代码质量。</p>
+<p>本节会介绍一下 Node.js 中如何做单元测试，包含 Node 内置的测试模块和第三方测试框架介绍。</p>
+<h2>1 Node 内置模块</h2>
+<h3>1.1 <a href="https://nodejs.org/docs/latest-v18.x/api/assert.html#assert">Assert</a></h3>
+<p><code>assert</code> 模块是 Node.js 的一个内置模块，提供了一组函数用于进行断言。</p>
+<p>下面是使用示例。</p>
+<p>```js
+const assert = require('assert')</p>
+<p>assert.ok(1 === 1, '1等于1') // 不会抛出错误
+assert.ok(1 === 2, '1不等于2') // 会抛出 AssertionError 错误，错误信息为 '1不等于2'</p>
+<p>assert.equal(1, 1, '1等于1') // 不会抛出错误
+assert.equal(1, 2, '1不等于2') // 会抛出 AssertionError 错误，错误信息为 '1不等于2'</p>
+<p>assert.deepEqual({ a: 1, b: 2 }, { a: 1, b: 2 }, '两个对象相等') // 不会抛出错误
+assert.deepEqual({ a: 1, b: 2 }, { a: 1, b: 3 }, '两个对象不相等') // 会抛出 AssertionError 错误，错误信息为 '两个对象不相等'
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/d43f513d725b457f931f2d458de85ca9~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=515\&amp;h=232\&amp;s=191997\&amp;e=png\&amp;b=271b22" /></p>
+<p>如果有不符合条件的会直接抛出错误，阻塞后面代码运行，方式还相对原始，不方便规模性的测试使用。</p>
+<p>当然上面只演示了一小部分 API，更多 API 移步<a href="https://nodejs.org/docs/latest-v18.x/api/assert.html#assert">文档</a>查看。</p>
+<h3>1.2 <a href="https://nodejs.org/docs/latest-v18.x/api/test.html">Test runner</a></h3>
+<p>Node 内置 <code>test</code> 模块，可以配合 <code>assert</code> 使用，能够覆盖常见测试场景。</p>
+<p><strong>这里必须引入 <code>node:test</code> 否则不生效</strong>。</p>
+<p>文件命名建议使用 <code>[name].test.js</code> 或者 <code>[name].test.mjs</code>。</p>
+<p>```js
+import test from 'node:test'
+import assert from 'assert'</p>
+<p>test('1等于1', () =&gt; {
+  // This test passes because it does not throw an exception.
+  assert.strictEqual(1, 1)
+})</p>
+<p>test('两个对象相等', () =&gt; {
+  assert.deepStrictEqual({ a: 1, b: 2 }, { a: 1, b: 2 })
+})</p>
+<p>test('1不等于2', () =&gt; {
+  assert.ok(1 === 2)
+})
+```</p>
+<p>运行使用 <code>--test</code> 参数，后面可以跟上多个文件或者目录。</p>
+<p>```sh
+node --test test-runner/</p>
+<h1>node --test file.js file2.js dir3/</h1>
+<p>```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/bc09dab91bbe437183e4c1cf4aa4403d~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=628\&amp;h=686\&amp;s=656568\&amp;e=png\&amp;b=311b32" /></p>
+<p>更多用法建议阅读<a href="https://nodejs.org/docs/latest-v18.x/api/test.html#test-runner">官方文档</a>。</p>
+<h2>2 第三方测试框架</h2>
+<p>这部分简单介绍一下社区中流行的测试框架。</p>
+<h3>2.1 <a href="https://cn.vitest.dev/">Vitest</a></h3>
+<p>Vitest 是当下最流行的测试框架之一。</p>
+<p>由 <a href="https://cn.vitejs.dev/">Vite</a> 提供支持的极速单元测试框架</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/4f4342223a6e4f0baf303ab08b7ca738~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1216\&amp;h=605\&amp;s=198093\&amp;e=png\&amp;b=fbf8f4" /></p>
+<p>这里<a href="https://cn.vitest.dev/guide/#%E7%A4%BA%E4%BE%8B">使用官方的 Basic：Demo 演示一下</a></p>
+<p>① 安装依赖</p>
+<p>```sh</p>
+<h1>这里使用了pnpm这个包管理工具</h1>
+<p>pnpm add @vitest/ui vite vitest
+```</p>
+<p>② 添加 npm scrips</p>
+<p><code>json
+{
+  "scripts": {
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run"
+  }
+}</code></p>
+<p>③ 添加测试文件 <code>basic.test.js</code></p>
+<p>```js
+import { assert, expect, test } from 'vitest';</p>
+<p>test('Math.sqrt()', () =&gt; {
+  expect(Math.sqrt(4)).toBe(2);
+  expect(Math.sqrt(144)).toBe(12);
+  expect(Math.sqrt(2)).toBe(Math.SQRT2);
+});</p>
+<p>test('JSON', () =&gt; {
+  const input = {
+    foo: 'hello',
+    bar: 'world',
+  };</p>
+<p>const output = JSON.stringify(input);</p>
+<p>expect(output).eq('{"foo":"hello","bar":"world"}');
+  assert.deepEqual(JSON.parse(output), input, 'matches original');
+});
+```</p>
+<p>④ 运行测试</p>
+<p>终端中运行，</p>
+<p><code>sh
+npm run test</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/339d2e7c00304c018afea73f943cf6c4~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=420\&amp;h=360\&amp;s=241211\&amp;e=png\&amp;b=041e32" /></p>
+<p>带 UI 页面。</p>
+<p><code>sh
+npm run test:ui</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/158dd378410d40ad8c5f9532a769c68c~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=917\&amp;h=387\&amp;s=54157\&amp;e=png\&amp;b=191919" /></p>
+<h3>2.2 其它测试框架</h3>
+<p>除了 vitest 之外，还有其它老牌的，如 <a href="https://jestjs.io/">Jest</a>，<a href="https://mochajs.org/">Mocha</a> 等。</p>
+<p>功能大同小异，这里不过多展开，感兴趣的同学可查阅相关文档了解。</p>
+<p>推荐阅读 <a href="https://cn.vitest.dev/guide/comparisons.html">Vitest 与其它测试框架对比</a>。</p>
+<h2>小结</h2>
+<p>本节先简单介绍了一下单元测试的概念，接着重点介绍如何在 Node.js 中编写单元测试，大体分为如下两类：</p>
+<ul>
+<li>内置的测试模块：<code>assert</code>、<code>test</code>；</li>
+<li>第三方测试框架：<code>Vitest</code>、<code>Jest</code>、<code>Mocha</code> 等。</li>
+</ul>
+<p>通过编写单元测试可以帮助开发人员更快地发现问题，及时的发现风险的变更代码，提高代码整体的质量。</p>

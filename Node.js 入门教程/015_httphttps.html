@@ -1,0 +1,319 @@
+<p>Node.js 中最常用的内置模块之一，许多第三方的网络库都是基于它封装的，</p>
+<p><a href="https://nodejs.org/docs/latest-v18.x/api/http.html">http</a> / <a href="https://nodejs.org/docs/latest-v18.x/api/https.html">https</a> 模块可用于创建 HTTP 服务器，也可用于向已有服务发起请求并获取响应。</p>
+<p>下面将分别介绍发起请求和创建 web 服务器两种用法。</p>
+<h2>1 发起请求</h2>
+<blockquote>
+<p>这里默认你了解基本的 HTTP 协议相关知识 (不熟悉的同学可以阅读 <a href="https://developer.mozilla.org/zh-CN/docs/Web/HTTP">MDN：HTTP 介绍</a>)。</p>
+</blockquote>
+<h3>1.1 <a href="https://nodejs.org/docs/latest-v18.x/api/https.html#httpsgeturl-options-callback">http.get</a></h3>
+<p>用于快速发起 <code>GET</code> 请求，下面是个例子，拉取掘金的文章榜单。</p>
+<p>```js
+// import http from 'http'
+import https from 'https'
+// 由于请求的目标资源是 https 协议，所以这里使用 https 模块
+https.get(
+  'https://api.juejin.cn/content_api/v1/content/article_rank?category_id=1&amp;type=hot&amp;count=3&amp;from=1&amp;aid=2608&amp;uuid=7145810834685003271&amp;spider=0',
+  (res) =&gt; {
+    // 响应内容拼接
+    let content = ''
+    res.on('data', (chunk) =&gt; {
+      content += chunk
+    })</p>
+<pre><code>// 读完对外暴露内容和状态码
+res.on('end', () =&gt; {
+  console.log(content)
+})
+
+res.on('error', (err) =&gt; {
+  console.log(err)
+})
+</code></pre>
+<p>}
+)
+```</p>
+<p>结果如下，JSON 格式的字符串，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/a0ec29817c5240ab9667201f2c56df94~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1003\&amp;h=622\&amp;s=1267001\&amp;e=png\&amp;b=1a1127" /></p>
+<p>当然也支持传递额外的参数 (下面介绍另一种写法)。</p>
+<p>```js
+const req = https.get(
+  'https://api.juejin.cn/content_api/v1/content/article_rank?category_id=1&amp;type=hot&amp;count=3&amp;from=1&amp;aid=2608&amp;uuid=7145810834685003271&amp;spider=0',
+  {
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+)</p>
+<p>req.on('response', (res) =&gt; {
+  // 响应内容拼接
+  let content = ''
+  res.on('data', (chunk) =&gt; {
+    content += chunk
+  })</p>
+<p>res.on('end', () =&gt; {
+    console.log(content)
+  })</p>
+<p>res.on('error', (err) =&gt; {
+    console.log(err)
+  })
+})
+```</p>
+<h3>1.2 http.request</h3>
+<p>前面只介绍了 <code>http.get</code> 发起 GET 请求，</p>
+<p>当然也支持其它请求方式 (<code>POST</code>、<code>PUT</code>、<code>DELETE</code> 等等)，均通过 <code>http.request</code> 触发。</p>
+<p>先复现一次前面的 <code>http.get</code>：</p>
+<ul>
+<li>需要分别指定请求的 <code>域名</code>，<code>方法</code>，<code>端口</code>，<code>资源路径</code>，<code>查询参数</code> 等；</li>
+<li>可以通过 <code>URL</code> 方法，直接解析完整的一个 url 链接。</li>
+</ul>
+<p>```js
+import https from 'https'</p>
+<p>const url = new URL(
+  'https://api.juejin.cn/content_api/v1/content/article_rank?category_id=1&amp;type=hot&amp;count=3&amp;from=1&amp;aid=2608&amp;uuid=7145810834685003271&amp;spider=0'
+)
+console.log(url)
+const req = https.request(
+  {
+    // 设置请求方法
+    method: 'GET',
+    // http 80 https 443
+    port: 443,
+    hostname: url.hostname,
+    path: url.pathname + url.search
+  },
+  (res) =&gt; {
+    let content = ''
+    res.on('data', (chunk) =&gt; {
+      content += chunk
+    })
+    res.on('end', () =&gt; {
+      console.log('statusCode', res.statusCode)
+      console.log(content)
+    })
+  }
+)
+// 发送请求
+req.end()
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/132432fb9bdb46d68dadc6fef661cc9b~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=585\&amp;h=619\&amp;s=646353\&amp;e=png\&amp;b=041a32" /></p>
+<p>下面是个发起 POST 请求的例子。</p>
+<p>```js
+import https from 'https'</p>
+<p>const url = new URL(
+  'https://api.juejin.cn/content_api/v1/content/article_rank?category_id=1&amp;type=hot&amp;count=3&amp;from=1&amp;aid=2608&amp;uuid=7145810834685003271&amp;spider=0'
+)</p>
+<p>// POST
+const req = https.request(
+  {
+    // 设置请求方法
+    method: 'POST',
+    // http 80 https 443
+    port: 443,
+    hostname: url.hostname,
+    path: url.pathname + url.search,
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  },
+  (res) =&gt; {
+    let content = ''
+    res.on('data', (chunk) =&gt; {
+      content += chunk
+    })
+    res.on('end', () =&gt; {
+      console.log('statusCode', res.statusCode)
+      console.log(content)
+    })
+  }
+)
+// req.write('请求实体')
+req.write(JSON.stringify({ name: 'xm' }))
+req.end()
+```</p>
+<p>运行结果如下，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/d30d7de4619b4886860ba109221a50b0~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=263\&amp;h=159\&amp;s=66940\&amp;e=png\&amp;b=1a0a2c" /></p>
+<p>因为这个资源实际不存在所以返回了 <code>404</code>。</p>
+<p>如果之前熟悉 WEB (浏览器) 的中的开发，会感觉这里的回调处理会非常的奇怪，有些别扭。</p>
+<p>当然 Node.js 里面也可以使用 <a href="https://www.npmjs.com/package/axios">axios</a>，同时 Node 里也支持 <code>fetch</code>。</p>
+<p>下面分别介绍一下简单用法。</p>
+<h3>1.3 fetch 和 axios</h3>
+<p>Node.js 在 18 开始默认开启 fetch 支持。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/e54835310cae4009a45236caea208526~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=659\&amp;h=345\&amp;s=22238\&amp;e=png\&amp;b=0a0d15" /></p>
+<p>下面是 fetch 发起 GET 请求例子 (更多用法参考 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/fetch">fetch 文档</a>)。</p>
+<p><code>js
+fetch(
+  'https://api.juejin.cn/content_api/v1/content/article_rank?category_id=1&amp;type=hot&amp;count=3&amp;from=1&amp;aid=2608&amp;uuid=7145810834685003271&amp;spider=0'
+)
+  .then((res) =&gt; res.json())
+  .then((data) =&gt; {
+    console.log(data)
+  })
+  .catch((err) =&gt; {
+    console.error(err)
+  })</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/de43c95e56d34487b967a32946ea833c~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=427\&amp;h=654\&amp;s=485342\&amp;e=png\&amp;b=041a32" /></p>
+<p>使用第三方模块 <a href="https://www.npmjs.com/package/axios">axios</a> 介绍。</p>
+<p>```sh</p>
+<h1>安装依赖</h1>
+<p>npm i axios
+```</p>
+<p>使用示例。</p>
+<p>```js
+import axios from 'axios'</p>
+<p>axios
+  .get(
+    'https://api.juejin.cn/content_api/v1/content/article_rank?category_id=1&amp;type=hot&amp;count=3&amp;from=1&amp;aid=2608&amp;uuid=7145810834685003271&amp;spider=0'
+  )
+  .then((res) =&gt; {
+    console.log(res.data)
+  })
+  .catch((err) =&gt; {
+    console.error(err)
+  })
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9844cb5de12f427fa917303b28841d6f~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=368\&amp;h=625\&amp;s=411192\&amp;e=png\&amp;b=041a32" /></p>
+<h2>2 创建 HTTP Service</h2>
+<p>利用 <code>http.createServer</code> 即可创建一个简单的 Web 服务。</p>
+<p>```js
+import http from 'http'</p>
+<p>const server = http.createServer((req, res) =&gt; {
+  res.statusCode = 200
+  res.setHeader('Content-Type', 'text/html')
+  res.end('<h1>Hello, World!</h1>')
+})
+server.listen(4275, () =&gt; {
+  console.log('Server running at http://127.0.0.1:4275/')
+})
+```</p>
+<p>运行</p>
+<p><code>js
+node server.mjs</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/4d4cf3bc3fa34ae5b200bd662ca4c87b~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=497\&amp;h=161\&amp;s=127487\&amp;e=png\&amp;b=22132d" /></p>
+<p>使用浏览器访问 <code>http://127.0.0.1:4275</code> 即可看到结果。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/93503cd895374b1694ae079939c3dff0~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=467\&amp;h=263\&amp;s=8922\&amp;e=png\&amp;b=ffffff" /></p>
+<p>接下来咱们进一步了解一下 <code>request</code> 和 <code>response</code> 相关属性。</p>
+<h2>3 request 内容介绍</h2>
+<p>类型定义是 <a href="https://nodejs.org/docs/latest-v18.x/api/http.html#class-httpincomingmessage">http.IncomingMessage</a>。</p>
+<p>可以从中获取从客户端传递的一些信息，下面介绍一些常用的。</p>
+<h3>3.1 请求路径和方法</h3>
+<p>可以获取请求方法请求 <code>url</code>。</p>
+<p><code>js
+// 在之前代码的基础上做一点微调
+// server-req.mjs
+http.createServer((req, res) =&gt; {
+  // 获取请求的路径和方法
+  const { url, method } = req
+  console.log(method, url)
+  // 省略其它代码...
+})</code></p>
+<p>启动后我们可以通过 <code>curl</code> 或者 <code>浏览器/Node.js</code> 里 fetch 调用。</p>
+<p>下面启动后实操一下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/21da51e7d57e4f05b820d65f4d40e835~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1002\&amp;h=260\&amp;s=454678\&amp;e=png\&amp;b=1f132d" /></p>
+<p>截图里是 <code>curl</code> 发起请求，下面是浏览器和 Node.js 使用 <code>fetch</code> 发起请求示例。</p>
+<p><code>js
+fetch('http://127.0.0.1:4275?hello=world', {
+  method: 'POST'
+})</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/843a02250c394b2fb51629787d3bd0a2~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=452\&amp;h=128\&amp;s=95302\&amp;e=png\&amp;b=261731" /></p>
+<p>接下来介绍一下客户端通常传递数据的几种方式。</p>
+<h3>3.2 query 参数解析</h3>
+<p><code>GET</code> 请求通常会通过 query 传递一些参数，形式如下。</p>
+<pre><code>/a/b/c?name=123
+/a/b/c?name=123&amp;age18
+/a/b/c?name=123&amp;age18&amp;id=666
+</code></pre>
+<p>可以直接使用 <code>URL</code> 模块的 <code>searchParams</code> 直接提取。</p>
+<p><code>js
+const { url, method } = req
+const query = Object.fromEntries(
+  new URL(url, 'http://localhost').searchParams
+)</code></p>
+<p>效果如下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8bcde82a439b4a73a1840782b2c0ad90~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1127\&amp;h=330\&amp;s=613236\&amp;e=png\&amp;b=1d132a" /></p>
+<h3>3.3 body 参数解析</h3>
+<p><code>POST</code> 请求通常会通过 <code>body</code> 传递数据。</p>
+<p><code>js
+fetch('http://127.0.0.1:4275?hello=world', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    name: 'xm',
+    age: 18
+  })
+})</code></p>
+<p>通过监听 <code>data</code> 和 <code>end</code> 事件获取。</p>
+<p><code>js
+let body = []
+req
+  .on('data', (chunk) =&gt; {
+    body.push(chunk)
+  })
+  .on('end', () =&gt; {
+    body = Buffer.concat(body).toString()
+    body = JSON.parse(body)
+    console.log('body', body)
+  })</code></p>
+<p>运行结果如下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f1f4b22679244c49b022f6a2bf5576ed~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=450\&amp;h=294\&amp;s=225868\&amp;e=png\&amp;b=041e32" /></p>
+<h3>3.4 headers 参数</h3>
+<p>另外一种就是通过请求头传递参数了。</p>
+<p>通过 <code>req.headers</code> 获取。</p>
+<p><code>js
+console.log('headers', req.headers)</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/325f62a3012146c0b53c511b4264eff8~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=546\&amp;h=457\&amp;s=414889\&amp;e=png\&amp;b=041a32" /></p>
+<h2>4 response 内容介绍</h2>
+<p>类型定义是 <a href="https://nodejs.org/docs/latest-v18.x/api/http.html#class-httpserverresponse">http.ServerResponse</a>。</p>
+<p>通常用于设置向客户端要返回的内容信息。</p>
+<p><code>js
+// 设置响应状态码为 200
+res.statusCode = 200;
+// 设置响应头，指定响应内容类型为 text/html
+res.setHeader('Content-Type', 'text/html');
+// 发送响应内容到客户端，结束响应
+res.end('&lt;h1&gt;Hello, World!&lt;/h1&gt;');</code></p>
+<p>如果通过 <code>curl</code> 发起请求调用，添加 <code>-i</code> 参数即可获取到这些内容。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8c320e33271d4940a53e06b14c9a3830~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=571\&amp;h=263\&amp;s=241025\&amp;e=png\&amp;b=2c113c" /></p>
+<h3>4.1 设置响应状态码</h3>
+<p>通过 <code>res.statusCode</code> 设置响应的状态码。</p>
+<p>① 正常情况下，默认 200</p>
+<p><code>js
+res.statusCode = 200</code></p>
+<p>② 资源不存在 404</p>
+<p><code>js
+res.statusCode = 404</code></p>
+<p>③ 运行发现错误 500</p>
+<p><code>js
+res.statusCode = 500</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3c4434e2de3d4ad3beab156bac9cb15c~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=459\&amp;h=513\&amp;s=391187\&amp;e=png\&amp;b=270f3a" /></p>
+<h3>4.2 设置响应头</h3>
+<p>通过 <code>res.setHeader</code> 设置要向客户端返回额头信息。</p>
+<p><code>js
+res.setHeader('Content-Type', 'text/html')</code></p>
+<p><code>Content-Type</code> 通常用于描述要传递的数据类型。</p>
+<p>比如如果是 <code>JSON</code> 就是。</p>
+<p><code>js
+res.setHeader('Content-Type', 'application/json')</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ba55ce9b2cf84bbe8d39d316cbcbebc3~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=531\&amp;h=226\&amp;s=181564\&amp;e=png\&amp;b=2b113c" /></p>
+<h3>4.3 设置响应的内容</h3>
+<p>可以通过 <code>res.write</code> 和 <code>res.end</code> 设置，</p>
+<p>终止并返回内容。</p>
+<p><code>js
+res.end('&lt;h1&gt;Node.js&lt;/h1&gt;')</code></p>
+<p>多次返回内容再调用结束。</p>
+<p><code>js
+res.write('&lt;h1&gt;')
+res.write('Node.js')
+res.write('o')
+res.write('&lt;/h1&gt;')
+res.end()</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/de7e1e870b7f411faf08da35001b3ecb~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=501\&amp;h=576\&amp;s=474270\&amp;e=png\&amp;b=240f39" /></p>
+<h2>小结</h2>
+<p>本节主要介绍了如何利用 <code>http</code> 模块的 <code>发起HTTP请求</code> 和 <code>创建Web服务器</code> 两项能力。</p>
+<p>在介绍发起请求部分，同时介绍了另外 2 个当下最流行的发起网络请求的 <code>库/方法</code> <a href="https://www.npmjs.com/package/axios">axios</a> 和 <a href="https://developer.mozilla.org/zh-CN/docs/Web/API/fetch">fetch</a> 的基本用法。</p>
+<p>接着介绍了如何创建一个简单的 <code>Web服务器</code>，可以看出来利用 Node.js 可以非常简单的创建 HTTP Service，对于一些简单场景可以不依赖第三方库，实现快速的代码编写实现。</p>
+<p>最后介绍了 <code>http.request</code> 和 <code>http.response</code> 对象上常用的方法和属性的获取方式：</p>
+<ul>
+<li>request：<code>url</code> (请求路径)、<code>method</code> (请求方法)、<code>headers</code> (请求头部)、<code>body</code> (请求体)、<code>query</code> (url 携带查询参数)；</li>
+<li>response：<code>statusCode</code> (响应状态码)、<code>setHeader</code> (设置响应头)、<code>write/end</code> (设置响应内容)。</li>
+</ul>

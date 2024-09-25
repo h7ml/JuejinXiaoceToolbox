@@ -1,0 +1,286 @@
+<h2>掘金 Markdown 编辑器</h2>
+<blockquote>
+<p>我们建议掘友使用 Markdown 编辑器来写作文章</p>
+</blockquote>
+<p><img alt="掘金新版 Markdown 编辑器" src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/07c2f2d477de4a6ca634aaa8e1ea191c~tplv-k3u1fbpfcp-watermark.image" /></p>
+<p>掘金 Markdown 编辑器整合了 Markdown 标准语法，可以看<a href="https://www.markdownguide.org/basic-syntax/">官方文档</a></p>
+<h2>新的改变</h2>
+<p>工欲善其事，必先利其器。</p>
+<p>为了让掘友们更好的创作出优秀的内容，我们针对大家对编辑器的反馈和建议，我们对Markdown编辑器进行了全新改造，增加诸多功能拓展与语法支持，除了标准的Markdown编辑器功能，我们增加了如下几点新功能，期待您更好的创作。
+ 1. <strong>全新的界面设计</strong> ，将会带来全新的写作体验；
+ 2. 全新的 <strong>KaTeX数学公式</strong> 语法；
+ 3. 新增 Markdown 主题样式和代码高亮， <strong>Markdown 主题和代码样式可以自己去选择高亮样式</strong>；
+ 4. 支持<strong>更多的mermaid图表<a href="[Mermaid语法说明](https://mermaidjs.github.io/)">^1</a></strong>；
+ 5. 增加了 <strong>多屏幕编辑</strong> Markdown文章功能；
+ 6. 修复和增加了 <strong>写作模式、预览模式、左右区域同步滚轮设置</strong> 等功能；</p>
+<p>编辑器第一个版本主要是优化了一些历史体验问题和新增了一些大家常用功能，更多的功能支持还请期待后续版本的更新。</p>
+<blockquote>
+<p>编辑器目前已经开源，贡献地址：https://github.com/bytedance/bytemd</p>
+<p>掘金编辑器主题样式同样开源，贡献地址：https://juejin.cn/post/6893360456530919437</p>
+</blockquote>
+<h2>功能快捷键</h2>
+<blockquote>
+<p>功能快捷键后续会迭代，暂时支持如下</p>
+</blockquote>
+<p><strong>粗体：</strong> Ctrl/ Command +B</p>
+<p><strong>斜体：</strong> Ctrl/ Command +I</p>
+<p><strong>链接：</strong> Ctrl/ Command + K</p>
+<p><strong>图片：</strong> Ctrl/Command + Shift +I</p>
+<p><strong>有序列表：</strong> Ctrl/Command+shift +O</p>
+<p><strong>无序列表：</strong> Ctrl/Command+shift +U</p>
+<p><strong>代码：</strong> Ctrl/Command + Shift +K</p>
+<p><strong>代码块：</strong> Ctrl/Command + Shift + C</p>
+<h2>标题</h2>
+<p>Markdown 语法：</p>
+<p>```</p>
+<h1>第一级标题 <code>&lt;h1&gt;</code></h1>
+<h2>第二级标题 <code>&lt;h2&gt;</code></h2>
+<h6>第六级标题 <code>&lt;h6&gt;</code></h6>
+<p>```</p>
+<p>展示效果如下：</p>
+<h1>第一级标题 <code>&lt;h1&gt;</code></h1>
+<h2>第二级标题 <code>&lt;h2&gt;</code></h2>
+<h3>第六级标题 <code>&lt;h6&gt;</code></h3>
+<h2>文本样式</h2>
+<p>Markdown 语法：</p>
+<p><code>**掘金编辑器上线了**
+*掘金编辑器上线了*</code>
+掘金编辑器快捷键为：<code>CMD + B</code>、<code>CMD + I</code></p>
+<p><strong>掘金编辑器上线了</strong></p>
+<p><em>掘金编辑器上线了</em></p>
+<h2>列表</h2>
+<h3>无序列表</h3>
+<p>Markdown 语法快捷键为：<code>Ctrl/Command+shift +U</code></p>
+<p><strong>效果如下：</strong>
+- 项目一 
+- 项目二
+- 项目三</p>
+<h3>有序列表</h3>
+<p>Markdown 语法快捷键为：<code>Ctrl/Command+shift +O</code></p>
+<p><strong>效果如下：</strong>
+1. 项目一 
+2. 项目二
+3. 项目三</p>
+<h3>任务列表（Task lists）</h3>
+<p><strong>Markdown 语法：</strong>
+<code>``
+- [ ] 任务一 未做任务</code>- + 空格 + [ ]<code>- [x] 任务二 已做任务</code>- + 空格 + [x]`</p>
+<p>```</p>
+<p><strong>效果如下：</strong></p>
+<ul>
+<li>[ ]  任务一 未做任务 <code>+ 空格 + [ ]</code></li>
+<li>[x]  任务二 已做任务 <code>+ 空格 + [x]</code></li>
+</ul>
+<h2>图片</h2>
+<p>Markdown 语法：
+<code>![掘金海盗图](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ff0453d5664549ba8800f5cc1dc4d038~tplv-k3u1fbpfcp-watermark.image)</code>
+<code>Ctrl/Command + Shift +I</code> 可插入Markdown语法。除此之外，还可以用<strong>拖放图片</strong>、<code>CMD + V</code> 粘贴这两种方式来增加图片。效果如下：</p>
+<p><img alt="image.png" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/15e898b9dee54d869d6196899332fac7~tplv-k3u1fbpfcp-watermark.image" /></p>
+<h2>链接</h2>
+<p>Markdown 语法：</p>
+<p><code>[这里是掘金技术社区](https://juejin.cn/)</code></p>
+<p><code>Ctrl/Command + K</code> 可插入Markdown语法。</p>
+<p><a href="https://juejin.cn/">这里是掘金技术社区</a></p>
+<h2>行内代码</h2>
+<p>Markdown 语法：</p>
+<p><code>``
+像这样即可：</code><hello><code></code>world`</p>
+<p>```</p>
+<p><code>Ctrl/Command + Shift +K</code> 可插入Markdown语法。效果如下：</p>
+<p>像这样即可：<code>&lt;hello&gt;</code> <code>world</code></p>
+<h2>多行或者一段代码</h2>
+<p>Markdown 语法：</p>
+<p>```</p>
+<p>```js
+for (var i = 1; i &lt;= 5; i++) {
+  (function(j) {
+    setTimeout(function timer() {
+      console.log(j);
+    }, j * 1000);
+  })(i);
+}</p>
+<p>```</p>
+<p><code>Ctrl/Command + Shift + C</code> 可插入Markdown语法。效果如下：</p>
+<p><code>js
+for (var i = 1; i &lt;= 5; i++) {
+  (function(j) {
+    setTimeout(function timer() {
+      console.log(j);
+    }, j * 1000);
+  })(i);
+}</code></p>
+<h3>代码高亮</h3>
+<p>目前我们支持100多种代码高亮样式，可以使用 <a href="https://github.com/highlightjs/highlight.js">highlight.js </a>中的所有样式：所有样式：
+- <a href="https://github.com/highlightjs/highlight.js/tree/master/src/styles">样式列表</a>
+- <a href="https://highlightjs.org/static/demo/">样式预览</a></p>
+<h2>表格</h2>
+<p>一个简单的表格是这么创建的：
+项目     | Value
+-------- | -----
+电脑  | $100
+手机  | $10
+鼠标  | $1</p>
+<h3>设定内容居中、居左、居右</h3>
+<p>使用<code>:---------:</code>居中</p>
+<p>使用<code>:----------</code>居左</p>
+<p>使用<code>----------:</code>居右</p>
+<p>```
+Markdown 语法:</p>
+<p>使用<code>:---------:</code>居中
+使用<code>:----------</code>居左
+使用<code>----------:</code>居右
+| 第一列       | 第二列         | 第三列        |
+|:-----------:| -------------:|:-------------|
+| 第一列文本居中 | 第二列文本居右  | 第三列文本居左 |
+```</p>
+<p>| 第一列       | 第二列         | 第三列        |
+|:-----------:| -------------:|:-------------|
+| 第一列文本居中 | 第二列文本居右  | 第三列文本居左 |</p>
+<h2>删除线</h2>
+<p>Markdown 语法：</p>
+<p>```
+加删除线像这样用： ~~删除这些~~</p>
+<p>```</p>
+<p>效果如下：</p>
+<p>加删除线像这样用： ~~删除这些~~</p>
+<h2>分隔线</h2>
+<p>以下三种方式都可以生成分隔线：</p>
+<p>```</p>
+<hr />
+<hr />
+<hr />
+<p>```</p>
+<p>效果如下：</p>
+<hr />
+<hr />
+<hr />
+<h2>KaTeX数学公式</h2>
+<p>您也可以访问 <a href="https://math.meta.stackexchange.com/questions/5020/mathjax-basic-tutorial-and-quick-reference">MathJax</a> 参考更多使用方法。</p>
+<p><strong>行内公式:</strong></p>
+<p><code>$E=mc^2$</code></p>
+<p><strong>效果如下：</strong></p>
+<p>这是一个行内公式$E=mc^2$您学废了吗？</p>
+<p><strong>块级公式:</strong></p>
+<p><code>$$ 
+x = \dfrac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+$$</code>
+<strong>效果如下:</strong>
+$$ 
+x = \dfrac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+$$</p>
+<blockquote>
+<p>您可以找到更多关于的信息 <strong>LaTeX</strong> 数学表达式<a href="http://meta.math.stackexchange.com/questions/5020/mathjax-basic-tutorial-and-quick-reference">地址</a> <a href="[MathJax更多语法参考](https://math.meta.stackexchange.com/questions/5020/mathjax-basic-tutorial-and-quick-reference)">^2</a></p>
+</blockquote>
+<h2>顺序图或流程图</h2>
+<p>您可以使用Mermaid生成各类图表。更多语法可以参考 <a href="https://mermaidjs.github.io/">Mermaid</a></p>
+<h3>甘特图</h3>
+<p><code></code>mermaid
+gantt
+title A Gantt Diagram
+dateFormat  YYYY-MM-DD
+section Section
+A task           :a1, 2014-01-01, 30d
+Another task     :after a1  , 20d
+section Another
+Task in sec      :2014-01-12  , 12d
+another task      : 24d```</p>
+<p>```</p>
+<p><img alt="image.png" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f6128135fcf74c8a85a192c830292721~tplv-k3u1fbpfcp-watermark.image" /></p>
+<h3>流程图</h3>
+<p><code></code>mermaid
+graph TD
+Start --&gt; Stop<code></code></p>
+<p><img alt="image.png" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/ea89cb39079e44c3826aada0c55cc5b8~tplv-k3u1fbpfcp-watermark.image" /></p>
+<h3>时序图</h3>
+<p><code></code>mermaid
+sequenceDiagram
+Alice-&gt;&gt;John: Hello John, how are you?
+John--&gt;&gt;Alice: Great!
+Alice-)John: See you later!<code></code></p>
+<p><img alt="image.png" src="https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/41aeb6a174cd43c8947363f4c89d8e7e~tplv-k3u1fbpfcp-watermark.image" /></p>
+<h3>类图</h3>
+<p><code></code>mermaid
+classDiagram
+Animal &lt;|-- Duck
+Animal &lt;|-- Fish
+Animal &lt;|-- Zebra
+Animal : +int age
+Animal : +String gender
+Animal: +isMammal()
+Animal: +mate()
+class Duck{
++String beakColor
++swim()
++quack()
+}
+class Fish{
+-int sizeInFeet
+-canEat()
+}
+class Zebra{
++bool is_wild
++run()
+}<code></code></p>
+<p><img alt="image.png" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/d33ddeac24bb455fa353e518795c552f~tplv-k3u1fbpfcp-watermark.image" /></p>
+<h3>状态图</h3>
+<p><code></code>mermaid
+stateDiagram-v2
+[<em>] --&gt; Still
+Still --&gt; [</em>]</p>
+<p>Still --&gt; Moving
+Moving --&gt; Still
+Moving --&gt; Crash
+Crash --&gt; [*]<code></code></p>
+<p><img alt="image.png" src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2a1f70989dda45be902e797c304164ac~tplv-k3u1fbpfcp-watermark.image" /></p>
+<h3>饼状图</h3>
+<p><code></code>mermaid
+pie title Pets adopted by volunteers
+"Dogs" : 386
+"Cats" : 85
+"Rats" : 15<code></code></p>
+<p><img alt="image.png" src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/67dbfe65a0c14ab0986fc7b550723865~tplv-k3u1fbpfcp-watermark.image" /></p>
+<h3>关系图</h3>
+<p><code></code>mermaid
+erDiagram
+CUSTOMER ||--o{ ORDER : places
+ORDER ||--|{ LINE-ITEM : contains
+CUSTOMER }|..|{ DELIVERY-ADDRESS : uses```</p>
+<p>```</p>
+<p><img alt="image.png" src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/e45140bab1df43d48d9c0b6fc8e002c3~tplv-k3u1fbpfcp-watermark.image" /></p>
+<h3>旅程图</h3>
+<p><code></code>mermaid
+journey
+title My working day
+section Go to work
+Make tea: 5: Me
+Go upstairs: 3: Me
+Do work: 1: Me, Cat
+section Go home
+Go downstairs: 5: Me
+Sit down: 5: Me```</p>
+<p>``` </p>
+<p><img alt="image.png" src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/e541ab8dc35c4111aeac0d23b6dbe4db~tplv-k3u1fbpfcp-watermark.image" /></p>
+<h3>编辑器插入视频</h3>
+<ul>
+<li>
+<p>打开需要要嵌入的视频，复制顶端地址栏或分享入口链接即可。
+<img alt="image.png" src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0527342a05e442f9bd671562526670d9~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=2696&amp;h=1440&amp;s=155385&amp;e=png&amp;b=636464" /></p>
+</li>
+<li>
+<p>图片：见下</p>
+</li>
+</ul>
+<p><img alt="img_v2_82bcaa9f-5ffd-445a-8f73-40b2114c9c5g.jpg" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8488922e9ba64e8881d47c86c0f65988~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=1530&amp;h=1698&amp;s=556080&amp;e=jpg&amp;b=f8f8f8" /></p>
+<h2>掘金富文本编辑器</h2>
+<p>除了 Markdown 编辑器之外，我们了解到部分掘金用户是公司的 HR、产品经理或者其他岗位，因此我们也支持富文本功能。</p>
+<p><img alt="切换编辑器" src="https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/0b559af62107414d8d04c12b2c2ace36~tplv-k3u1fbpfcp-watermark.image" /></p>
+<blockquote>
+<p>特别注意，在切换编辑器时，当前编辑器内内容可能丢失，请务必备份并看清提示语句</p>
+</blockquote>
+<p><img alt="富文本编辑器" src="https://p9-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/95a7cc3f76954890961eed7568887bfb~tplv-k3u1fbpfcp-watermark.image" /></p>
+<h2>草稿</h2>
+<p>在掘金里写文章时，我们的编辑器会自动保存您的内容并且可以在<a href="https://juejin.cn/editor/drafts">草稿</a>中找到：</p>
+<p><img alt="草稿" src="//p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/66688b0f56bf43698563d104cf106d6a~tplv-k3u1fbpfcp-zoom-1.image" /></p>
+<blockquote>
+<p>特别注意的是，草稿一经发布无法再转为草稿。</p>
+</blockquote>

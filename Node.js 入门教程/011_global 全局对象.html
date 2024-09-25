@@ -1,0 +1,164 @@
+<p><code>JavaScript</code> 中存在一个特殊的全局对象，可以在任意位置被访问，通常用 <code>globalThis</code> 指代。</p>
+<p>在浏览器中，指向 <code>window</code> 这个全局对象，而 Node.js 中指向 <code>global</code>，</p>
+<p>当我们直接使用一些无需定义的方法时 (例如 <code>console</code>，<code>setTimeout</code> 等)，它们都是 <code>global</code> (<a href="https://nodejs.org/docs/latest-v18.x/api/globals.html#global-objects">Global objects</a>) 上的属性。</p>
+<p>|                                                                                   浏览器                                                                                   |                                                                                   Node.js                                                                                  |
+| :---------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| <img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/3db1ad854278483f8d9aa74607d9c6a1~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=213\&amp;h=88\&amp;s=5635\&amp;e=png\&amp;b=242528" /> | <img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/e2720b9a03074521aa3b3069473f6ce2~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=331\&amp;h=193\&amp;s=112304\&amp;e=png\&amp;b=1f1227" /> |</p>
+<p>我们可以直接在上面挂载变量，这样在全局任意地方都可以访问。</p>
+<p><code>js
+global.userInfo = {
+    name: 'xm',
+    age: 18
+}</code></p>
+<p>上面也内置了许多的方法，我们可以通过 <code>Object.getOwnPropertyNames(global)</code> 简单获取打印一下观察一下。</p>
+<p><code>js
+console.log(Object.getOwnPropertyNames(global))</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9c4541fa592a48679657ab992d97e232~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=376\&amp;h=724\&amp;s=446904\&amp;e=png\&amp;b=051832" /></p>
+<p>可以看到很多熟悉的面孔都在上面挂载着。</p>
+<h2>1 特殊的全局变量</h2>
+<p>主要就是指 <code>__filename</code> 和 <code>__dirname</code>。</p>
+<h3>1.1 __filename</h3>
+<p><code>__filename</code> 表示当前正在执行的脚本文件的绝对路径。</p>
+<h3>1.2 __dirname</h3>
+<p><code>__dirname</code> 表示当前执行脚本所在目录的绝对路径。</p>
+<h3>1.3 使用示例</h3>
+<p>将用下面的代码做一下验证。</p>
+<p>```js
+// 分别存在于如下2个文件中
+// a/df.js
+// df.js</p>
+<p>console.log(__filename)
+console.log(__dirname)
+```</p>
+<p>执行结果如下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/fadf471c228e4668926106f4efd10fb8~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=657\&amp;h=280\&amp;s=327799\&amp;e=png\&amp;b=21142f" /></p>
+<h3>1.4 注意事项</h3>
+<p>这 2 个变量，只在 CJS 模块下存在，如果是 ESM 将会出现以下的报错信息。</p>
+<p><code>sh
+ReferenceError: __dirname is not defined in ES module scope</code></p>
+<p>ESM 中如果获取这 2 个变量与 <code>require</code> 方法需要使用如下方式，详见：<a href="https://sugarat.top/technology/learn/esm-require.html">ESM 中使用 CJS 模块特有的变量和方法</a></p>
+<p>```ts
+import { fileURLToPath } from 'url'
+import { dirname } from 'path'
+import { createRequire } from 'module'</p>
+<p>const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)</p>
+<p>console.log('__filename', __filename)
+console.log('__dirname', __dirname)</p>
+<p>const require = createRequire(import.meta.url)
+console.log('name', require('./package.json').name)
+```</p>
+<h2>2 常用 global 属性</h2>
+<p>除了在浏览器里常用的 <code>console</code>，<code>setTimeout</code> 等等通用的方法外，下面介绍一些独有且常用的。</p>
+<h3>2.1 process</h3>
+<p>process 对象提供了与当前 Node.js 进程相关的信息和控制方法，下面是一些常用的 process 属性。</p>
+<p><code>process.argv</code> 返回一个数组，包含启动 Node.js 进程时传递的命令行参数。</p>
+<p><code>js
+console.log(process.argv)</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/095371bd730c4c08994059e24a7b61ca~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=738\&amp;h=438\&amp;s=565805\&amp;e=png\&amp;b=041c33" /></p>
+<p>第一个参数是 Node 在机器上的位置，</p>
+<p>第二个参数是执行文件的绝对路径，</p>
+<p>后续参数都为用户传递的自定义参数。</p>
+<p><code>process.cwd()</code> 获取当前工作目录的绝对路径。</p>
+<p><code>js
+console.log(process.cwd())</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/8e6bf837604341f1a669f549f70f9de0~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=590\&amp;h=310\&amp;s=311269\&amp;e=png\&amp;b=170c30" /></p>
+<p><code>process.env</code> 获取当前执行环境的环境变量 (对象形式)。</p>
+<p><code>js
+console.log(process.env)</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f7f47f0a1ad14e549f30fb8b4ad07416~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=424\&amp;h=625\&amp;s=520803\&amp;e=png\&amp;b=041932" /></p>
+<p>简单场景这个环境变量可以通过执行命令的时候直接设置 (如下)，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/2bd6f9413bc04848a016682cd1b168d3~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=515\&amp;h=155\&amp;s=144512\&amp;e=png\&amp;b=23132e" /></p>
+<p><code>process.version</code> 获取当前 Node 版本。</p>
+<p><code>sh
+node -e "console.log(process.version)"</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/44ee63ff7f674d1cb5811e8f9d7ccad6~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=459\&amp;h=111\&amp;s=91734\&amp;e=png\&amp;b=041e32" /></p>
+<p><code>process.exit([code])</code>：终止 Node.js 进程，如果指定了 <code>code</code> 参数，则使用该参数作为退出状态码。</p>
+<p>```js
+console.log('hello')</p>
+<p>process.exit()</p>
+<p>// 下面这行代码不会执行
+console.log('world')
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/280c321c778d438f9a9d61c446290c00~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=296\&amp;h=128\&amp;s=61868\&amp;e=png\&amp;b=201228" /></p>
+<p>在终端里可以通过 <code>echo $?</code> 获取传递的退出状态码。</p>
+<p><code>js
+console.log('hello')
+process.exit(1)</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/45affd1c63a3441c8d007763f7f39f22~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=388\&amp;h=507\&amp;s=341152\&amp;e=png\&amp;b=2e1930" /></p>
+<ul>
+<li><code>process.pid</code>：返回进程的 PID (进程 ID)；</li>
+<li><code>process.platform</code>：返回运行 Node.js 的操作系统平台；</li>
+<li><code>process.arch</code>：获取 CPU 架构信息。</li>
+</ul>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/cfcbad8c640b46db9717360feebb64a6~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=242\&amp;h=208\&amp;s=92911\&amp;e=png\&amp;b=041e32" /></p>
+<p><code>process.stdout</code>：标准输出流，常用 <code>process.stdout.write</code> 进行数据写入。</p>
+<p><code>js
+process.stdout.write('hello')
+process.stdout.write(' ')
+process.stdout.write('world')
+process.stdout.write('\n')</code></p>
+<p>通过它我们可以进行不换行的内容输出，</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/c3d0f2c56a664638b13d0546546aa157~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=246\&amp;h=127\&amp;s=56966\&amp;e=png\&amp;b=031e33" /></p>
+<p><code>process.stdin</code>：用于从标准输入流 (stdin) 读取数据。</p>
+<p><code>js
+// 监听用户输入数据
+process.stdin.on('data', (data) =&gt; {
+  console.log(`User input: ${data}`);
+});</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/18fea95410b448b1927f6e77b9760af4~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=294\&amp;h=218\&amp;s=110377\&amp;e=png\&amp;b=1f1227" /></p>
+<h3>2.2 Buffer</h3>
+<p><code>Buffer</code> 用于处理二进制数据。类似于数组，并提供了一些方便的方法来操作二进制数据。</p>
+<p>下面是一些常见用法。</p>
+<p><strong>① 创建 Buffer 对象</strong></p>
+<p><code>javascript
+const buf = Buffer.alloc(10); // 创建一个大小为 10 的 Buffer 对象，默认会用 0 填充
+const buf2 = Buffer.from('Hello, world!'); // 创建一个包含字符串 'Hello, world!' 的 Buffer 对象
+const buf3 = Buffer.from([0x68, 0x65, 0x6c, 0x6c, 0x6f]); // 内容为hello构成的16进制数组 Buffer 对象</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/d8a6cbf5b5114f6897aa98c9261f8ddb~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=543\&amp;h=211\&amp;s=198121\&amp;e=png\&amp;b=21132c" /></p>
+<p><strong>② 转换内容格式</strong></p>
+<p>```js
+const buf = Buffer.from('Hello, world!');
+// 转为字符串输出
+console.log(buf.toString()); // 输出 'Hello, world!'</p>
+<p>// 转为16进制字符串输出
+console.log(buf.toString('hex')); // 输出 '48656c6c6f2c20776f726c6421'（对应的是 'Hello, world!' 的 ASCII 码）</p>
+<p>// 转为数组输出
+console.log(Array.from(buf)); // 输出 [
+//    72, 101, 108, 108, 111,
+//    44,  32, 119, 111, 114,
+//   108, 100,  33
+// ]</p>
+<p>// 转为base64格式输出
+console.log(buf.toString('base64')); // 输出 'SGVsbG8sIHdvcmxkIQ=='
+```</p>
+<p><strong>③ 写入内容</strong></p>
+<p>```javascript
+// 创建一个长度为 10 的 Buffer 实例并将它填充为 0
+const buf = Buffer.alloc(10);</p>
+<p>// 将字符串 'Hello' 写入 Buffer 实例的前 5 个字节
+buf.write('Hello');</p>
+<p>// 将字符串 'world' 写入 Buffer 实例的第 6 个字节开始的位置，由于 'world' 的长度为 5，所以不会覆盖掉之前写入的 'Hello'
+buf.write('world', 5); </p>
+<p>// 将 Buffer 实例转换为字符串并输出 'Hello world'
+console.log(buf.toString()); 
+```</p>
+<p><strong>④ 合并多个 Buffer 对象</strong></p>
+<p><code>js
+const buf1 = Buffer.from('Hello');
+const buf2 = Buffer.from('World');
+const buf3 = Buffer.concat([buf1, buf2]);
+console.log(buf3.toString()); // 输出 'HelloWorld'</code></p>
+<p><strong>⑤ 截取 Buffer 对象</strong></p>
+<p><code>js
+const buf = Buffer.from('Hello, world!');
+const buf2 = buf.slice(0, 5);
+console.log(buf2.toString()); // 输出 'Hello'</code></p>
+<h2>小结</h2>
+<p>本节先简单介绍了一下 <code>globalThis</code> 的用法和作用，在 Node.js 中 <code>globalThis === global</code>。</p>
+<p>紧接着介绍了 2 个特殊的全局变量 <code>__filename</code> (正在执行的脚本文件的绝对路径)，<code>__dirname</code> (当前执行脚本所在目录的绝对路径)，以及如在 ESM 模块系统中获取。</p>
+<p><code>global</code> 上有的方法和属性，主要介绍了 <code>process</code> 和 <code>Buffer</code>：</p>
+<ul>
+<li>process：提供了与当前 Node.js 进程相关的信息和控制方法；</li>
+<li>Buffer：用于处理二进制数据。类似于数组，并提供了一些方便的方法来操作二进制数据。</li>
+</ul>

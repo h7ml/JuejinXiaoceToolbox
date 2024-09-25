@@ -1,0 +1,119 @@
+<p>在前面我们学习了 <code>CJS</code>，<code>ESM</code> 的用法，除了语法的区别外，其实还存在一些其它的区别，</p>
+<p>下面将详细介绍一下 <code>加载时机</code>、<code>导出内容</code>、<code>文件命名</code> 上的区别。</p>
+<h2>1 模块加载时机</h2>
+<ul>
+<li><code>CJS</code> 支持动态加载模块 (<code>require</code> 语句可以出现在任意位置)；</li>
+<li><code>ESM</code> 会在所有模块都加载完毕后才执行代码 (通常会将 <code>import</code> 导入语句放在模块的顶部)；<ul>
+<li>ESM 是静态解析的，它会在编译时首先解析模块中的导入语句，虽然通常会将导入语句放在模块的顶部，<strong>但并不是要求所有的 import 语句必须在文件顶部</strong>，只要在使用导入的内容之前进行导入即可。</li>
+</ul>
+</li>
+</ul>
+<p>因此 <code>ESM</code> 可以在代码执行前进行静态分析和优化，从而提高性能 (比如自动移除无用的死代码)。</p>
+<p>而 <code>CJS</code> 需要等到代码运行时才能确定依赖关系和加载模块。</p>
+<p>下面是一个具体的例子：<code>从2个文件中分别导入1个函数，然后执行这2个导入的函数</code>。</p>
+<h3>1.1 ESM</h3>
+<p>```js
+// module1
+console.log('load module1')</p>
+<p>export function helloModule1() {
+  console.log('hello module1')
+}</p>
+<p>// module2
+console.log('load module2')</p>
+<p>export function helloModule2() {
+  console.log('hello module2')
+}</p>
+<p>// index.js
+import { helloModule1 } from './module1.js'</p>
+<p>helloModule1()</p>
+<p>import { helloModule2 } from './module2.js'</p>
+<p>helloModule2()
+```</p>
+<h3>1.2 CJS</h3>
+<p>```js
+// module1
+console.log('load module1')</p>
+<p>function helloModule1() {
+  console.log('hello module1')
+}</p>
+<p>module.exports = {
+  helloModule1
+}</p>
+<p>// module2
+console.log('load module2')</p>
+<p>function helloModule2() {
+  console.log('hello module2')
+}</p>
+<p>module.exports = {
+  helloModule2
+}</p>
+<p>// index.js
+const { helloModule1 } = require('./module1.js')</p>
+<p>helloModule1()</p>
+<p>const { helloModule2 } = require('./module2.js')</p>
+<p>helloModule2()
+```</p>
+<p>执行结果如下。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1e5761335d0445418d86b98f42986b02~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=265\&amp;h=354\&amp;s=174177\&amp;e=png\&amp;b=041c32" /></p>
+<h2>2 导出内容的区别</h2>
+<p>ES Modules (ESM) 和 CommonJS (CJS) 在导入模块的对象引用上有不同的行为。</p>
+<p>在 ESM 中，当我们导入一个变量时，实际上是导入了该变量的引用。这意味着，如果导出的变量在导入模块中发生了改变，导入的变量也会随之改变。</p>
+<p>而在 CommonJS 中，导入的是导出模块的值的拷贝，而不是引用。这意味着，即使导出模块中的值发生了改变，导入模块中导入的变量不会受到影响。</p>
+<p>简而言之，<strong>ESM 导入的是值的引用，而 CJS 导入的是值的拷贝</strong>。</p>
+<p>这是两者在模块导入中的一个重要区别，下面通过具体的例子感受一下。</p>
+<h3>2.1 ESM</h3>
+<p>```js
+// public.js
+export let num = 1</p>
+<p>export function update() {
+  num += 1
+  console.log('update num', num)
+}</p>
+<p>// main.js
+import { num, update } from './public.js'</p>
+<p>console.log(num)
+update()</p>
+<p>console.log(num)
+update()
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/5ca5139dc1cf473798cccaccb44f78ee~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=341\&amp;h=188\&amp;s=86269\&amp;e=png\&amp;b=20122a" /></p>
+<h3>2.2 CJS</h3>
+<p>```js
+// public.js
+let num = 1</p>
+<p>function update() {
+  num += 1
+  console.log('update num', num)
+}</p>
+<p>module.exports = {
+  num,
+  update
+}</p>
+<p>// main.js
+const { num, update } = require('./public.js')</p>
+<p>console.log(num)
+update()</p>
+<p>console.log(num)
+update()
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/151c4723c32a42be824711ef5526a820~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=314\&amp;h=172\&amp;s=80676\&amp;e=png\&amp;b=041f34" /></p>
+<h2>3 文件命名</h2>
+<p>通常情况下模块一般都以 <code>.js</code> 结尾，通过 <code>package.json</code> 中 <code>"type":"module"</code> 区分模块类型，</p>
+<p>实际上还可以通过文件命名来区分 <code>.cjs</code> 表明是 CJS 规范的模块，<code>.mjs</code> 表明是 ESM 规范的模块。</p>
+<p>比如有如下 3 个文件，内容都是如下的 ESM 规范内容。</p>
+<p><code>js
+// index.js
+// index.cjs
+// index.mjs
+import _ from 'fs'
+console.log('hello')</code></p>
+<p>在没有 <code>package.json</code> 设置 <code>"type":"module"</code> 的前提下，只有 <code>index.mjs</code> 能成功执行。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/77d70493f5b04359ac992fc4fcd01c4e~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=932\&amp;h=607\&amp;s=979058\&amp;e=png\&amp;b=291730" /></p>
+<p><code>.js</code> 和 <code>.cjs</code> 都会报错，且会提示 <code>加载ESM资源需要 .mjs 结尾或 "type":"module"</code>。</p>
+<h2>小结</h2>
+<p>本节主要介绍了 CJS 与 ESM 之间的一些区别，包括 <code>加载时机</code>、<code>导出内容</code>、<code>文件命名</code> 上的区别：</p>
+<ul>
+<li>加载时机：<code>CJS</code> 支持动态加载模块 (<code>require</code> 语句可以出现在任意位置)，<code>ESM</code> 会在所有模块都加载完毕后才执行代码 (通常会将 import 导入语句放在模块的顶部)；</li>
+<li>导出内容：<code>ESM</code> 导入的是值的引用，而 <code>CJS</code> 导入的是值的拷贝；</li>
+<li>文件命名：一般都以 <code>.js</code> 结尾，通过 <code>package.json</code> 中 <code>"type":"module"</code> 区分模块加载类型，也可以通过文件命名来区分 <code>.cjs</code> 表明是 CJS 规范的模块，<code>.mjs</code> 表明是 ESM 规范的模块。</li>
+</ul>

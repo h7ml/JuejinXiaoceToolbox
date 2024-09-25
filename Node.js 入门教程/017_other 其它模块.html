@@ -1,0 +1,162 @@
+<p>Node.js 的内置模块出了前面详细介绍的一些高频常用模块外，还存在许多其它的模块 (日常直接使用频率相对低一点)。</p>
+<p>这一节挑选了如下 4 个模块进行简单介绍 <a href="https://nodejs.org/docs/latest-v18.x/api/url.html">URL</a>，<a href="https://nodejs.org/docs/latest-v18.x/api/timers.html">Timers</a>，<a href="https://nodejs.org/docs/latest-v18.x/api/readline.html">Readline</a>，<a href="https://nodejs.org/docs/latest-v18.x/api/crypto.html">Crypto</a>。</p>
+<h2>1 url 模块</h2>
+<h3>1.1 url.parse</h3>
+<p><code>url.parse</code> 解析 URL 字符串，返回一个解析后的对象。</p>
+<p>```js
+import url from 'url'</p>
+<p>const testUrl = 'https://www.baidu.com?search=juejin'
+console.log(url.parse(testUrl))
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/9acea4a9331a413ebed249e161f986da~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=508\&amp;h=320\&amp;s=267020\&amp;e=png\&amp;b=041b32" /></p>
+<h3>1.2 URL</h3>
+<p><code>url.URL</code> 和全局的 <code>URL</code> 一样，创建一个 URL 实例，提供许多开箱即用的操作。</p>
+<p>```js
+import url from 'url'</p>
+<p>const testUrl = 'https://www.baidu.com?search=juejin'
+console.log('url.URL === URL', url.URL === URL)
+console.log(new URL(testUrl))
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/214ce3662b7748c4af05f18c7dc68330~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=639\&amp;h=400\&amp;s=402951\&amp;e=png\&amp;b=041d32" /></p>
+<p>其中 <code>searchParams</code> 提供了可直接操作查询参数的一些方法。</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/7f3ce8ce8375458b9c6461a9f7605fa0~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=550\&amp;h=303\&amp;s=53817\&amp;e=png\&amp;b=222222" /></p>
+<h2>2 Timers</h2>
+<p>定时器相关方法。</p>
+<p>| 方法名                                       | 描述                            |
+| ----------------------------------------- | ----------------------------- |
+| <code>setTimeout(callback, delay[, ...args])</code>  | 在 <code>delay</code> 毫秒之后执行一次 <code>callback</code> |
+| <code>setInterval(callback, delay[, ...args])</code> | 每隔 <code>delay</code> 毫秒执行一次 <code>callback</code>  |
+| <code>setImmediate(callback[, ...args])</code>       | 在当前事件循环的下一个阶段执行 <code>callback</code>    |
+| <code>process.nextTick(callback[, ...args])</code>   | 在当前事件循环结束后立即执行 <code>callback</code>     |</p>
+<p>示例代码如下。</p>
+<p><code>js
+setImmediate(() =&gt; console.log('setImmediate'))
+setTimeout(() =&gt; console.log('setTimeout'), 0)
+process.nextTick(() =&gt; console.log('nextTick'))
+setInterval(() =&gt; console.log('setInterval'), 1000)</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/273ad35c847540aa90107af0a10c45ca~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=309\&amp;h=182\&amp;s=83389\&amp;e=png\&amp;b=291b20" /></p>
+<h2>3 Readline 模块</h2>
+<p>在 Node.js 中，<code>readline</code> 模块提供了一个接口，用于从可读流 (例如 <code>process.stdin</code>) 读取数据，并支持逐行读取数据。</p>
+<p>下面是几个例子：</p>
+<h3>3.1 question</h3>
+<p>① 使用 <code>question()</code> 方法向用户询问姓名并显示。</p>
+<p>```js
+import readline from 'readline'</p>
+<p>const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+})</p>
+<p>rl.question('What is your name? ', (name) =&gt; {
+  console.log(<code>Hello, ${name}!</code>)
+  rl.close()
+})
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/1dfa713152cf4de7928c39233392a092~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=323\&amp;h=273\&amp;s=143812\&amp;e=png\&amp;b=041e31" /></p>
+<h3>3.2 write</h3>
+<p>② 使用 <code>write()</code> 方法向标准输出发送数据。</p>
+<p>```js
+import readline from 'readline'</p>
+<p>const rl = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+})</p>
+<p>rl.write('Hello, World!\n')
+rl.close()
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/efd202958af54f89bd5c6090e71f6c97~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=267\&amp;h=135\&amp;s=54657\&amp;e=png\&amp;b=1f1226" /></p>
+<h3>3.3 prompt</h3>
+<p>③ 实现一个可多轮对话的命令行</p>
+<p>```js
+const rl = readline.createInterface({
+  input: process.stdin, // 从标准输入流中读取数据
+  output: process.stdout // 输出数据到标准输出流中
+})</p>
+<p>rl.setPrompt('node&gt; ') // 设置提示符
+rl.prompt() // 显示提示符</p>
+<p>rl.on('line', (line) =&gt; {
+  // 监听行事件
+  switch (
+    line.trim() // 去除收尾空白字符，进行简单的命令选择判断
+  ) {
+    case 'hello':
+      console.log('world') // 输出 'world'
+      break
+    case 'exit':
+      rl.close() // 关闭 readline 接口
+      break
+    default:
+      console.log(<code>Say what? I might have heard '${line.trim()}'</code>) // 输出收到的指令
+      break
+  }
+  rl.prompt() // 显示提示符
+})</p>
+<p>rl.on('close', () =&gt; {
+  // 监听关闭事件
+  console.log('Goodbye!') // 输出 'Goodbye!'
+  process.exit(0) // 退出 Node.js 进程
+})
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f8da88a59665449c8818fb5178eb1f8b~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=470\&amp;h=258\&amp;s=191402\&amp;e=png\&amp;b=041e32" /></p>
+<h2>4 crypto 模块</h2>
+<p><code>crypto</code> 模块主要用于加密和解密数据，内置了一些常用的算法。</p>
+<p>下面介绍一下 3 个常见用法 <code>哈希值生成</code>，<code>加解密</code>，<code>随机数生成</code>。</p>
+<h3>4.1 哈希算法</h3>
+<p>使用 <code>crypto.createHash(algorithm)</code>：创建一个新的哈希算法实例，其中 <code>algorithm</code> 是一个支持的哈希算法名称，例如 <code>sha256</code> 和 <code>md5</code> 等</p>
+<ul>
+<li><code>hash.update(data[, inputEncoding])</code>：更新哈希运算所使用的数据</li>
+<li><code>hash.digest([encoding])</code>：计算并返回哈希值。如果提供了 <code>encoding</code> 参数，则返回字符串形式的哈希值；否则返回一个 <code>Buffer</code> 对象</li>
+</ul>
+<p>```js
+import crypto from 'crypto'</p>
+<p>const testStr = 'hello world'
+const sha256 = crypto.createHash('sha256').update(testStr).digest('hex')
+console.log(sha256)</p>
+<p>const md5 = crypto.createHash('md5').update(testStr).digest('hex')
+console.log(md5)</p>
+<p>const sha512 = crypto.createHash('sha512').update(testStr).digest('hex')
+console.log(sha512)
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6721f803edfa43688fb8aac68daa8025~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=747\&amp;h=205\&amp;s=243999\&amp;e=png\&amp;b=190b30" /></p>
+<h3>4.2 加密和解密</h3>
+<p><code>crypto.createCipheriv</code> 方法用于创建一个使用指定算法和密钥进行加密的 <code>Cipher</code> 对象，并指定初始化向量 <code>iv</code>。</p>
+<p>```js
+import crypto from 'crypto'</p>
+<p>// 定义加密算法和密钥，生成随机密码和向量
+const algorithm = 'aes-256-cbc'
+const password = crypto.randomBytes(32) // 生成随机 32 字节的密码
+const iv = crypto.randomBytes(16) // 生成随机 16 字节的向量</p>
+<p>// 待加密的数据
+const data = 'Hello, World!'
+console.log('Original data:', data)</p>
+<p>// 创建加密算法实例
+const cipher = crypto.createCipheriv(algorithm, password, iv)</p>
+<p>// 使用 update 方法对数据进行加密
+let encrypted = cipher.update(data, 'utf8', 'hex')
+// 加密后的数据以十六进制形式(即字符串)返回
+encrypted += cipher.final('hex')</p>
+<p>console.log('Encrypted data:', encrypted)</p>
+<p>// 创建解密算法实例
+const decipher = crypto.createDecipheriv(algorithm, password, iv)</p>
+<p>// 使用 update 方法对数据进行解密
+let decrypted = decipher.update(encrypted, 'hex', 'utf8')
+// 返回解密后的字符串 utf8编码
+decrypted += decipher.final('utf8')</p>
+<p>console.log('Decrypted data:', decrypted)
+```</p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/49074254224c4a26a06e74de8c363b19~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=613\&amp;h=486\&amp;s=487712\&amp;e=png\&amp;b=051b32" /></p>
+<h3>4.3 随机数生成</h3>
+<p><code>crypto.randomBytes(size[, callback])</code>：生成具有给定大小的随机数据 (<code>Buffer</code> 类型)。</p>
+<p><code>js
+console.log(crypto.randomBytes(32).toString('hex'))
+console.log(crypto.randomBytes(8).toString('hex'))</code></p>
+<p><img alt="" src="https://p3-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/d69913a343e7454db2b869e06335d08b~tplv-k3u1fbpfcp-jj-mark:0:0:0:0:q75.image#?w=720\&amp;h=124\&amp;s=148196\&amp;e=png\&amp;b=2c123b" /></p>
+<h2>小结</h2>
+<p>本节主要介绍了如下 4 个内置模块的简单用法：</p>
+<ul>
+<li><a href="https://nodejs.org/docs/latest-v18.x/api/url.html">URL</a>：提供了 URL 解析的实用工具方法；</li>
+<li><a href="https://nodejs.org/docs/latest-v18.x/api/timers.html">Timers</a>：定时器相关方法；</li>
+<li><a href="https://nodejs.org/docs/latest-v18.x/api/readline.html">Readline</a>：从可读流读取数据，支持逐行读取；</li>
+<li><a href="https://nodejs.org/docs/latest-v18.x/api/crypto.html">Crypto</a>：提供了一系列加密和解密数据的方法，内置了一些常用的算法。</li>
+</ul>
+<p>当然 Node 中的内置模块远不如此，其它的推荐大家在日后开发中按需查阅文档进行使用。</p>
+<p>Node.js v18.16.0 文档[<a href="https://nodejs.org/docs/latest-v18.x/api/documentation.html">英文</a> | <a href="https://nodejs.cn/dist/latest-v18.x/docs/api/documentation.html">中文</a>]。</p>
