@@ -1,4 +1,4 @@
-name: 构建并发布GUI可执行文件
+name: 构建并发布多平台可执行文件
 
 on:
   push:
@@ -11,7 +11,18 @@ permissions:
 
 jobs:
   build-and-release:
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
+        include:
+          - os: windows-latest
+            output_name: 掘金小册下载器.exe
+          - os: macos-latest
+            output_name: 掘金小册下载器
+          - os: ubuntu-latest
+            output_name: 掘金小册下载器
+
+    runs-on: ${{ matrix.os }}
     steps:
       - name: 检出代码
         uses: actions/checkout@v3
@@ -26,7 +37,7 @@ jobs:
       - name: 缓存 pip 依赖
         uses: actions/cache@v3
         with:
-          path: ~\AppData\Local\pip\Cache
+          path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
           restore-keys: |
             ${{ runner.os }}-pip-
@@ -34,76 +45,40 @@ jobs:
       - name: 缓存 PyInstaller
         uses: actions/cache@v3
         with:
-          path: ~\AppData\Local\PyInstaller
+          path: ~/.cache/pyinstaller
           key: ${{ runner.os }}-pyinstaller-${{ hashFiles('**/requirements.txt') }}
 
       - name: 安装依赖
-        shell: cmd
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt pyinstaller
-          if %errorlevel% neq 0 (
-            echo 错误: 安装依赖失败
-            exit /b 1
-          ) else (
-            echo 依赖安装成功
-          )
 
       - name: 准备构建环境
-        shell: cmd
         run: |
-          @echo off
-
-          REM 转换文件编码
-          for /R %%F in (*.py *.txt *.yml) do (
-            type "%%F" > "%%F.tmp"
-            move /Y "%%F.tmp" "%%F" > nul
-          )
-          echo 文件编码转换完成
-
-          REM 创建或复制 config.yml
-          if exist config.template.yml (
-            copy /Y config.template.yml config.yml
-            echo config.yml 创建成功
-          ) else (
-            echo 警告: config.template.yml 不存在，将创建空的 config.yml
-            echo # 默认配置 > config.yml
-            echo app_name: '掘金小册下载器' >> config.yml
-            echo version: 1.0.0 >> config.yml
-          )
+          if [ -f config.template.yml ]; then
+            cp config.template.yml config.yml
+            echo "config.yml 创建成功"
+          else
+            echo "警告: config.template.yml 不存在，将创建空的 config.yml"
+            echo "# 默认配置" > config.yml
+            echo "app_name: '掘金小册下载器'" >> config.yml
+            echo "version: 1.0.0" >> config.yml
+          fi
 
       - name: 更新版本文件
-        shell: cmd
         run: |
-          for /f "tokens=3 delims=/" %%i in ("%GITHUB_REF%") do set VERSION=%%i
-          set VERSION=%VERSION:~1%
-          echo %VERSION% > version.txt
-          if %errorlevel% neq 0 (
-            echo 错误: 更新版本文件失败
-            exit /b 1
-          ) else (
-            echo 版本文件更新成功: %VERSION%
-          )
+          echo ${GITHUB_REF#refs/tags/} > version.txt
 
-      - name: 构建GUI可执行文件
-        shell: cmd
+      - name: 构建可执行文件
         run: |
-          set PYTHONIOENCODING=utf-8
           python scripts/build.py
-          if %errorlevel% neq 0 (
-            echo 错误: 构建GUI可执行文件失败
-            exit /b 1
-          ) else (
-            echo GUI可执行文件构建成功
-          )
 
       - name: 创建发布
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          body: ${{ steps.changelog.outputs.body }}
           files: |
-            dist/掘金小册下载器.exe
+            dist/${{ matrix.output_name }}
           name: 发布版本 ${{ github.ref_name }}
           draft: false
           prerelease: false

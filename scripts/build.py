@@ -6,6 +6,7 @@ import logging
 import yaml
 from typing import List, Dict
 import argparse
+import platform
 
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -14,7 +15,7 @@ logger = logging.getLogger(__name__)
 def load_config(config_path: str) -> Dict:
     """加载配置文件"""
     try:
-        with open(config_path, 'r') as f:
+        with open(config_path, 'r', encoding='utf-8') as f:
             return yaml.safe_load(f)
     except Exception as e:
         logger.error(f"加载配置文件失败: {e}")
@@ -38,24 +39,38 @@ def clean_directories(directories: List[str]):
 def run_pyinstaller(project_root: str, config: Dict):
     """运行 PyInstaller 打包程序"""
     try:
+        system = platform.system()
+        if system == 'Windows':
+            icon_path = os.path.join(project_root, 'resources', 'icon.ico')
+        elif system == 'Darwin':  # macOS
+            icon_path = os.path.join(project_root, 'resources', 'icon.icns')
+        else:  # Linux
+            icon_path = os.path.join(project_root, 'resources', 'icon.png')
+        
         cmd = [
             "pyinstaller",
             "--name=" + config.get('app_name', '掘金小册下载器'),
             "--onefile",
-            f"--icon={os.path.join(project_root, 'resources', 'icon.ico')}",
-            f"--add-data={os.path.join(project_root, 'resources', 'version.txt')}:resources",
-            f"--add-data={os.path.join(project_root, 'config.yml')}:.",
-            f"--add-data={os.path.join(project_root, 'plugins')}:plugins",
-            f"--add-data={os.path.join(project_root, 'src')}:src",
+            f"--icon={icon_path}",
+            f"--add-data={os.path.join(project_root, 'resources', 'version.txt')}{';}' if system == 'Windows' else ':'}resources",
+            f"--add-data={os.path.join(project_root, 'config.yml')}{';}' if system == 'Windows' else ':'}.",
+            f"--add-data={os.path.join(project_root, 'plugins')}{';}' if system == 'Windows' else ':'}plugins",
+            f"--add-data={os.path.join(project_root, 'src')}{';}' if system == 'Windows' else ':'}src",
             "--hidden-import=yaml",
             "--hidden-import=asyncio",
             "--clean",
             "--noupx",
             "--strip",
-            "--uac-admin",
-            "--debug", "all",  # 添加此行以启用完整的调试信息
+            "--debug", "all",
             os.path.join(project_root, "main.py")
         ]
+        
+        if system == 'Windows':
+            cmd.append('--uac-admin')
+        elif system == 'Darwin':  # macOS
+            cmd.append('--windowed')
+        elif system == 'Linux':
+            cmd.append('--add-data=' + os.path.join(project_root, 'resources', 'icon.png') + ':.')
         
         # 添加配置中指定的额外模块
         for module in config.get('extra_modules', []):
@@ -69,9 +84,6 @@ def run_pyinstaller(project_root: str, config: Dict):
             cmd.append('--console')
         else:
             cmd.append('--windowed')
-        
-        # 移除 --disable-windowed-traceback 选项
-        # cmd.append('--disable-windowed-traceback')
         
         subprocess.run(cmd, check=True)
         logger.info("PyInstaller 打包完成")
@@ -90,15 +102,8 @@ def copy_additional_files(project_root: str, config: Dict):
     except Exception as e:
         logger.error(f"复制额外文件时发生错误: {e}")
 
-def run_test(dist_dir: str, app_name: str):
-    try:
-        subprocess.run([os.path.join(dist_dir, app_name)], check=True)
-        logger.info("测试运行成功")
-    except subprocess.CalledProcessError as e:
-        logger.error(f"测试运行失败: {e}")
-
 def validate_project_structure(project_root: str):
-    required_files = ['main.py', 'config.yml', 'resources/icon.ico']
+    required_files = ['main.py', 'config.yml']
     required_dirs = ['src', 'plugins', 'resources']
     
     for file in required_files:
@@ -110,6 +115,19 @@ def validate_project_structure(project_root: str):
         if not os.path.isdir(os.path.join(project_root, dir)):
             logger.error(f"缺少必要目录: {dir}")
             return False
+    
+    # 检查图标文件
+    system = platform.system()
+    if system == 'Windows':
+        icon_file = 'icon.ico'
+    elif system == 'Darwin':
+        icon_file = 'icon.icns'
+    else:  # Linux
+        icon_file = 'icon.png'
+    
+    if not os.path.isfile(os.path.join(project_root, 'resources', icon_file)):
+        logger.error(f"缺少图标文件: {icon_file}")
+        return False
     
     return True
 
@@ -126,11 +144,7 @@ def build_project(config: Dict):
 
     clean_directories(config.get('clean_dirs', ['build', 'dist']))
     run_pyinstaller(project_root, config)
-    # copy_additional_files(project_root, config)
     logger.info("项目构建完成")
-
-    if config.get('run_test', False):
-        run_test(os.path.join(project_root, "dist"), config.get('app_name', '掘金小册下载器'))
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='构建掘金小册下载器')

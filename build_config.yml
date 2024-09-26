@@ -13,3 +13,10 @@ exclude_modules:
 additional_files:
   - 'README.md'
   - 'LICENSE'
+windows:
+  uac_admin: true
+macos:
+  windowed: true
+linux:
+  additional_data:
+    - 'resources/icon.png'
