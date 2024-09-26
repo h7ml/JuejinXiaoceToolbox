@@ -24,16 +24,16 @@ jobs:
           python-version: '3.12'
 
       - name: 安装依赖
-        shell: pwsh
+        shell: cmd
         run: |
-          try {
-            python -m pip install --upgrade pip
-            pip install -r requirements.txt pyinstaller
-            Write-Host "依赖安装成功"
-          } catch {
-            Write-Host "错误: 安装依赖失败 - $_"
-            exit 1
-          }
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt pyinstaller
+          if %errorlevel% neq 0 (
+            echo 错误: 安装依赖失败
+            exit /b 1
+          ) else (
+            echo 依赖安装成功
+          )
 
       - name: 准备构建环境
         shell: cmd
@@ -59,28 +59,29 @@ jobs:
           )
 
       - name: 更新版本文件
-        shell: pwsh
+        shell: cmd
         run: |
-          try {
-            $version = $env:GITHUB_REF -replace 'refs/tags/v', ''
-            Set-Content -Path version.txt -Value $version -Encoding UTF8
-            Write-Host "版本文件更新成功: $version"
-          } catch {
-            Write-Host "错误: 更新版本文件失败 - $_"
-            exit 1
-          }
+          for /f "tokens=3 delims=/" %%i in ("%GITHUB_REF%") do set VERSION=%%i
+          set VERSION=%VERSION:~1%
+          echo %VERSION% > version.txt
+          if %errorlevel% neq 0 (
+            echo 错误: 更新版本文件失败
+            exit /b 1
+          ) else (
+            echo 版本文件更新成功: %VERSION%
+          )
 
       - name: 构建GUI可执行文件
-        shell: pwsh
+        shell: cmd
         run: |
-          try {
-            $env:PYTHONIOENCODING = "utf-8"
-            python scripts/build.py
-            Write-Host "GUI可执行文件构建成功"
-          } catch {
-            Write-Host "错误: 构建GUI可执行文件失败 - $_"
-            exit 1
-          }
+          set PYTHONIOENCODING=utf-8
+          python scripts/build.py
+          if %errorlevel% neq 0 (
+            echo 错误: 构建GUI可执行文件失败
+            exit /b 1
+          ) else (
+            echo GUI可执行文件构建成功
+          )
 
       - name: 生成更新日志
         id: changelog
