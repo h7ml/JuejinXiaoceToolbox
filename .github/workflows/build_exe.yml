@@ -36,30 +36,27 @@ jobs:
           }
 
       - name: 准备构建环境
-        shell: pwsh
+        shell: cmd
         run: |
-          try {
-            Get-ChildItem -Recurse -Include *.py,*.txt,*.yml | ForEach-Object {
-              $content = Get-Content $_.FullName -Raw
-              [System.IO.File]::WriteAllText($_.FullName, $content, [System.Text.Encoding]::UTF8)
-            }
-            Write-Host "文件编码转换完成"
-            
-            if (Test-Path config.template.yml) {
-              Copy-Item -Path config.template.yml -Destination config.yml -Force
-              Write-Host "config.yml 创建成功"
-            } else {
-              Write-Host "警告: config.template.yml 不存在，将创建空的 config.yml"
-              @'
-            # 默认配置
-            app_name: '掘金小册下载器'
-            version: 1.0.0
-            '@ | Out-File -FilePath config.yml -Encoding utf8
-                        }
-                      } catch {
-                        Write-Host "错误: 准备构建环境失败 - $_"
-                        exit 1
-                      }
+          @echo off
+
+          REM 转换文件编码
+          for /R %%F in (*.py *.txt *.yml) do (
+            type "%%F" > "%%F.tmp"
+            move /Y "%%F.tmp" "%%F" > nul
+          )
+          echo 文件编码转换完成
+
+          REM 创建或复制 config.yml
+          if exist config.template.yml (
+            copy /Y config.template.yml config.yml
+            echo config.yml 创建成功
+          ) else (
+            echo 警告: config.template.yml 不存在，将创建空的 config.yml
+            echo # 默认配置 > config.yml
+            echo app_name: '掘金小册下载器' >> config.yml
+            echo version: 1.0.0 >> config.yml
+          )
 
       - name: 更新版本文件
         shell: pwsh
