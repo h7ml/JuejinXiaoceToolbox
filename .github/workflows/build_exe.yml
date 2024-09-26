@@ -7,8 +7,7 @@ on:
 
 permissions:
   contents: write
-  actions: read
-  packages: write
+  discussions: write
 
 jobs:
   build:
@@ -48,16 +47,45 @@ jobs:
       - name: Build GUI EXE
         run: python scripts/build.py
 
-      - name: Release
-        uses: softprops/action-gh-release@v1
+      # - name: Release
+      #   uses: softprops/action-gh-release@v1
+      #   with:
+      #     files: |
+      #       dist/
+      #       README.md
+      #       LICENSE
+      #       version.txt
+      #     name: Release ${{ github.ref }}
+      #     draft: false
+      #     prerelease: false
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
+      - name: 生成提交信息
+        id: commit_message
+        run: |
+          echo "message=feat(release): 发布新版本 ${{ steps.get_version.outputs.VERSION }}" >> $GITHUB_OUTPUT
+
+      - name: 提交更改
+        if: steps.check_changes.outputs.changes_detected == 'true'
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add .
+          git commit -m "${{ steps.commit_message.outputs.message }}"
+
+      - name: 部署到 release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
         with:
+          body_path: CHANGELOG.md
+          draft: false
+          prerelease: false
           files: |
             dist/
             README.md
             LICENSE
             version.txt
-          name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
+          name: 发布版本 ${{ steps.get_version.outputs.VERSION }}
+          discussion_category_name: 公告
+          generate_release_notes: true
+          token: ${{ secrets.GITHUB_TOKEN }}
