@@ -24,6 +24,7 @@ jobs:
           python-version: '3.12'
 
       - name: 安装依赖
+        shell: pwsh
         run: |
           try {
             python -m pip install --upgrade pip
@@ -34,34 +35,34 @@ jobs:
             exit 1
           }
 
-      - name: 准备构建环境
-        run: |
-          try {
-            # 确保所有文本文件使用UTF-8编码
-            Get-ChildItem -Recurse -Include *.py,*.txt,*.yml | ForEach-Object {
-              $content = Get-Content $_.FullName -Encoding UTF8 -ErrorAction Stop
-              Set-Content $_.FullName -Encoding UTF8 -Value $content -ErrorAction Stop
-            }
-            Write-Host "文件编码转换完成"
-            
-            # 复制 config.template.yml 为 config.yml
-            if (Test-Path config.template.yml) {
-              Copy-Item -Path config.template.yml -Destination config.yml -Force
-              Write-Host "config.yml 创建成功"
-            } else {
-              Write-Host "警告: config.template.yml 不存在，将创建空的 config.yml"
-              @"
+          - name: 准备构建环境
+          shell: pwsh
+          run: |
+            try {
+              Get-ChildItem -Recurse -Include *.py,*.txt,*.yml | ForEach-Object {
+                $content = Get-Content $_.FullName -Raw
+                [System.IO.File]::WriteAllText($_.FullName, $content, [System.Text.Encoding]::UTF8)
+              }
+              Write-Host "文件编码转换完成"
+              
+              if (Test-Path config.template.yml) {
+                Copy-Item -Path config.template.yml -Destination config.yml -Force
+                Write-Host "config.yml 创建成功"
+              } else {
+                Write-Host "警告: config.template.yml 不存在，将创建空的 config.yml"
+                @'
               # 默认配置
               app_name: '掘金小册下载器'
               version: 1.0.0
-              "@ | Set-Content config.yml -Encoding UTF8
-            }
-          } catch {
-            Write-Host "错误: 准备构建环境失败 - $_"
-            exit 1
-          }
+              '@ | Out-File -FilePath config.yml -Encoding utf8
+                          }
+                        } catch {
+                          Write-Host "错误: 准备构建环境失败 - $_"
+                          exit 1
+                        }
 
       - name: 更新版本文件
+        shell: pwsh
         run: |
           try {
             $version = $env:GITHUB_REF -replace 'refs/tags/v', ''
@@ -73,6 +74,7 @@ jobs:
           }
 
       - name: 构建GUI可执行文件
+        shell: pwsh
         run: |
           try {
             $env:PYTHONIOENCODING = "utf-8"
