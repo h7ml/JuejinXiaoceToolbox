@@ -2,7 +2,7 @@
 # 请复制此文件为 config.yml 并填写您的个人信息
 
 # 掘金登录后的 Cookie（必填）
-cookie: 'your_cookie_here'
+cookie: ''
 
 # 保存目录（必填）
 save_dir: './output'
@@ -18,8 +18,7 @@ save_images_locally: false
 
 # 要下载的小册 ID 列表（如果 fetch_book_ids_online 为 false，则必填）
 book_ids:
-  - 'your_book_id_1'
-  - 'your_book_id_2'
+  - ''
 
 # 存储相关配置
 storage:
@@ -34,7 +33,7 @@ resume_download: false
 should_clear_log_folder: false
 
 # 保存格式（可选：markdown, pdf, html, docx）
-save_format: 'markdown'
+save_format: 'html'
 
 # 是否将下载的内容压缩为 ZIP 文件（true/false）
 compress_to_zip: false

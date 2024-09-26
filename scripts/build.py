@@ -42,7 +42,6 @@ def run_pyinstaller(project_root: str, config: Dict):
             "pyinstaller",
             "--name=" + config.get('app_name', '掘金小册下载器'),
             "--onefile",
-            "--windowed",
             f"--icon={os.path.join(project_root, 'resources', 'icon.ico')}",
             f"--add-data={os.path.join(project_root, 'resources', 'version.txt')}:resources",
             f"--add-data={os.path.join(project_root, 'config.yml')}:.",
@@ -50,6 +49,12 @@ def run_pyinstaller(project_root: str, config: Dict):
             f"--add-data={os.path.join(project_root, 'src')}:src",
             "--hidden-import=yaml",
             "--hidden-import=asyncio",
+            "--clean",
+            "--noupx",
+            "--strip",
+            "--uac-admin",
+            "--debug", "all",  # 添加此行以启用完整的调试信息
+            os.path.join(project_root, "main.py")
         ]
         
         # 添加配置中指定的额外模块
@@ -60,18 +65,13 @@ def run_pyinstaller(project_root: str, config: Dict):
         for module in config.get('exclude_modules', []):
             cmd.append(f"--exclude-module={module}")
         
-        cmd.extend([
-            "--clean",
-            "--noupx",
-            "--strip",
-            "--disable-windowed-traceback",
-            "--uac-admin",
-            os.path.join(project_root, "main.py")
-        ])
-        
         if config.get('console', False):
-            cmd.remove('--windowed')
             cmd.append('--console')
+        else:
+            cmd.append('--windowed')
+        
+        # 移除 --disable-windowed-traceback 选项
+        # cmd.append('--disable-windowed-traceback')
         
         subprocess.run(cmd, check=True)
         logger.info("PyInstaller 打包完成")
@@ -126,7 +126,7 @@ def build_project(config: Dict):
 
     clean_directories(config.get('clean_dirs', ['build', 'dist']))
     run_pyinstaller(project_root, config)
-    copy_additional_files(project_root, config)
+    # copy_additional_files(project_root, config)
     logger.info("项目构建完成")
 
     if config.get('run_test', False):

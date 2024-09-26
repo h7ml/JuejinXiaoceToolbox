@@ -402,7 +402,8 @@ class MainWindow(QMainWindow):
             self.toggle_book_id_input(self.single_book_radio.isChecked())
             self.statusBar.showMessage("配置已加载", 3000)
         except Exception as e:
-            QMessageBox.warning(self, "警告", f"加载配置时发生错误: {str(e)}\n将使用默认设置。")
+            print(f"加载配置时发生错误: {str(e)}")
+            # QMessageBox.warning(self, "警告", f"加载配置时发生错误: {str(e)}\n将使用默认设置。")
 
     def save_config(self, config):
         try:
