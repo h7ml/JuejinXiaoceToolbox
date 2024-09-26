@@ -1,4 +1,4 @@
-name: Build GUI EXE
+name: 构建并发布GUI可执行文件
 
 on:
   push:
@@ -10,82 +10,97 @@ permissions:
   discussions: write
 
 jobs:
-  build:
+  build-and-release:
     runs-on: windows-latest
-    strategy:
-      matrix:
-        python-version: ['3.12']
     steps:
-      - uses: actions/checkout@v3
+      - name: 检出代码
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      - name: Set up Python ${{ matrix.python-version }}
+      - name: 设置 Python
         uses: actions/setup-python@v4
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: '3.12'
 
-      - name: Get version from tag
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
-        shell: bash
-
-      - name: Cache pip packages
-        uses: actions/cache@v3
-        with:
-          path: ~\AppData\Local\pip\Cache
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      - name: Install dependencies
+      - name: 安装依赖
         run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt pyinstaller
+          try {
+            python -m pip install --upgrade pip
+            pip install -r requirements.txt pyinstaller
+            Write-Host "依赖安装成功"
+          } catch {
+            Write-Host "错误: 安装依赖失败 - $_"
+            exit 1
+          }
 
-      - name: Update version.txt
-        run: echo "${{ steps.get_version.outputs.VERSION }}" > version.txt
-
-      - name: Build GUI EXE
-        run: python scripts/build.py
-
-      # - name: Release
-      #   uses: softprops/action-gh-release@v1
-      #   with:
-      #     files: |
-      #       dist/
-      #       README.md
-      #       LICENSE
-      #       version.txt
-      #     name: Release ${{ github.ref }}
-      #     draft: false
-      #     prerelease: false
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.ACTION_SECRET }}
-      - name: 生成提交信息
-        id: commit_message
+      - name: 准备构建环境
         run: |
-          echo "message=feat(release): 发布新版本 ${{ steps.get_version.outputs.VERSION }}" >> $GITHUB_OUTPUT
+          try {
+            # 确保所有文本文件使用UTF-8编码
+            Get-ChildItem -Recurse -Include *.py,*.txt,*.yml | ForEach-Object {
+              $content = Get-Content $_.FullName -Encoding UTF8 -ErrorAction Stop
+              Set-Content $_.FullName -Encoding UTF8 -Value $content -ErrorAction Stop
+            }
+            Write-Host "文件编码转换完成"
+            
+            # 复制 config.template.yml 为 config.yml
+            if (Test-Path config.template.yml) {
+              Copy-Item -Path config.template.yml -Destination config.yml -Force
+              Write-Host "config.yml 创建成功"
+            } else {
+              Write-Host "警告: config.template.yml 不存在，将创建空的 config.yml"
+              @"
+              # 默认配置
+              app_name: '掘金小册下载器'
+              version: 1.0.0
+              "@ | Set-Content config.yml -Encoding UTF8
+            }
+          } catch {
+            Write-Host "错误: 准备构建环境失败 - $_"
+            exit 1
+          }
 
-      - name: 提交更改
-        if: steps.check_changes.outputs.changes_detected == 'true'
+      - name: 更新版本文件
         run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          git add .
-          git commit -m "${{ steps.commit_message.outputs.message }}"
+          try {
+            $version = $env:GITHUB_REF -replace 'refs/tags/v', ''
+            Set-Content -Path version.txt -Value $version -Encoding UTF8
+            Write-Host "版本文件更新成功: $version"
+          } catch {
+            Write-Host "错误: 更新版本文件失败 - $_"
+            exit 1
+          }
 
-      - name: 部署到 release
-        uses: softprops/action-gh-release@v2
+      - name: 构建GUI可执行文件
+        run: |
+          try {
+            $env:PYTHONIOENCODING = "utf-8"
+            python scripts/build.py
+            Write-Host "GUI可执行文件构建成功"
+          } catch {
+            Write-Host "错误: 构建GUI可执行文件失败 - $_"
+            exit 1
+          }
+
+      - name: 生成更新日志
+        id: changelog
+        uses: release-drafter/release-drafter@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 创建发布
+        uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          body_path: CHANGELOG.md
-          draft: false
-          prerelease: false
+          body: ${{ steps.changelog.outputs.body }}
           files: |
             dist/
             README.md
             LICENSE
             version.txt
-          name: 发布版本 ${{ steps.get_version.outputs.VERSION }}
-          discussion_category_name: 公告
-          generate_release_notes: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          name: 发布版本 ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
