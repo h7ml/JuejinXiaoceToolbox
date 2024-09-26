@@ -1,8 +1,26 @@
 # 掘金小册下载器
 
+[![构建并发布多平台可执行文件](https://github.com/h7ml/JuejinXiaoceToolbox/actions/workflows/build_exe.yml/badge.svg)](https://github.com/h7ml/JuejinXiaoceToolbox/actions/workflows/build_exe.yml)
+[![爬取掘金小册并上传结果](https://github.com/h7ml/JuejinXiaoceToolbox/actions/workflows/scrape-and-upload.yml/badge.svg)](https://github.com/h7ml/JuejinXiaoceToolbox/actions/workflows/scrape-and-upload.yml)
+
 ## 项目简介
 
 掘金小册下载器是一个用 Python 编写的工具，用于将掘金平台上的小册内容下载并转换为 Markdown 格式。这个工具可以帮助用户离线阅读和管理他们购买的掘金小册内容。
+
+## 下载
+
+- 最新版本：[v1.1.1](https://github.com/h7ml/JuejinXiaoceToolbox/releases/tag/v1.1.1)
+- 所有版本：[查看所有版本](https://github.com/h7ml/JuejinXiaoceToolbox/releases)
+
+您可以根据自己的操作系统选择相应的可执行文件：
+
+- Windows: `掘金小册下载器.exe`
+- macOS: `掘金小册下载器`
+- Linux: `掘金小册下载器`
+
+## 掘金小册列表
+
+您可以在[这里](https://juejin-xiaoce-toolbox.vercel.app/)查看最新的掘金小册列表。
 
 ## 主要功能
 
@@ -79,31 +97,34 @@ python main.py
 ```
 JuejinXiaoceToolbox/
 ├── .github/
-│ └── workflows/ # GitHub Actions 工作流配置
-│ ├── build_exe.yml # 构建可执行文件的工作流
-│ └── scrape-and-upload.yml # 爬取和上传数据的工作流
+│   └── workflows/
+│       ├── build_exe.yml        # 多平台构建和发布工作流
+│       └── scrape-and-upload.yml # 爬取和上传数据的工作流
 ├── plugins/
-│ └── storage_plugin.py # 存储插件，用于数据持久化
+│   └── storage_plugin.py        # 存储插件，用于数据持久化
 ├── resources/
-│ └── version.txt # 存储项目版本信息
+│   ├── version.txt              # 存储项目版本信息
+│   ├── icon.ico                 # Windows 平台图标
+│   ├── icon.icns                # macOS 平台图标
+│   └── icon.png                 # Linux 平台图标
 ├── scripts/
-│ └── build.py # 项目构建脚本
-├── src/ # 源代码目录
-│ ├── init.py
-│ ├── gui.py # 图形用户界面实现
-│ ├── juejin_downloader.py # 掘金小册下载器核心逻辑
-│ └── utils.py # 实用工具函数
-├── utils/ # 通用工具目录
-│ ├── init.py
-│ ├── config.py # 配置文件处理
-│ └── logger.py # 日志处理
-├── .gitignore # Git 忽略文件配置
-├── LICENSE # 项目许可证
-├── README.md # 项目说明文档
-├── build_config.yml # 构建配置文件
-├── config.template.yml # 配置文件模板
-├── main.py # 主程序入口
-└── requirements.txt # 项目依赖列表
+│   └── build.py                 # 多平台构建脚本
+├── src/
+│   ├── __init__.py
+│   ├── gui.py                   # 图形用户界面实现
+│   ├── juejin_downloader.py     # 掘金小册下载器核心逻辑
+│   └── utils.py                 # 实用工具函数
+├── utils/
+│   ├── __init__.py
+│   ├── config.py                # 配置文件处理
+│   └── logger.py                # 日志处理
+├── .gitignore                   # Git 忽略文件配置
+├── LICENSE                      # 项目许可证
+├── README.md                    # 项目说明文档
+├── build_config.yml             # 构建配置文件
+├── config.template.yml          # 配置文件模板
+├── main.py                      # 主程序入口
+└── requirements.txt             # 项目依赖列表
 ```
 
 ## 开发
