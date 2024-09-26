@@ -150,7 +150,7 @@ def build_project(config: Dict):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='构建掘金小册下载器')
     parser.add_argument('--config', default='build_config.yml', help='构建配置文件路径')
-    parser.add_argument('--output-name', help='输出文件名')
+    parser.add_argument('--output-name', required=True, help='输出文件名')
     args = parser.parse_args()
 
     config = load_config(args.config)
