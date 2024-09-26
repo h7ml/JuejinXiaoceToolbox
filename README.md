@@ -9,7 +9,7 @@
 
 ## 下载
 
-- 最新版本：[v1.1.1](https://github.com/h7ml/JuejinXiaoceToolbox/releases/tag/v1.1.1)
+- 最新版本：[v1.1.2](https://github.com/h7ml/JuejinXiaoceToolbox/releases/tag/v1.1.2)
 - 所有版本：[查看所有版本](https://github.com/h7ml/JuejinXiaoceToolbox/releases)
 
 您可以根据自己的操作系统选择相应的可执行文件：
