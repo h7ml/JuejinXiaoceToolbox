@@ -7,6 +7,7 @@ import yaml
 from typing import List, Dict
 import argparse
 import platform
+import PyInstaller.__main__
 
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -149,7 +150,14 @@ def build_project(config: Dict):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='构建掘金小册下载器')
     parser.add_argument('--config', default='build_config.yml', help='构建配置文件路径')
+    parser.add_argument('--output-name', help='输出文件名')
     args = parser.parse_args()
 
     config = load_config(args.config)
-    build_project(config)
+    output_name = args.output_name or config.get('output_name', '掘金小册下载器')
+    PyInstaller.__main__.run([
+        'main.py',
+        '--name=' + output_name,
+        '--onefile',
+        # ... 其他 PyInstaller 参数 ...
+    ])
