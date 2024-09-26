@@ -16,11 +16,11 @@ jobs:
         os: [windows-latest, macos-latest, ubuntu-latest]
         include:
           - os: windows-latest
-            output_name: 掘金小册下载器.exe
+            output_name: 掘金小册下载器-Windows.exe
           - os: macos-latest
-            output_name: 掘金小册下载器
+            output_name: 掘金小册下载器-macOS
           - os: ubuntu-latest
-            output_name: 掘金小册下载器
+            output_name: 掘金小册下载器-Linux
 
     runs-on: ${{ matrix.os }}
     steps:
@@ -53,7 +53,25 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt pyinstaller
 
-      - name: 准备构建环境
+      - name: 准备构建环境 (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          if (Test-Path config.template.yml) {
+            Copy-Item config.template.yml -Destination config.yml
+            Write-Output "config.yml 创建成功"
+          } else {
+            Write-Output "警告: config.template.yml 不存在，将创建空的 config.yml"
+            @"
+# 默认配置
+app_name: '掘金小册下载器'
+version: 1.0.0
+"@ | Out-File -FilePath config.yml -Encoding utf8
+          }
+
+      - name: 准备构建环境 (macOS/Linux)
+        if: matrix.os != 'windows-latest'
+        shell: bash
         run: |
           if [ -f config.template.yml ]; then
             cp config.template.yml config.yml
@@ -65,13 +83,37 @@ jobs:
             echo "version: 1.0.0" >> config.yml
           fi
 
-      - name: 更新版本文件
+      - name: 更新版本文件 (Windows)
+        if: matrix.os == 'windows-latest'
+        shell: pwsh
+        run: |
+          $env:GITHUB_REF -replace 'refs/tags/', '' | Out-File -FilePath version.txt -Encoding utf8
+
+      - name: 更新版本文件 (macOS/Linux)
+        if: matrix.os != 'windows-latest'
+        shell: bash
         run: |
           echo ${GITHUB_REF#refs/tags/} > version.txt
 
       - name: 构建可执行文件
         run: |
-          python scripts/build.py
+          python scripts/build.py --output-name ${{ matrix.output_name }}
+
+      - name: 更新 README.md 中的版本信息
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          NEW_VERSION=${GITHUB_REF#refs/tags/}
+          sed -i "s|最新版本：\[.*\]|最新版本：[$NEW_VERSION]|g" README.md
+          sed -i "s|(https://github.com/h7ml/JuejinXiaoceToolbox/releases/tag/v.*)|(https://github.com/h7ml/JuejinXiaoceToolbox/releases/tag/$NEW_VERSION)|g" README.md
+
+      - name: 提交 README.md 更新
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add README.md
+          git commit -m "docs: 更新 README.md 中的版本信息到 ${GITHUB_REF#refs/tags/}" || echo "No changes to commit"
+          git push
 
       - name: 创建发布
         uses: softprops/action-gh-release@v1

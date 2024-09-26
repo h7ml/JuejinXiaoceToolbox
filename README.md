@@ -14,9 +14,9 @@
 
 您可以根据自己的操作系统选择相应的可执行文件：
 
-- Windows: `掘金小册下载器.exe`
-- macOS: `掘金小册下载器`
-- Linux: `掘金小册下载器`
+- Windows: `掘金小册下载器-Windows.exe`
+- macOS: `掘金小册下载器-macOS`
+- Linux: `掘金小册下载器-Linux`
 
 ## 掘金小册列表
 
