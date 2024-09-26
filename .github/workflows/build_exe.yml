@@ -23,6 +23,20 @@ jobs:
         with:
           python-version: '3.12'
 
+      - name: 缓存 pip 依赖
+        uses: actions/cache@v3
+        with:
+          path: ~\AppData\Local\pip\Cache
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
+      - name: 缓存 PyInstaller
+        uses: actions/cache@v3
+        with:
+          path: ~\AppData\Local\PyInstaller
+          key: ${{ runner.os }}-pyinstaller-${{ hashFiles('**/requirements.txt') }}
+
       - name: 安装依赖
         shell: cmd
         run: |
