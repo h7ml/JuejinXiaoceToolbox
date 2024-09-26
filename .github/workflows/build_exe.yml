@@ -102,7 +102,17 @@ jobs:
 
       - name: 列出构建结果
         run: |
-          ls -R
+          echo "构建结果："
+          if [ -d "dist" ]; then
+            echo "dist 目录内容："
+            ls -l dist
+          else
+            echo "警告：dist 目录不存在"
+          fi
+          if [ ! -f "dist/${{ matrix.output_name }}" ]; then
+            echo "错误：预期的输出文件 ${{ matrix.output_name }} 不存在"
+            exit 1
+          fi
         shell: bash
 
       - name: 更新 README.md 中的版本信息
@@ -125,10 +135,10 @@ jobs:
 
       - name: 创建发布
         uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/') && success()
+        if: startsWith(github.ref, 'refs/tags/')
         with:
           files: |
-            ${{ matrix.output_name }}
+            dist/${{ matrix.output_name }}
           name: 发布版本 ${{ github.ref_name }}
           draft: false
           prerelease: false
