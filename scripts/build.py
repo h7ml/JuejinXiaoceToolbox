@@ -7,7 +7,6 @@ import yaml
 from typing import List, Dict
 import argparse
 import platform
-import PyInstaller.__main__
 
 # 配置日志
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -37,20 +36,15 @@ def clean_directories(directories: List[str]):
             except Exception as e:
                 logger.error(f"清理目录 {dir_name} 失败: {e}")
 
-def run_pyinstaller(project_root: str, config: Dict):
+def run_pyinstaller(project_root: str, config: Dict, output_name: str):
     """运行 PyInstaller 打包程序"""
     try:
         system = platform.system()
-        if system == 'Windows':
-            icon_path = os.path.join(project_root, 'resources', 'icon.ico')
-        elif system == 'Darwin':  # macOS
-            icon_path = os.path.join(project_root, 'resources', 'icon.icns')
-        else:  # Linux
-            icon_path = os.path.join(project_root, 'resources', 'icon.png')
+        icon_path = os.path.join(project_root, 'resources', 'icon.ico' if system == 'Windows' else 'icon.icns' if system == 'Darwin' else 'icon.png')
         
         cmd = [
             "pyinstaller",
-            "--name=" + config.get('app_name', '掘金小册下载器'),
+            f"--name={output_name}",
             "--onefile",
             f"--icon={icon_path}",
             f"--add-data={os.path.join(project_root, 'resources', 'version.txt')}{';}' if system == 'Windows' else ':'}resources",
@@ -68,23 +62,18 @@ def run_pyinstaller(project_root: str, config: Dict):
         
         if system == 'Windows':
             cmd.append('--uac-admin')
-        elif system == 'Darwin':  # macOS
+        elif system == 'Darwin':
             cmd.append('--windowed')
         elif system == 'Linux':
-            cmd.append('--add-data=' + os.path.join(project_root, 'resources', 'icon.png') + ':.')
+            cmd.append(f"--add-data={os.path.join(project_root, 'resources', 'icon.png')}:.")
         
-        # 添加配置中指定的额外模块
         for module in config.get('extra_modules', []):
             cmd.append(f"--collect-submodules={module}")
         
-        # 添加配置中指定的排除模块
         for module in config.get('exclude_modules', []):
             cmd.append(f"--exclude-module={module}")
         
-        if config.get('console', False):
-            cmd.append('--console')
-        else:
-            cmd.append('--windowed')
+        cmd.append('--console' if config.get('console', False) else '--windowed')
         
         subprocess.run(cmd, check=True)
         logger.info("PyInstaller 打包完成")
@@ -92,16 +81,6 @@ def run_pyinstaller(project_root: str, config: Dict):
         logger.error(f"PyInstaller 打包失败: {e}")
     except Exception as e:
         logger.error(f"运行 PyInstaller 时发生错误: {e}")
-
-def copy_additional_files(project_root: str, config: Dict):
-    """复制额外的文件到 dist 目录"""
-    dist_dir = os.path.join(project_root, "dist", config.get('app_name', '掘金小册下载器'))
-    try:
-        for file in config.get('additional_files', ['README.md', 'LICENSE']):
-            shutil.copy(os.path.join(project_root, file), dist_dir)
-            logger.info(f"已复制文件: {file}")
-    except Exception as e:
-        logger.error(f"复制额外文件时发生错误: {e}")
 
 def validate_project_structure(project_root: str):
     required_files = ['main.py', 'config.yml']
@@ -117,35 +96,12 @@ def validate_project_structure(project_root: str):
             logger.error(f"缺少必要目录: {dir}")
             return False
     
-    # 检查图标文件
-    system = platform.system()
-    if system == 'Windows':
-        icon_file = 'icon.ico'
-    elif system == 'Darwin':
-        icon_file = 'icon.icns'
-    else:  # Linux
-        icon_file = 'icon.png'
-    
+    icon_file = 'icon.ico' if platform.system() == 'Windows' else 'icon.icns' if platform.system() == 'Darwin' else 'icon.png'
     if not os.path.isfile(os.path.join(project_root, 'resources', icon_file)):
         logger.error(f"缺少图标文件: {icon_file}")
         return False
     
     return True
-
-def build_project(config: Dict):
-    """项目构建主函数"""
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(script_dir)
-    os.chdir(project_root)
-
-    logger.info("开始构建项目")
-    if not validate_project_structure(project_root):
-        logger.error("项目结构验证失败，终止构建")
-        return
-
-    clean_directories(config.get('clean_dirs', ['build', 'dist']))
-    run_pyinstaller(project_root, config)
-    logger.info("项目构建完成")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='构建掘金小册下载器')
@@ -154,10 +110,11 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     config = load_config(args.config)
-    output_name = args.output_name or config.get('output_name', '掘金小册下载器')
-    PyInstaller.__main__.run([
-        'main.py',
-        '--name=' + output_name,
-        '--onefile',
-        # ... 其他 PyInstaller 参数 ...
-    ])
+    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+    if validate_project_structure(project_root):
+        clean_directories(config.get('clean_dirs', ['build', 'dist']))
+        run_pyinstaller(project_root, config, args.output_name)
+        logger.info("项目构建完成")
+    else:
+        logger.error("项目结构验证失败，终止构建")

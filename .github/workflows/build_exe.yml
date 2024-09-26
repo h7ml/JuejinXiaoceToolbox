@@ -97,7 +97,8 @@ jobs:
 
       - name: 构建可执行文件
         run: |
-          python scripts/build.py --config build_config.yml --output-name ${{ matrix.output_name }}
+          echo "构建文件名: ${{ matrix.output_name }}"
+          python scripts/build.py --config build_config.yml --output-name "${{ matrix.output_name }}"
         continue-on-error: true
 
       - name: 列出构建结果
