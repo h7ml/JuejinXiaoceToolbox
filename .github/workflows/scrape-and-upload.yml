@@ -1,13 +1,8 @@
 name: 爬取掘金小册并上传结果
 
 on:
-  schedule:
-    - cron: '0 6 * * *'
   workflow_dispatch:
     inputs:
-      sessionid:
-        description: '掘金 sessionid'
-        required: true
       cookie:
         description: '掘金 cookie'
         required: true
