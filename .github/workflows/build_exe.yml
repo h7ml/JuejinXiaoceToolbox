@@ -55,19 +55,17 @@ jobs:
 
       - name: 准备构建环境 (Windows)
         if: matrix.os == 'windows-latest'
-        shell: pwsh
+        shell: cmd
         run: |
-          if (Test-Path config.template.yml) {
-            Copy-Item config.template.yml -Destination config.yml
-            Write-Output "config.yml 创建成功"
-          } else {
-            Write-Output "警告: config.template.yml 不存在，将创建空的 config.yml"
-            @"
-# 默认配置
-app_name: '掘金小册下载器'
-version: 1.0.0
-"@ | Out-File -FilePath config.yml -Encoding utf8
-          }
+          if exist config.template.yml (
+            copy config.template.yml config.yml
+            echo config.yml 创建成功
+          ) else (
+            echo 警告: config.template.yml 不存在，将创建空的 config.yml
+            echo # 默认配置 > config.yml
+            echo app_name: '掘金小册下载器' >> config.yml
+            echo version: 1.0.0 >> config.yml
+          )
 
       - name: 准备构建环境 (macOS/Linux)
         if: matrix.os != 'windows-latest'
@@ -85,9 +83,9 @@ version: 1.0.0
 
       - name: 更新版本文件 (Windows)
         if: matrix.os == 'windows-latest'
-        shell: pwsh
+        shell: cmd
         run: |
-          $env:GITHUB_REF -replace 'refs/tags/', '' | Out-File -FilePath version.txt -Encoding utf8
+          echo %GITHUB_REF:refs/tags/=% > version.txt
 
       - name: 更新版本文件 (macOS/Linux)
         if: matrix.os != 'windows-latest'
