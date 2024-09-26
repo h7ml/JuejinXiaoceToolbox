@@ -165,7 +165,3 @@ python scripts/build.py --config custom_build_config.yml
 如果您有任何问题或建议，请通过以下方式联系我们：
 
 - 项目 Issues: [https://github.com/h7ml/JuejinXiaoceToolbox/issues](https://github.com/h7ml/JuejinXiaoceToolbox/issues)
-
-## 致谢
-
-感谢所有为这个项目做出贡献的开发者和用户。
